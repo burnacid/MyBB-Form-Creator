@@ -5,7 +5,7 @@ if (!defined('IN_MYBB'))
 
 //HOOKS
 if (defined('IN_ADMINCP')) {
-    $plugins->add_hook('admin_config_menu', create_function('&$args', 'global $lang; $args[] = array(\'id\' => \'formcreator\', \'title\' => \'Form Creator\', \'link\' => \'index.php?module=config-formcreator\');'));
+    
 } else {
 
 }
@@ -51,7 +51,7 @@ function formcreator_install()
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");
     }
-    
+
     if (!$db->table_exists('fc_fields')) {
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_fields` (
           `fieldid` int(11) NOT NULL AUTO_INCREMENT,
@@ -104,11 +104,19 @@ function formcreator_uninstall()
     }
 }
 
+$plugins->add_hook('admin_config_menu', 'formcreator_admin_config_menu');
+function formcreator_admin_config_menu(&$sub_menu)
+{
+    $sub_menu[] = array(
+        'id' => 'formcreator',
+        'title' => 'Form Creator',
+        'link' => 'index.php?module=config-formcreator');
+}
 
-$plugins->add_hook('admin_tools_permissions', 'formcreator_admin_tools_permissions');
-function formcreator_admin_tools_permissions(&$admin_permissions)
-{    
-    $admin_permissions['formcreator'] = "Can edit forms (Form Creator)?";
+$plugins->add_hook('admin_config_permissions', 'formcreator_admin_config_permissions');
+function formcreator_admin_config_permissions(&$admin_permissions)
+{
+    $admin_permissions['formcreator'] = "Form Creator: Can edit forms?";
 }
 
 $plugins->add_hook('admin_config_action_handler', 'formcreator_admin_config_action_handler');
