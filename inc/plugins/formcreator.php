@@ -42,11 +42,12 @@ function formcreator_install()
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_forms` (
           `formid` int(11) NOT NULL AUTO_INCREMENT,
           `name` varchar(255) NOT NULL,
-          `gid` text NOT NULL,
+          `allowedgid` text NOT NULL,
           `active` tinyint(1) NOT NULL,
           `pmusers` varchar(255) NOT NULL,
           `pmgroups` varchar(255) NOT NULL,
           `mail` text NOT NULL,
+          `fid` int(11) NOT NULL,
           PRIMARY KEY (`formid`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");

@@ -4,11 +4,12 @@ class formcreator
 {
     public $formid;
     public $name;
-    public $gid;
+    public $allowedgid;
     public $active;
     public $pmusers;
     public $pmgroups;
     public $mail;
+    public $fid;
     
     public static $types = array(
         0 => "Textbox (single line)",
@@ -71,10 +72,11 @@ class formcreator
 
         $this->formid = intval($data['formid']);
         $this->name = $db->escape_string($data['name']);
-        $this->gid = $db->escape_string($data['gid']);
+        $this->allowedgid = $db->escape_string($data['allowedgid']);
         $this->active = intval($data['active']);
         $this->pmusers = $db->escape_string($data['pmusers']);
         $this->pmgroups = $db->escape_string($data['pmgroups']);
+        $this->fid = intval($data['fid']);
         $this->mail = $db->escape_string($data['mail']);
     }
 
@@ -85,10 +87,11 @@ class formcreator
         }
 
         $data['name'] = $this->name;
-        $data['gid'] = $this->gid;
+        $data['allowedgid'] = $this->allowedgid;
         $data['active'] = $this->active;
         $data['pmusers'] = $this->pmusers;
         $data['pmgroups'] = $this->pmgroups;
+        $data['fid'] = $this->fid;
         $data['mail'] = $this->mail;
 
         return $data;
