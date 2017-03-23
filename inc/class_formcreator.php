@@ -10,7 +10,9 @@ class formcreator
     public $pmgroups;
     public $mail;
     public $fid;
-    
+
+    private $error;
+
     public static $types = array(
         0 => "Textbox (single line)",
         1 => "Textarea (multi line)",
@@ -47,6 +49,11 @@ class formcreator
     {
         global $db;
 
+        $this->allowedgid = implode(",", $this->allowedgid);
+        $this->pmgroups = implode(",", $this->pmgroups);
+
+        $this->escape_data();
+
         $result = $db->insert_query("fc_forms", $this->get_data());
         if ($result) {
             $this->formid = $result;
@@ -66,18 +73,30 @@ class formcreator
         return $result;
     }
 
-    public function load_data($data)
+    public function escape_data()
     {
         global $db;
+        
+        $this->formid = intval($this->formid);
+        $this->name = $db->escape_string($this->name);
+        $this->allowedgid = $db->escape_string($this->allowedgid);
+        $this->active = intval($this->active);
+        $this->pmusers = $db->escape_string($this->pmusers);
+        $this->pmgroups = $db->escape_string($this->pmgroups);
+        $this->fid = intval($this->fid);
+        $this->mail = $db->escape_string($this->mail);
+    }
 
-        $this->formid = intval($data['formid']);
-        $this->name = $db->escape_string($data['name']);
-        $this->allowedgid = $db->escape_string($data['allowedgid']);
-        $this->active = intval($data['active']);
-        $this->pmusers = $db->escape_string($data['pmusers']);
-        $this->pmgroups = $db->escape_string($data['pmgroups']);
-        $this->fid = intval($data['fid']);
-        $this->mail = $db->escape_string($data['mail']);
+    public function load_data($data)
+    {
+        $this->formid = $data['formid'];
+        $this->name = $data['name'];
+        $this->allowedgid = $data['allowedgid'];
+        $this->active = $data['active'];
+        $this->pmusers = $data['pmusers'];
+        $this->pmgroups = $data['pmgroups'];
+        $this->fid = $data['fid'];
+        $this->mail = $data['mail'];
     }
 
     public function get_data()
@@ -97,6 +116,28 @@ class formcreator
         return $data;
     }
 
+    public function clear_error()
+    {
+        $this->error = "";
+    }
+
+    public function is_error()
+    {
+        if (empty($this->error)) {
+            return false;
+        } else {
+            return $this->error;
+        }
+    }
+
+    public function add_error($string)
+    {
+        if ($this->error == "") {
+            $this->error = $string;
+        } else {
+            $this->error .= "<br />" . $string;
+        }
+    }
 
 }
 

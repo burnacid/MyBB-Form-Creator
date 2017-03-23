@@ -1,6 +1,9 @@
 <?php
 
+require_once MYBB_ROOT . "inc/class_formcreator.php";
+
 $page->add_breadcrumb_item("Form Creator", "index.php?module=config-formcreator");
+
 
 $sub_tabs['formcreator_forms'] = array(
     'title' => 'View Forms',
@@ -12,11 +15,11 @@ $sub_tabs['formcreator_add'] = array(
     'description' => 'Create a new form for this website');
 
 switch ($mybb->get_input('action')) {
-    case '':
-        $sub_tabs['formcreator_'] = array(
-            'title' => '',
-            'link' => 'index.php?module=config-formcreator&amp;action=',
-            'description' => "");
+    case 'edit':
+        $sub_tabs['formcreator_edit'] = array(
+            'title' => 'Edit Form',
+            'link' => 'index.php?module=config-formcreator&amp;action=edit&amp;formid=' . $mybb->input['formid'],
+            'description' => "Change the settings of the form");
         break;
 }
 
@@ -27,31 +30,76 @@ if ($mybb->get_input('action') == 'a') {
 
 
 } elseif ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit') {
-    $page->add_breadcrumb_item("Add Form", "");
-    $page->output_header("Add Form");
-    $page->output_nav_tabs($sub_tabs, 'formcreator_add');
+
+    $formcreator = new formcreator();
 
     if ($mybb->request_method == "post") {
-        print_r($mybb->input);
+        $formcreator->load_data($mybb->input);
+
+        if ($mybb->get_input('action') == 'add') {
+            $formcreator->clear_error();
+
+            if (empty($formcreator->name)) {
+                $formcreator->add_error("Form Name is empty!");
+            }
+
+            if (empty($formcreator->allowedgid)) {
+                $formcreator->add_error("There were no allowed groups selected!");
+            }
+
+            if ($error = $formcreator->is_error()) {
+                $page->extra_messages[] = array("type" => "error", "message" => $error);
+            } else {
+                if ($formid = $formcreator->insert_form()) {
+                    flash_message("The form is added succesfully. You can now configure fields.", 'success');
+                    admin_redirect("index.php?module=config-formcreator");
+                } else {
+                    flash_message("Oops something went wrong!", 'error');
+                    admin_redirect("index.php?module=config-formcreator");
+                }
+            }
+
+
+        } elseif ($mybb->get_input('action') == 'edit') {
+
+        } else {
+            flash_message("Oops something went wrong!", 'error');
+            admin_redirect("index.php?module=config-formcreator");
+        }
+    }
+
+    if ($mybb->get_input('action') == 'add') {
+        $page->add_breadcrumb_item("Add Form", "");
+        $page->output_header("Add Form");
+        $page->output_nav_tabs($sub_tabs, 'formcreator_add');
+    } elseif ($mybb->get_input('action') == 'edit') {
+        $page->add_breadcrumb_item("Edit Form", "");
+        $page->output_header("Edit Form");
+        $page->output_nav_tabs($sub_tabs, 'formcreator_edit');
     }
 
     $form = new Form("index.php?module=config-formcreator&amp;action=add", "post");
     $form_container = new FormContainer("Create a new Form");
-    $form_container->output_row("Form Name <em>*</em>", "The title of the form", $form->generate_text_box('name', $mybb->input['name'], array('id' =>
-            'name')), 'name');
-    $form_container->output_row("Allowed Groups <em>*</em>", "Which groups are allowed to use this form", $form->generate_group_select("allowedgid[]", $mybb->
-        input['allowedgid'], array("multiple" => true)));
-    $form_container->output_row("Status <em>*</em>", "Is this form active yes or no?", $form->generate_yes_no_radio("active", $mybb->input['active']));
+    $form_container->output_row("Form Name <em>*</em>", "The title of the form", $form->generate_text_box('name', $formcreator->name, array('id' => 'name')),
+        'name');
+    $form_container->output_row("Allowed Groups <em>*</em>", "Which groups are allowed to use this form", $form->generate_group_select("allowedgid[]", $formcreator->
+        allowedgid, array("multiple" => true)));
+    $form_container->output_row("Status <em>*</em>", "Is this form active yes or no?", $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
 
     $form_container = new FormContainer("Process Options");
     $form_container->output_row("Send PM to user(s)",
         "Send a PM to the User IDs defined here. If you do not want to trigger a PM leave this empty. Multiple users comma seperated.", $form->
-        generate_text_box("pmusers", $mybb->input['pmusers']));
-    $form_container->output_row("Send PM to Groups", "Send a PM to the Users within the selected groups. If you do not want to trigger a group PM select nothing.", $form->generate_group_select("pmgroups[]", $mybb->
-        input['pmgroups'], array("multiple" => true)));
-        $form_container->output_row("Post within forum", "Create a Post within the selected forum", $form->generate_forum_select("fid",$mybb->input['fid'],array('main_option' => "- DISABLED -"),true));
-    $form_container->output_row("Send Mail to","Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.",$form->generate_text_area());
+        generate_text_box("pmusers", $formcreator->pmusers));
+    $form_container->output_row("Send PM to Groups",
+        "Send a PM to the Users within the selected groups. If you do not want to trigger a group PM select nothing.", $form->generate_group_select("pmgroups[]",
+        $formcreator->pmgroups, array("multiple" => true)));
+    $form_container->output_row("Post within forum", "Create a Post within the selected forum", $form->generate_forum_select("fid", $formcreator->fid,
+        array('main_option' => "- DISABLED -"), true));
+    $form_container->output_row("Send Mail to",
+        "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.", $form->generate_text_area("mail",
+        $formcreator->mail));
+    $form_container->end();
 
     $buttons[] = $form->generate_submit_button("Create Form");
     $form->output_submit_wrapper($buttons);
@@ -65,7 +113,7 @@ if ($mybb->get_input('action') == 'a') {
 
     $table = new Table;
     $table->construct_header("Form name", array());
-    $table->construct_header("Status", array());
+    $table->construct_header("Active", array());
     $table->construct_header("Link / URL", array());
     $table->construct_header("", array());
 
@@ -99,8 +147,13 @@ if ($mybb->get_input('action') == 'a') {
         while ($form = $db->fetch_array($query)) {
 
             $table->construct_cell($form['name']);
-            $table->construct_cell("");
-            $table->construct_cell("");
+            if ($form['active'] == 0) {
+                $active = "No";
+            } elseif ($form['active'] == 1) {
+                $active = "Yes";
+            }
+            $table->construct_cell($active);
+            $table->construct_cell("<a href='".$mybb->settings['bburl'] . "/form.php?formid=" . $form['formid']."'>".$mybb->settings['bburl'] . "/form.php?formid=" . $form['formid']."</a>");
 
             $popup = new PopupMenu("form_{$form['formid']}", $lang->options);
             //$popup->add_item("", "");
@@ -111,7 +164,7 @@ if ($mybb->get_input('action') == 'a') {
         }
         $table->output("Forms");
 
-        echo draw_admin_pagination($pagenr, 10, $total, "URL");
+        echo draw_admin_pagination($pagenr, 10, $total, "index.php?module=config-formcreator");
     }
 }
 
