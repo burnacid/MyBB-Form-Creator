@@ -33,20 +33,31 @@ if ($mybb->get_input('action') == 'a') {
 
     $formcreator = new formcreator();
 
+    if ($mybb->get_input('action') == 'edit') {
+        if ($formcreator->get_form($mybb->input['formid']) == false) {
+            flash_message("The form you tried to edit doesn't exist!", 'error');
+            admin_redirect("index.php?module=config-formcreator");
+        }
+
+        $form = new Form("index.php?module=config-formcreator&amp;action=edit&amp;formid=" . $formcreator->formid, "post");
+    } else {
+        $form = new Form("index.php?module=config-formcreator&amp;action=add", "post");
+    }
+
     if ($mybb->request_method == "post") {
         $formcreator->load_data($mybb->input);
 
+        $formcreator->clear_error();
+
+        if (empty($formcreator->name)) {
+            $formcreator->add_error("Form Name is empty!");
+        }
+
+        if (empty($formcreator->allowedgid)) {
+            $formcreator->add_error("There were no allowed groups selected!");
+        }
+
         if ($mybb->get_input('action') == 'add') {
-            $formcreator->clear_error();
-
-            if (empty($formcreator->name)) {
-                $formcreator->add_error("Form Name is empty!");
-            }
-
-            if (empty($formcreator->allowedgid)) {
-                $formcreator->add_error("There were no allowed groups selected!");
-            }
-
             if ($error = $formcreator->is_error()) {
                 $page->extra_messages[] = array("type" => "error", "message" => $error);
             } else {
@@ -58,10 +69,18 @@ if ($mybb->get_input('action') == 'a') {
                     admin_redirect("index.php?module=config-formcreator");
                 }
             }
-
-
         } elseif ($mybb->get_input('action') == 'edit') {
-
+            if ($error = $formcreator->is_error()) {
+                $page->extra_messages[] = array("type" => "error", "message" => $error);
+            } else {
+                if ($formcreator->update_form()) {
+                    flash_message("The form is edited succesfully.", 'success');
+                    admin_redirect("index.php?module=config-formcreator");
+                } else {
+                    flash_message("Oops something went wrong!", 'error');
+                    admin_redirect("index.php?module=config-formcreator");
+                }
+            }
         } else {
             flash_message("Oops something went wrong!", 'error');
             admin_redirect("index.php?module=config-formcreator");
@@ -78,7 +97,6 @@ if ($mybb->get_input('action') == 'a') {
         $page->output_nav_tabs($sub_tabs, 'formcreator_edit');
     }
 
-    $form = new Form("index.php?module=config-formcreator&amp;action=add", "post");
     $form_container = new FormContainer("Create a new Form");
     $form_container->output_row("Form Name <em>*</em>", "The title of the form", $form->generate_text_box('name', $formcreator->name, array('id' => 'name')),
         'name');
@@ -101,7 +119,11 @@ if ($mybb->get_input('action') == 'a') {
         $formcreator->mail));
     $form_container->end();
 
-    $buttons[] = $form->generate_submit_button("Create Form");
+    if($mybb->get_input('action') == 'edit'){
+        $buttons[] = $form->generate_submit_button("Update Form");
+    }else{
+        $buttons[] = $form->generate_submit_button("Create Form");
+    }
     $form->output_submit_wrapper($buttons);
     $form->end();
 
@@ -153,10 +175,11 @@ if ($mybb->get_input('action') == 'a') {
                 $active = "Yes";
             }
             $table->construct_cell($active);
-            $table->construct_cell("<a href='".$mybb->settings['bburl'] . "/form.php?formid=" . $form['formid']."'>".$mybb->settings['bburl'] . "/form.php?formid=" . $form['formid']."</a>");
+            $table->construct_cell("<a href='" . $mybb->settings['bburl'] . "/form.php?formid=" . $form['formid'] . "'>" . $mybb->settings['bburl'] .
+                "/form.php?formid=" . $form['formid'] . "</a>");
 
             $popup = new PopupMenu("form_{$form['formid']}", $lang->options);
-            //$popup->add_item("", "");
+            $popup->add_item("Edit Form", "index.php?module=config-formcreator&amp;action=edit&amp;formid=" . $form['formid']);
 
             $table->construct_cell($popup->fetch(), array('class' => 'align_center'));
 
