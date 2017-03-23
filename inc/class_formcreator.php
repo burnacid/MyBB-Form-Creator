@@ -33,10 +33,10 @@ class formcreator
 
         if ($db->num_rows($query) == 1) {
             $formdata = $db->fetch_array($query);
-            
-            $formdata['allowedgid'] = explode(",",$formdata['allowedgid']);
-            $formdata['pmgroups'] = explode(",",$formdata['pmgroups']);
-            
+
+            $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
+            $formdata['pmgroups'] = explode(",", $formdata['pmgroups']);
+
             $this->load_data($formdata);
             return $formdata;
         } else {
@@ -74,7 +74,7 @@ class formcreator
 
         $this->allowedgid = implode(",", $this->allowedgid);
         $this->pmgroups = implode(",", $this->pmgroups);
-        
+
         $this->escape_data();
 
         $result = $db->update_query("fc_forms", $this->get_data(), "formid = " . $this->formid);
@@ -82,10 +82,26 @@ class formcreator
         return $result;
     }
 
+    public function delete_form()
+    {
+        global $db;
+
+        if ($db->delete_query("fc_fields", "formid = " . $this->formid)) {
+            if ($db->delete_query("fc_forms", "formid = " . $this->formid)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+    }
+
     public function escape_data()
     {
         global $db;
-        
+
         $this->formid = intval($this->formid);
         $this->name = $db->escape_string($this->name);
         $this->allowedgid = $db->escape_string($this->allowedgid);

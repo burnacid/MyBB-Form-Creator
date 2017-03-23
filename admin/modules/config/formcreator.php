@@ -14,22 +14,22 @@ $sub_tabs['formcreator_add'] = array(
     'link' => 'index.php?module=config-formcreator&amp;action=add',
     'description' => 'Create a new form for this website');
 
-switch ($mybb->get_input('action')) {
-    case 'edit':
-        $sub_tabs['formcreator_edit'] = array(
-            'title' => 'Edit Form',
-            'link' => 'index.php?module=config-formcreator&amp;action=edit&amp;formid=' . $mybb->input['formid'],
-            'description' => "Change the settings of the form");
-        break;
+if ($mybb->get_input('action') == "edit") {
+    $sub_tabs['formcreator_edit'] = array(
+        'title' => 'Edit Form',
+        'link' => 'index.php?module=config-formcreator&amp;action=edit&amp;formid=' . $mybb->input['formid'],
+        'description' => "Change the settings of the form");
 }
 
-if ($mybb->get_input('action') == 'a') {
-    $page->add_breadcrumb_item($lang->trashbin, "");
-    $page->output_header($lang->trashbin);
-    $page->output_nav_tabs($sub_tabs, 'formcreator_');
+if ($mybb->get_input('action') == 'fields' or $mybb->get_input('action') == 'addfield' or $mybb->get_input('action') == 'editfield' or $mybb->
+    get_input('action') == 'deletefield') {
+    $sub_tabs['formcreator_fields'] = array(
+        'title' => 'View Form Fields',
+        'link' => 'index.php?module=config-formcreator&amp;action=fields&amp;formid=' . $mybb->input['formid'],
+        'description' => "Change the form fields. Add/Edit or Delete");
+}
 
-
-} elseif ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit') {
+if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit') {
 
     $formcreator = new formcreator();
 
@@ -62,8 +62,10 @@ if ($mybb->get_input('action') == 'a') {
                 $page->extra_messages[] = array("type" => "error", "message" => $error);
             } else {
                 if ($formid = $formcreator->insert_form()) {
+                    log_admin_action($formcreator->formid, $formcreator->name);
+
                     flash_message("The form is added succesfully. You can now configure fields.", 'success');
-                    admin_redirect("index.php?module=config-formcreator");
+                    admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formid);
                 } else {
                     flash_message("Oops something went wrong!", 'error');
                     admin_redirect("index.php?module=config-formcreator");
@@ -74,6 +76,8 @@ if ($mybb->get_input('action') == 'a') {
                 $page->extra_messages[] = array("type" => "error", "message" => $error);
             } else {
                 if ($formcreator->update_form()) {
+                    log_admin_action($formcreator->formid, $formcreator->name);
+
                     flash_message("The form is edited succesfully.", 'success');
                     admin_redirect("index.php?module=config-formcreator");
                 } else {
@@ -119,14 +123,116 @@ if ($mybb->get_input('action') == 'a') {
         $formcreator->mail));
     $form_container->end();
 
-    if($mybb->get_input('action') == 'edit'){
+    if ($mybb->get_input('action') == 'edit') {
         $buttons[] = $form->generate_submit_button("Update Form");
-    }else{
+    } else {
         $buttons[] = $form->generate_submit_button("Create Form");
     }
     $form->output_submit_wrapper($buttons);
     $form->end();
 
+
+} elseif ($mybb->get_input('action') == 'delete') {
+    $formcreator = new formcreator();
+
+    if (!$formcreator->get_form($mybb->input['formid'])) {
+        flash_message("The form you are trying to delete doesn't exist", 'error');
+        admin_redirect("index.php?module=config-formcreator");
+    }
+
+    if ($mybb->input['no']) {
+        admin_redirect("index.php?module=config-formcreator");
+    }
+
+    if ($mybb->request_method == "post") {
+
+        if ($formcreator->delete_form()) {
+            log_admin_action($formcreator->formid, $formcreator->name);
+
+            flash_message("The form was succesfully deleted", 'success');
+            admin_redirect("index.php?module=config-formcreator");
+        } else {
+            flash_message("Oops something went wrong!", 'error');
+            admin_redirect("index.php?module=config-formcreator");
+        }
+    } else {
+        $page->output_confirm_action("index.php?module=config-formcreator&action=delete&formid=" . $formcreator->formid,
+            "Are you sure you would like to delete '" . $formcreator->name . "'");
+    }
+} elseif ($mybb->get_input('action') == 'fields') {
+    $page->add_breadcrumb_item("From Fields", "");
+    $page->output_header("From Fields");
+    $page->output_nav_tabs($sub_tabs, 'formcreator_fields');
+
+    $formcreator = new formcreator();
+    if ($formcreator->get_form($mybb->input['formid'])) {
+
+        $table = new Table;
+        $table->construct_cell('<strong>Name</strong>: ' . $formcreator->name, array("width" => "50%"));
+        $table->construct_cell("<strong>URL</strong>: <a href='" . $mybb->settings['bburl'] . "/form.php?formid=" . $formcreator->formid . "'>" . $mybb->
+            settings['bburl'] . "/form.php?formid=" . $formcreator->formid . "</a>", array("width" => "50%"));
+        $table->construct_row();
+
+        $usernames = "";
+        $users_array = explode(",", $formcreator->pmusers);
+        foreach ($users_array as $uid) {
+            if ($pmuser = get_user($uid)) {
+                $usernames .= "<br /><a href='" . $mybb->settings['bburl'] . "/members.php?uid=" . $pmuser['uid'] . "'>" . $pmuser['username'] . "</a>";
+            }
+        }
+
+        if ($usernames == "") {
+            $usernames = "<br />(No users selected)";
+        }
+
+        $table->construct_cell('<strong>Send PM to Users</strong>: ' . $usernames);
+
+        $usergroups = "";
+        foreach ($formcreator->pmgroups as $gid) {
+            if ($pmgroup = get_usergroup($gid)) {
+                $usergroups .= "<br />" . $pmgroup['title'];
+            }
+        }
+
+        if ($usergroups == "") {
+            $usergroups = "<br />(No groups selected)";
+        }
+
+        $table->construct_cell('<strong>Send PM to Usergroups</strong>: ' . $usergroups);
+        $table->construct_row();
+
+        if ($forum = get_forum($formcreator->fid)) {
+            $forumlink = "<a href='" . $mybb->settings['bburl'] . "/" . get_forum_link($formcreator->fid) . "'>" . $forum['name'] . "</a>";
+        } elseif ($formcreator->fid == -1) {
+            $forumlink = "(No forum selected)";
+        } else {
+            $forumlink = "Forum doesn't exist";
+        }
+
+        $table->construct_cell('<strong>Create Thread in Forum</strong>: <br />' . $forumlink);
+
+        if ($formcreator->mail == "") {
+            $mail = "(No mail selected)";
+        } else {
+            $mail = nl2br($formcreator->mail);
+        }
+
+        $table->construct_cell('<strong>Send Mail to</strong>: <br />' . $mail);
+
+        $table->construct_row();
+
+
+        $table->output("Form Info");
+
+
+        $table = new Table;
+
+        $table->output("Fields");
+
+    } else {
+        flash_message("The form you are looking for doesn't exist!", 'error');
+        admin_redirect("index.php?module=config-formcreator");
+    }
 
 } else {
 
@@ -168,7 +274,9 @@ if ($mybb->get_input('action') == 'a') {
     } else {
         while ($form = $db->fetch_array($query)) {
 
-            $table->construct_cell($form['name']);
+            $link_fields = "index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $form['formid'];
+
+            $table->construct_cell("<a href='" . $link_fields . "'>" . $form['name'] . "</a>");
             if ($form['active'] == 0) {
                 $active = "No";
             } elseif ($form['active'] == 1) {
@@ -180,6 +288,8 @@ if ($mybb->get_input('action') == 'a') {
 
             $popup = new PopupMenu("form_{$form['formid']}", $lang->options);
             $popup->add_item("Edit Form", "index.php?module=config-formcreator&amp;action=edit&amp;formid=" . $form['formid']);
+            $popup->add_item("Delete Form", "index.php?module=config-formcreator&amp;action=delete&amp;formid=" . $form['formid']);
+            $popup->add_item("View Fields", $link_fields);
 
             $table->construct_cell($popup->fetch(), array('class' => 'align_center'));
 

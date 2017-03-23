@@ -46,8 +46,8 @@ function formcreator_install()
           `active` tinyint(1) NOT NULL,
           `pmusers` varchar(255) NOT NULL,
           `pmgroups` varchar(255) NOT NULL,
-          `mail` text NOT NULL,
           `fid` int(11) NOT NULL,
+          `mail` text NOT NULL,
           PRIMARY KEY (`formid`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");
@@ -127,6 +127,18 @@ function formcreator_admin_config_action_handler(&$actions)
         'active' => 'formcreator',
         'file' => 'formcreator.php',
         );
+}
+
+function get_usergroup($gid){
+    global $db;
+    
+    $query = $db->simple_select("usergroups","*","gid = ".intval($gid));
+    
+    if($db->num_rows($query) == 1){
+        return $db->fetch_array($query);
+    }else{
+        return false;
+    }
 }
 
 ?>
