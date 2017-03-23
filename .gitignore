@@ -1,0 +1,5 @@
+*
+!.gitignore
+!inc\class_formcreator.php
+!inc\plugins\formcreator.php
+!admin\modules\config\formcreator.php
