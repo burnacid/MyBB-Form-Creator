@@ -27,6 +27,10 @@ if ($mybb->get_input('action') == 'fields' or $mybb->get_input('action') == 'add
         'title' => 'View Form Fields',
         'link' => 'index.php?module=config-formcreator&amp;action=fields&amp;formid=' . $mybb->input['formid'],
         'description' => "Change the form fields. Add/Edit or Delete");
+    $sub_tabs['formcreator_addfield'] = array(
+        'title' => 'Add Field',
+        'link' => 'index.php?module=config-formcreator&amp;action=addfield&amp;formid=' . $mybb->input['formid'],
+        'description' => "Add a field");
 }
 
 if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit') {
@@ -159,6 +163,12 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $page->output_confirm_action("index.php?module=config-formcreator&action=delete&formid=" . $formcreator->formid,
             "Are you sure you would like to delete '" . $formcreator->name . "'");
     }
+
+} elseif ($mybb->get_input('action') == 'addfield' || $mybb->get_input('action') == 'editfield') {
+    $page->add_breadcrumb_item("From Fields", "index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $mybb->input['formid']);
+    $page->add_breadcrumb_item("Add Field", "");
+    $page->output_header("From Fields");
+    $page->output_nav_tabs($sub_tabs, 'formcreator_addfield');
 } elseif ($mybb->get_input('action') == 'fields') {
     $page->add_breadcrumb_item("From Fields", "");
     $page->output_header("From Fields");
@@ -166,6 +176,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     $formcreator = new formcreator();
     if ($formcreator->get_form($mybb->input['formid'])) {
+
+        $formcreator->get_fields();
 
         $table = new Table;
         $table->construct_cell('<strong>Name</strong>: ' . $formcreator->name, array("width" => "50%"));
@@ -221,11 +233,20 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
         $table->construct_row();
 
-
         $table->output("Form Info");
 
-
         $table = new Table;
+        $table->construct_header("Field");
+        $table->construct_header("Type");
+        $table->construct_header("Order");
+        $table->construct_header("");
+
+        if (count($formcreator->fields) == 0) {
+            $table->construct_cell("<div align='center'>This form has no fields yet!</div>", array("colspan" => "4"));
+            $table->construct_row();
+        } else {
+
+        }
 
         $table->output("Fields");
 

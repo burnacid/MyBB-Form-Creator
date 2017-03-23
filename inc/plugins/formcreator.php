@@ -5,7 +5,7 @@ if (!defined('IN_MYBB'))
 
 //HOOKS
 if (defined('IN_ADMINCP')) {
-    
+
 } else {
 
 }
@@ -129,14 +129,15 @@ function formcreator_admin_config_action_handler(&$actions)
         );
 }
 
-function get_usergroup($gid){
+function get_usergroup($gid)
+{
     global $db;
-    
-    $query = $db->simple_select("usergroups","*","gid = ".intval($gid));
-    
-    if($db->num_rows($query) == 1){
+
+    $query = $db->simple_select("usergroups", "*", "gid = " . intval($gid));
+
+    if ($db->num_rows($query) == 1) {
         return $db->fetch_array($query);
-    }else{
+    } else {
         return false;
     }
 }

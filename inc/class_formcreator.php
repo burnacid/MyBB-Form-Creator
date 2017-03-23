@@ -11,6 +11,8 @@ class formcreator
     public $mail;
     public $fid;
 
+    public $fields;
+
     private $error;
 
     public static $types = array(
@@ -141,6 +143,22 @@ class formcreator
         return $data;
     }
 
+    public function get_fields()
+    {
+        global $db;
+
+        $query = $db->simple_select("fc_fields", "fieldid", "formid = " . intval($this->formid), array("order_by" => "`order`"));
+        while ($field = $db->fetch_array($query)) {
+            $this->fields[] = $field['fieldid'];
+        }
+
+        if (count($this->fields) != 0) {
+            return $this->fields;
+        } else {
+            return false;
+        }
+    }
+
     public function clear_error()
     {
         $this->error = "";
@@ -163,11 +181,24 @@ class formcreator
             $this->error .= "<br />" . $string;
         }
     }
-
 }
 
 class formcreator_field
 {
+    public $fieldid;
+    public $formid;
+    public $name;
+    public $description;
+    public $type;
+    public $options;
+    public $default;
+    public $required;
+    public $regex;
+    public $order;
+    public $size;
+    public $cols;
+    public $rows;
+    public $class;
 
 
 }
