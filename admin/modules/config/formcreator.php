@@ -216,6 +216,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 }
             }
         }
+    }elseif($mybb->request_method != "post" && isset($mybb->input['fieldid'])){
+        $field->get_field($mybb->input['fieldid']);
     }
 
     if ($mybb->get_input('action') == 'editfield') {
@@ -236,7 +238,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
         $form = new Form("index.php?module=config-formcreator&amp;action=addfield&amp;formid=" . $formcreator->formid, "post");
 
-        if ($fieldtype = $formcreator->get_type_name($mybb->input['type'])) {
+        if ($fieldtype = $formcreator->get_type_name($mybb->input['type']) or isset($field->fieldid)) {
             $field->type = intval($mybb->input['type']);
 
             $form_container = new FormContainer("Add " . $fieldtype);

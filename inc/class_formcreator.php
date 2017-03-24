@@ -390,6 +390,22 @@ class formcreator_field
             return false;
         }
     }
+    
+    public function get_field($fieldid)
+    {
+        global $db;
+
+        $query = $db->simple_select("fc_fields", "*", "fieldid = " . intval($formid));
+
+        if ($db->num_rows($query) == 1) {
+            $fielddata = $db->fetch_array($query);
+
+            $this->load_data($fielddata);
+            return $fielddata;
+        } else {
+            return false;
+        }
+    }
 }
 
 ?>
