@@ -56,19 +56,20 @@ function formcreator_install()
     if (!$db->table_exists('fc_fields')) {
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_fields` (
           `fieldid` int(11) NOT NULL AUTO_INCREMENT,
-          `formid` int(11) NOT NULL DEFAULT '0',
-          `name` varchar(255) NOT NULL DEFAULT '0',
-          `description` varchar(2000) NOT NULL DEFAULT '0',
-          `type` int(11) NOT NULL DEFAULT '0',
-          `options` varchar(2000) NOT NULL DEFAULT '0',
-          `default` varchar(2000) NOT NULL DEFAULT '0',
-          `required` tinyint(1) NOT NULL DEFAULT '0',
-          `regex` varchar(255) NOT NULL DEFAULT '0',
-          `order` int(11) NOT NULL DEFAULT '0',
-          `size` int(11) NOT NULL DEFAULT '0',
-          `cols` int(11) NOT NULL DEFAULT '0',
-          `rows` int(11) NOT NULL DEFAULT '0',
-          `class` varchar(50) NOT NULL DEFAULT '0',
+          `formid` int(11) NOT NULL,
+          `name` varchar(255) NOT NULL,
+          `description` varchar(2000) DEFAULT NULL,
+          `type` int(11) NOT NULL,
+          `options` varchar(2000) DEFAULT NULL,
+          `default` varchar(2000) DEFAULT NULL,
+          `required` tinyint(1) DEFAULT NULL,
+          `regex` varchar(255) DEFAULT NULL,
+          `order` int(11) DEFAULT NULL,
+          `size` int(11) DEFAULT NULL,
+          `cols` int(11) DEFAULT NULL,
+          `rows` int(11) DEFAULT NULL,
+          `class` varchar(50) DEFAULT NULL,
+          `html` text,
           PRIMARY KEY (`fieldid`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");

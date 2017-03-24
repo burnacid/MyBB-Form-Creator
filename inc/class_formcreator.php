@@ -5,6 +5,7 @@ class formcreator
     public $formid;
     public $name;
     public $allowedgid;
+    public $allgroups;
     public $active;
     public $pmusers;
     public $pmgroups;
@@ -15,17 +16,17 @@ class formcreator
 
     private $error;
 
-    public static $types = array(
-        0 => "Textbox (single line)",
-        1 => "Textarea (multi line)",
-        2 => "Select (single)",
-        3 => "Select (multiple)",
-        4 => "Radio Buttons",
-        5 => "Checkboxs",
-        5 => "Captcha",
-        6 => "Seperator",
-        7 => "Header",
-        8 => "HTML block");
+    public $types = array(
+        1 => "Textbox (single line)",
+        2 => "Textarea (multi line)",
+        3 => "Select (single)",
+        4 => "Select (multiple)",
+        5 => "Radio Buttons",
+        6 => "Checkboxs",
+        7 => "Captcha",
+        8 => "Seperator",
+        9 => "Header",
+        10 => "HTML block");
 
     public function get_form($formid)
     {
@@ -35,8 +36,11 @@ class formcreator
 
         if ($db->num_rows($query) == 1) {
             $formdata = $db->fetch_array($query);
-
-            $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
+            
+            if($formdata['allowedgid'] != -1){
+                $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
+            }
+            
             $formdata['pmgroups'] = explode(",", $formdata['pmgroups']);
 
             $this->load_data($formdata);
@@ -51,11 +55,22 @@ class formcreator
 
     }
 
+    public function get_type_name($type)
+    {
+        if (key_exists(intval($type), $this->types)) {
+            return $this->types[intval($type)];
+        } else {
+            return false;
+        }
+    }
+
     public function insert_form()
     {
         global $db;
 
-        $this->allowedgid = implode(",", $this->allowedgid);
+        if($this->allowedgid != -1){
+            $this->allowedgid = implode(",", $this->allowedgid);
+        }
         $this->pmgroups = implode(",", $this->pmgroups);
 
         $this->escape_data();
@@ -74,7 +89,9 @@ class formcreator
     {
         global $db;
 
-        $this->allowedgid = implode(",", $this->allowedgid);
+        if($this->allowedgid != -1){
+            $this->allowedgid = implode(",", $this->allowedgid);
+        }
         $this->pmgroups = implode(",", $this->pmgroups);
 
         $this->escape_data();
@@ -200,7 +217,103 @@ class formcreator_field
     public $rows;
     public $class;
 
+    public function escape_data()
+    {
+        global $db;
 
+        $this->fieldid = intval($this->fieldid);
+        $this->formid = intval($this->formid);
+        $this->name = $db->escape_string($this->name);
+        $this->description = $db->escape_string($this->description);
+        $this->type = intval($this->type);
+        $this->options = $db->escape_string($this->options);
+        $this->default = $db->escape_string($this->default);
+        $this->required = intval($this->required);
+        $this->regex = $db->escape_string($this->regex);
+        $this->order = intval($this->order);
+        $this->size = intval($this->size);
+        $this->cols = intval($this->cols);
+        $this->rows = intval($this->rows);
+        $this->class = $db->escape_string($this->class);
+        $this->html = $db->escape_string($this->html);
+    }
+
+    public function load_data($data)
+    {
+        $this->fieldid = $data['fieldid'];
+        $this->formid = $data['formid'];
+        $this->name = $data['name'];
+        $this->description = $data['description'];
+        $this->type = $data['type'];
+        $this->options = $data['options'];
+        $this->default = $data['default'];
+        $this->required = $data['required'];
+        $this->regex = $data['regex'];
+        $this->order = $data['order'];
+        $this->size = $data['size'];
+        $this->cols = $data['cols'];
+        $this->rows = $data['rows'];
+        $this->class = $data['class'];
+        $this->html = $data['html'];
+    }
+
+    public function get_data()
+    {
+        if ($this->fieldid) {
+            $data['fieldid'] = $this->fieldid;
+        }
+
+        $data['formid'] = $this->formid;
+        $data['name'] = $this->name;
+        $data['description'] = $this->description;
+        $data['type'] = $this->type;
+        $data['options'] = $this->options;
+        $data['default'] = $this->default;
+        $data['required'] = $this->required;
+        $data['regex'] = $this->regex;
+        $data['order'] = $this->order;
+        $data['size'] = $this->size;
+        $data['cols'] = $this->cols;
+        $data['rows'] = $this->rows;
+        $data['class'] = $this->class;
+        $data['html'] = $this->html;
+
+        return $data;
+    }
+
+    public function show_admin_field($name)
+    {
+        if ($this->type) {
+            if ($this->type == 1) {
+                $show = array("name", "description", "default", "required", "regex", "size", "class");
+            } elseif ($this->type == 2) {
+                $show = array("name", "description", "default", "required", "regex", "cols", "rows", "class");
+            } elseif ($this->type == 3) {
+                $show = array("name", "description", "options", "required", "class");
+            } elseif ($this->type == 4) {
+                $show = array("name", "description", "options", "required", "class");
+            } elseif ($this->type == 5) {
+                $show = array("name", "description", "options", "required", "class");
+            } elseif ($this->type == 6) {
+                $show = array("name", "description", "options", "required", "class");
+            } elseif ($this->type == 7) {
+                $show = array("name", "description");
+            } elseif ($this->type == 8) {
+                $show = array("name");
+            } elseif ($this->type == 9) {
+                $show = array("name", "description");
+            } elseif ($this->type == 10) {
+                $show = array("name", "html");
+            }else{
+                $show = array();
+            }
+            
+            return in_array($name,$show);
+            
+        } else {
+            return false;
+        }
+    }
 }
 
 ?>
