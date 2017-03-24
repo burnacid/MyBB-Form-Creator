@@ -283,7 +283,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             }
         } else {
             $form_container = new FormContainer("Add Field");
-            echo $form->generate_hidden_field("fieldselect",1);
+            echo $form->generate_hidden_field("fieldselect", 1);
             $form_container->output_row("Field type", "Select what type of field you would like to add.", $form->generate_select_box("type", $formcreator->types));
         }
 
@@ -370,19 +370,37 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $table->output("Form Info");
 
         $table = new Table;
-        $table->construct_header("Field");
-        $table->construct_header("Type");
-        $table->construct_header("Order");
-        $table->construct_header("");
+        $table->construct_header("Field Name / Description");
+        $table->construct_header("Type", array("style" => "width: 300px;"));
+        $table->construct_header("Order", array("style" => "width: 100px;"));
+        $table->construct_header("", array("style" => "width: 125px;"));
 
         if (count($formcreator->fields) == 0) {
             $table->construct_cell("<div align='center'>This form has no fields yet!</div>", array("colspan" => "4"));
             $table->construct_row();
         } else {
+            $form = new Form("index.php?module=config-formcreator&amp;action=order", "post");
+            foreach ($formcreator->fields as $field) {
+                $table->construct_cell("<strong>" . $field->name . "</strong><br /><small>" . $field->description . "</small>");
+                $table->construct_cell($formcreator->get_type_name($field->type));
+                $table->construct_cell($form->generate_numeric_field("fields[" . $field->fieldid . "]", $field->order, array("style" => "width: 50px;")),array("style" => "text-align:center;"));
 
+                $popup = new PopupMenu("field_" . $field->fieldid, $lang->options);
+                $popup->add_item("Edit Field", "index.php?module=config-formcreator&amp;action=editfield&amp;formid=" . $field->formid . "&amp;fieldid=" . $field->
+                    fieldid);
+                $popup->add_item("Delete Field", "index.php?module=config-formcreator&amp;action=deletefield&amp;formid=" . $field->formid . "&amp;fieldid=" . $field->
+                    fieldid);
+
+                $table->construct_cell($popup->fetch(), array("style" => "text-align:center;"));
+                $table->construct_row();
+            }
         }
 
         $table->output("Fields");
+        
+        $buttons[] = $form->generate_submit_button("Save Order");
+            $form->output_submit_wrapper($buttons);
+            $form->end();
 
     } else {
         flash_message("The form you are looking for doesn't exist!", 'error');
