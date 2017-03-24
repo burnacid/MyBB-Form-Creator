@@ -49,7 +49,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             flash_message("The form you tried to edit doesn't exist!", 'error');
             admin_redirect("index.php?module=config-formcreator");
         }
-        
+
         echo $formcreator->allowedgid;
 
         $form = new Form("index.php?module=config-formcreator&amp;action=edit&amp;formid=" . $formcreator->formid, "post");
@@ -58,10 +58,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     }
 
     if ($mybb->request_method == "post") {
-        if($mybb->input['allgroups'] == 1){
+        if ($mybb->input['allgroups'] == 1) {
             $mybb->input['allowedgid'] = -1;
         }
-        
+
         $formcreator->load_data($mybb->input);
 
         $formcreator->clear_error();
@@ -121,14 +121,15 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container = new FormContainer("Create a new Form");
     $form_container->output_row("Form Name <em>*</em>", "The title of the form", $form->generate_text_box('name', $formcreator->name, array('id' => 'name')),
         'name');
-        
-    if($formcreator->allowedgid == -1){
+
+    if ($formcreator->allowedgid == -1) {
         $allgroups = true;
-    }else{
+    } else {
         $allgroups = false;
     }
-        
-    $form_container->output_row("Allowed Groups <em>*</em>", "Which groups are allowed to use this form", $form->generate_check_box("allgroups","1","All usergroups (will overrule the selection)",array("checked" => $allgroups))."<br /><br />".$form->generate_group_select("allowedgid[]", $formcreator->
+
+    $form_container->output_row("Allowed Groups <em>*</em>", "Which groups are allowed to use this form", $form->generate_check_box("allgroups", "1",
+        "All usergroups (will overrule the selection)", array("checked" => $allgroups)) . "<br /><br />" . $form->generate_group_select("allowedgid[]", $formcreator->
         allowedgid, array("multiple" => true)));
     $form_container->output_row("Status <em>*</em>", "Is this form active yes or no?", $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
@@ -185,6 +186,38 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     }
 
 } elseif ($mybb->get_input('action') == 'addfield' || $mybb->get_input('action') == 'editfield') {
+    $field = new formcreator_field();
+
+    if ($mybb->request_method == "post" && !isset($mybb->input['fieldselect'])) {
+        $field->load_data($mybb->input);
+
+        $field->clear_error();
+
+        if ($field->show_admin_field('name') && empty($field->name)) {
+            $field->add_error("Field name is empty");
+        }
+
+        if ($field->show_admin_field('options') && empty($field->options)) {
+            $field->add_error("There were no options entered");
+        }
+
+        if ($mybb->get_input('action') == 'addfield') {
+            if ($error = $field->is_error()) {
+                $page->extra_messages[] = array("type" => "error", "message" => $error);
+            } else {
+                if ($fieldid = $field->insert_field()) {
+                    log_admin_action($field->formid, $fieldid, $field->name);
+
+                    flash_message("The field is added succesfully", 'success');
+                    admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $field->formid);
+                } else {
+                    flash_message("Oops something went wrong!", 'error');
+                    admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $field->formid);
+                }
+            }
+        }
+    }
+
     if ($mybb->get_input('action') == 'editfield') {
         $page->add_breadcrumb_item("Form Fields", "index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $mybb->input['formid']);
         $page->add_breadcrumb_item("Edit Field", "");
@@ -202,7 +235,6 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     if ($formcreator->get_form($mybb->input['formid'])) {
 
         $form = new Form("index.php?module=config-formcreator&amp;action=addfield&amp;formid=" . $formcreator->formid, "post");
-        $field = new formcreator_field();
 
         if ($fieldtype = $formcreator->get_type_name($mybb->input['type'])) {
             $field->type = intval($mybb->input['type']);
@@ -243,11 +275,15 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 $form_container->output_row("Class", "Enter a class for the field container", $form->generate_text_box("class", $field->class));
             }
             if ($field->show_admin_field("html")) {
-                $form_container->output_row("HTML Block <em>*</em>", "Enter the HTML code you would like to display", $form->generate_text_area("html",
-                    $field->html,array("rows"=>"30","cols"=>"300","style"=>"width:97%;")));
+                $form_container->output_row("HTML Block <em>*</em>", "Enter the HTML code you would like to display", $form->generate_text_area("html", $field->html,
+                    array(
+                    "rows" => "30",
+                    "cols" => "300",
+                    "style" => "width:97%;")));
             }
         } else {
             $form_container = new FormContainer("Add Field");
+            echo $form->generate_hidden_field("fieldselect",1);
             $form_container->output_row("Field type", "Select what type of field you would like to add.", $form->generate_select_box("type", $formcreator->types));
         }
 

@@ -36,11 +36,11 @@ class formcreator
 
         if ($db->num_rows($query) == 1) {
             $formdata = $db->fetch_array($query);
-            
-            if($formdata['allowedgid'] != -1){
+
+            if ($formdata['allowedgid'] != -1) {
                 $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
             }
-            
+
             $formdata['pmgroups'] = explode(",", $formdata['pmgroups']);
 
             $this->load_data($formdata);
@@ -68,7 +68,7 @@ class formcreator
     {
         global $db;
 
-        if($this->allowedgid != -1){
+        if ($this->allowedgid != -1) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
         $this->pmgroups = implode(",", $this->pmgroups);
@@ -89,7 +89,7 @@ class formcreator
     {
         global $db;
 
-        if($this->allowedgid != -1){
+        if ($this->allowedgid != -1) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
         $this->pmgroups = implode(",", $this->pmgroups);
@@ -285,17 +285,52 @@ class formcreator_field
     {
         if ($this->type) {
             if ($this->type == 1) {
-                $show = array("name", "description", "default", "required", "regex", "size", "class");
+                $show = array(
+                    "name",
+                    "description",
+                    "default",
+                    "required",
+                    "regex",
+                    "size",
+                    "class");
             } elseif ($this->type == 2) {
-                $show = array("name", "description", "default", "required", "regex", "cols", "rows", "class");
+                $show = array(
+                    "name",
+                    "description",
+                    "default",
+                    "required",
+                    "regex",
+                    "cols",
+                    "rows",
+                    "class");
             } elseif ($this->type == 3) {
-                $show = array("name", "description", "options", "required", "class");
+                $show = array(
+                    "name",
+                    "description",
+                    "options",
+                    "required",
+                    "class");
             } elseif ($this->type == 4) {
-                $show = array("name", "description", "options", "required", "class");
+                $show = array(
+                    "name",
+                    "description",
+                    "options",
+                    "required",
+                    "class");
             } elseif ($this->type == 5) {
-                $show = array("name", "description", "options", "required", "class");
+                $show = array(
+                    "name",
+                    "description",
+                    "options",
+                    "required",
+                    "class");
             } elseif ($this->type == 6) {
-                $show = array("name", "description", "options", "required", "class");
+                $show = array(
+                    "name",
+                    "description",
+                    "options",
+                    "required",
+                    "class");
             } elseif ($this->type == 7) {
                 $show = array("name", "description");
             } elseif ($this->type == 8) {
@@ -304,12 +339,51 @@ class formcreator_field
                 $show = array("name", "description");
             } elseif ($this->type == 10) {
                 $show = array("name", "html");
-            }else{
+            } else {
                 $show = array();
             }
-            
-            return in_array($name,$show);
-            
+
+            return in_array($name, $show);
+
+        } else {
+            return false;
+        }
+    }
+
+    public function clear_error()
+    {
+        $this->error = "";
+    }
+
+    public function is_error()
+    {
+        if (empty($this->error)) {
+            return false;
+        } else {
+            return $this->error;
+        }
+    }
+
+    public function add_error($string)
+    {
+        if ($this->error == "") {
+            $this->error = $string;
+        } else {
+            $this->error .= "<br />" . $string;
+        }
+    }
+    
+    public function insert_field()
+    {
+        global $db;
+
+        $this->escape_data();
+
+        $result = $db->insert_query("fc_fields", $this->get_data());
+        if ($result) {
+            $this->fieldid = $result;
+
+            return $result;
         } else {
             return false;
         }
