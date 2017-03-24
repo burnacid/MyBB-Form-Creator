@@ -425,6 +425,51 @@ elseif ($mybb->get_input('action') == 'addfield' || $mybb->get_input('action') =
 
 
 }
+elseif ($mybb->get_input('action') == 'deletefield')
+{
+    $formcreator = new formcreator();
+    $field = new formcreator_field();
+
+    if (!$formcreator->get_form($mybb->input['formid']))
+    {
+        flash_message("The field's form you are trying to delete doesn't exist", 'error');
+        admin_redirect("index.php?module=config-formcreator");
+    }
+
+    if (!$field->get_field($mybb->input['fieldid']))
+    {
+        flash_message("The field you are trying to delete doesn't exist", 'error');
+        admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
+    }
+
+    if ($mybb->input['no'])
+    {
+        admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
+    }
+
+    if ($mybb->request_method == "post")
+    {
+
+        if ($field->delete_field())
+        {
+            log_admin_action($formcreator->formid, $formcreator->name);
+
+            flash_message("The field was succesfully deleted", 'success');
+            admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
+        }
+        else
+        {
+            flash_message("Oops something went wrong!", 'error');
+            admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
+        }
+    }
+    else
+    {
+        $page->output_confirm_action("index.php?module=config-formcreator&action=deletefield&formid=" . $formcreator->formid . "&amp;fieldid=" . $field->
+            fieldid, "Are you sure you would like to delete '" . $field->name . "'");
+    }
+
+}
 elseif ($mybb->get_input('action') == 'fields')
 {
     $page->add_breadcrumb_item("Form Fields", "");

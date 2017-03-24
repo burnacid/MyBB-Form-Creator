@@ -465,6 +465,21 @@ class formcreator_field
         return $result;
     }
 
+    public function delete_field()
+    {
+        global $db;
+
+        if ($db->delete_query("fc_fields", "fieldid = " . $this->fieldid))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
     public function get_field($fieldid)
     {
         global $db;
