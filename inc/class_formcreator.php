@@ -466,6 +466,10 @@ class formcreator_field
         global $db;
 
         $this->escape_data();
+        
+        $old = new formcreator_field();
+        $old_data = $old->get_field($this->fieldid);
+        $this->order = $old_data['order'];
 
         $result = $db->update_query("fc_fields", $this->get_data(), "fieldid = " . $this->fieldid);
 
