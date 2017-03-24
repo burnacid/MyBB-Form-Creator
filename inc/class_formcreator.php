@@ -229,6 +229,13 @@ class formcreator
             $this->error .= "<br />" . $string;
         }
     }
+
+    public function order_field($fieldid, $order)
+    {
+        global $db;
+
+        return $db->update_query("fc_fields", array("order" => intval($order)), "fieldid = " . intval($fieldid) . " and formid = " . $this->formid);
+    }
 }
 
 class formcreator_field

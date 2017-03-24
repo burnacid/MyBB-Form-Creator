@@ -470,6 +470,25 @@ elseif ($mybb->get_input('action') == 'deletefield')
     }
 
 }
+elseif ($mybb->get_input('action') == 'orderfields')
+{
+    $formcreator = new formcreator();
+    
+    if ($mybb->request_method == "post" && $formcreator->get_form($mybb->input['formid']))
+    {
+        foreach($mybb->input['fields'] as $key => $value){
+            $formcreator->order_field($key, $value);
+        }
+        
+        flash_message("Order saved", 'success');
+        admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=".$formcreator->formid);
+    }
+    else
+    {
+        flash_message("Oops something went wrong!", 'error');
+        admin_redirect("index.php?module=config-formcreator");
+    }
+}
 elseif ($mybb->get_input('action') == 'fields')
 {
     $page->add_breadcrumb_item("Form Fields", "");
@@ -558,7 +577,7 @@ elseif ($mybb->get_input('action') == 'fields')
         $table->construct_header("Order", array("style" => "width: 100px;"));
         $table->construct_header("", array("style" => "width: 125px;"));
 
-        $form = new Form("index.php?module=config-formcreator&amp;action=order", "post");
+        $form = new Form("index.php?module=config-formcreator&amp;action=orderfields&amp;formid=".$formcreator->formid, "post");
 
         if (count($formcreator->fields) == 0)
         {
