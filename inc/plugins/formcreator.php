@@ -36,7 +36,14 @@ function formcreator_activate()
 <br class=\"clear\" />
 {\$footer}
 </body>
-</html>");
+</html>", 'container' => '<table border="0" cellspacing="0" cellpadding="5" class="tborder">
+<tbody><tr>
+<td class="thead"><span class="smalltext"><strong>{$formtitle}</strong></span></td>
+</tr>
+<tr>
+<td class="trow1">{$formcontent}</td>
+</tr>
+</tbody></table>');
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
 
