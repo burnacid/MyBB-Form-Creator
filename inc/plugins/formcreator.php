@@ -38,12 +38,13 @@ function formcreator_activate()
 </body>
 </html>", 'container' => '<table border="0" cellspacing="0" cellpadding="5" class="tborder">
 <tbody><tr>
-<td class="thead"><span class="smalltext"><strong>{$formtitle}</strong></span></td>
+<td class="thead" colspan="2"><span class="smalltext"><strong>{$formtitle}</strong></span></td>
 </tr>
-<tr>
-<td class="trow1">{$formcontent}</td>
-</tr>
-</tbody></table>');
+{$formcontent}
+</tbody></table>', 'field' => '<tr>
+	<td class="trow1">{$fieldname}{$fielddescription}</td>
+	<td class="trow1">{$fieldoutput}</td>
+</tr>');
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
 

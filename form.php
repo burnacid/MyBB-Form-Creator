@@ -12,13 +12,16 @@ if ($formcreator->get_form($mybb->input['formid']))
     add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
     $formtitle = $formcreator->name;
+    
+    $formcontent = $formcreator->build_form();
+    
 }
 else
 {
     add_breadcrumb("Form Creator", "form.php");
     
     $formtitle = "Form Creator";
-    $formcontent = "The form you are looking for doesn't exist!";
+    $formcontent = '<tr><td class="trow1" colspan="2">The form you are looking for doesn\'t exist!</td></tr>';
 }
 
 eval("\$form = \"" . $templates->get("formcreator_container") . "\";");

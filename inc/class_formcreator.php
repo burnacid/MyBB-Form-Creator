@@ -13,6 +13,8 @@ class formcreator
     public $fid;
 
     public $fields;
+    
+    private $output;
 
     private $error;
 
@@ -34,12 +36,10 @@ class formcreator
 
         $query = $db->simple_select("fc_forms", "*", "formid = " . intval($formid));
 
-        if ($db->num_rows($query) == 1)
-        {
+        if ($db->num_rows($query) == 1) {
             $formdata = $db->fetch_array($query);
 
-            if ($formdata['allowedgid'] != -1)
-            {
+            if ($formdata['allowedgid'] != -1) {
                 $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
             }
 
@@ -47,26 +47,74 @@ class formcreator
 
             $this->load_data($formdata);
             return $formdata;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
-    public function get_form_fields($formid)
+    public function build_form()
     {
+        global $templates;
+        
+        $output = "";
+        $this->get_fields();
 
+        foreach ($this->fields as $field) {
+            $fieldname = $field->name;
+            $fieldoutput = "";
+            
+            if($field->required){
+                 $fieldname .= "<em>*</em>";
+            }
+            
+            if($field->description){
+                $fielddescription ="<br /><small>".$field->description."</small>";
+            }           
+            
+            switch ($field->type) {
+                case 1:
+                    $fieldoutput = $field->output_textbox();
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+                case 2:
+                    $fieldoutput = $field->output_textarea();
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+                case 3:
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+                case 4:
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+                case 5:
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+                case 6:
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+                case 7:
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+                case 8:
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+                case 9:
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+                case 10:
+                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    break;
+            }
+        }
+                
+        return $output;
     }
 
     public function get_type_name($type)
     {
-        if (key_exists(intval($type), $this->types))
-        {
+        if (key_exists(intval($type), $this->types)) {
             return $this->types[intval($type)];
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -75,8 +123,7 @@ class formcreator
     {
         global $db;
 
-        if ($this->allowedgid != -1)
-        {
+        if ($this->allowedgid != -1) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
         $this->pmgroups = implode(",", $this->pmgroups);
@@ -84,14 +131,11 @@ class formcreator
         $this->escape_data();
 
         $result = $db->insert_query("fc_forms", $this->get_data());
-        if ($result)
-        {
+        if ($result) {
             $this->formid = $result;
 
             return $result;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -100,8 +144,7 @@ class formcreator
     {
         global $db;
 
-        if ($this->allowedgid != -1)
-        {
+        if ($this->allowedgid != -1) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
         $this->pmgroups = implode(",", $this->pmgroups);
@@ -117,19 +160,13 @@ class formcreator
     {
         global $db;
 
-        if ($db->delete_query("fc_fields", "formid = " . $this->formid))
-        {
-            if ($db->delete_query("fc_forms", "formid = " . $this->formid))
-            {
+        if ($db->delete_query("fc_fields", "formid = " . $this->formid)) {
+            if ($db->delete_query("fc_forms", "formid = " . $this->formid)) {
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
-        }
-        else
-        {
+        } else {
             return false;
         }
 
@@ -163,8 +200,7 @@ class formcreator
 
     public function get_data()
     {
-        if ($this->formid)
-        {
+        if ($this->formid) {
             $data['formid'] = $this->formid;
         }
 
@@ -184,19 +220,15 @@ class formcreator
         global $db;
 
         $query = $db->simple_select("fc_fields", "*", "formid = " . intval($this->formid), array("order_by" => "`order`"));
-        while ($field_data = $db->fetch_array($query))
-        {
+        while ($field_data = $db->fetch_array($query)) {
             $field = new formcreator_field();
             $field->load_data($field_data);
             $this->fields[] = $field;
         }
 
-        if (count($this->fields) != 0)
-        {
+        if (count($this->fields) != 0) {
             return $this->fields;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -208,24 +240,18 @@ class formcreator
 
     public function is_error()
     {
-        if (empty($this->error))
-        {
+        if (empty($this->error)) {
             return false;
-        }
-        else
-        {
+        } else {
             return $this->error;
         }
     }
 
     public function add_error($string)
     {
-        if ($this->error == "")
-        {
+        if ($this->error == "") {
             $this->error = $string;
-        }
-        else
-        {
+        } else {
             $this->error .= "<br />" . $string;
         }
     }
@@ -297,8 +323,7 @@ class formcreator_field
 
     public function get_data()
     {
-        if ($this->fieldid)
-        {
+        if ($this->fieldid) {
             $data['fieldid'] = $this->fieldid;
         }
 
@@ -322,10 +347,8 @@ class formcreator_field
 
     public function show_admin_field($name)
     {
-        if ($this->type)
-        {
-            if ($this->type == 1)
-            {
+        if ($this->type) {
+            if ($this->type == 1) {
                 $show = array(
                     "name",
                     "description",
@@ -334,9 +357,7 @@ class formcreator_field
                     "regex",
                     "size",
                     "class");
-            }
-            elseif ($this->type == 2)
-            {
+            } elseif ($this->type == 2) {
                 $show = array(
                     "name",
                     "description",
@@ -346,69 +367,49 @@ class formcreator_field
                     "cols",
                     "rows",
                     "class");
-            }
-            elseif ($this->type == 3)
-            {
+            } elseif ($this->type == 3) {
                 $show = array(
                     "name",
                     "description",
                     "options",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 4)
-            {
+            } elseif ($this->type == 4) {
                 $show = array(
                     "name",
                     "description",
                     "options",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 5)
-            {
+            } elseif ($this->type == 5) {
                 $show = array(
                     "name",
                     "description",
                     "options",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 6)
-            {
+            } elseif ($this->type == 6) {
                 $show = array(
                     "name",
                     "description",
                     "options",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 7)
-            {
+            } elseif ($this->type == 7) {
                 $show = array("name", "description");
-            }
-            elseif ($this->type == 8)
-            {
+            } elseif ($this->type == 8) {
                 $show = array("name");
-            }
-            elseif ($this->type == 9)
-            {
+            } elseif ($this->type == 9) {
                 $show = array("name", "description");
-            }
-            elseif ($this->type == 10)
-            {
+            } elseif ($this->type == 10) {
                 $show = array("name", "html");
-            }
-            else
-            {
+            } else {
                 $show = array();
             }
 
             return in_array($name, $show);
 
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -420,24 +421,18 @@ class formcreator_field
 
     public function is_error()
     {
-        if (empty($this->error))
-        {
+        if (empty($this->error)) {
             return false;
-        }
-        else
-        {
+        } else {
             return $this->error;
         }
     }
 
     public function add_error($string)
     {
-        if ($this->error == "")
-        {
+        if ($this->error == "") {
             $this->error = $string;
-        }
-        else
-        {
+        } else {
             $this->error .= "<br />" . $string;
         }
     }
@@ -449,14 +444,11 @@ class formcreator_field
         $this->escape_data();
 
         $result = $db->insert_query("fc_fields", $this->get_data());
-        if ($result)
-        {
+        if ($result) {
             $this->fieldid = $result;
 
             return $result;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -466,7 +458,7 @@ class formcreator_field
         global $db;
 
         $this->escape_data();
-        
+
         $old = new formcreator_field();
         $old_data = $old->get_field($this->fieldid);
         $this->order = $old_data['order'];
@@ -480,12 +472,9 @@ class formcreator_field
     {
         global $db;
 
-        if ($db->delete_query("fc_fields", "fieldid = " . $this->fieldid))
-        {
+        if ($db->delete_query("fc_fields", "fieldid = " . $this->fieldid)) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
 
@@ -497,18 +486,49 @@ class formcreator_field
 
         $query = $db->simple_select("fc_fields", "*", "fieldid = " . intval($fieldid));
 
-        if ($db->num_rows($query) == 1)
-        {
+        if ($db->num_rows($query) == 1) {
             $fielddata = $db->fetch_array($query);
 
             $this->load_data($fielddata);
             return $fielddata;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
+    
+    public function output_textbox()
+    {
+        if($this->class){
+            $class = "class='".$this->class."'";
+        }
+        
+        if($this->size){
+            $size = "size='".$this->size."'";
+        }
+        
+        return "<input type='text' value='".$this->default."' name='".$this->name."' ".$class." ".$size." />";
+        
+    }
+    
+    public function output_textarea()
+    {
+        if($this->class){
+            $class = "class='".$this->class."'";
+        }
+        
+        if($this->rows){
+            $rows = "rows='".$this->rows."'";
+        }
+        
+        if($this->cols){
+            $cols = "cols='".$this->cols."'";
+        }
+        
+        return "<textarea name='".$this->name."' ".$class." ".$rows." ".$cols.">".$this->default."</textarea>";
+        
+    }
+    
+    
 }
 
 ?>
