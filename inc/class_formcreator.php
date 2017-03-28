@@ -13,7 +13,7 @@ class formcreator
     public $fid;
 
     public $fields;
-    
+
     private $output;
 
     private $error;
@@ -55,58 +55,60 @@ class formcreator
     public function build_form()
     {
         global $templates;
-        
+
         $output = "";
         $this->get_fields();
 
         foreach ($this->fields as $field) {
             $fieldname = $field->name;
             $fieldoutput = "";
-            
-            if($field->required){
-                 $fieldname .= "<em>*</em>";
+
+            if ($field->required) {
+                $fieldname .= "<em>*</em>";
             }
-            
-            if($field->description){
-                $fielddescription ="<br /><small>".$field->description."</small>";
-            }           
-            
+
+            if ($field->description) {
+                $fielddescription = "<br /><small>" . $field->description . "</small>";
+            }
+
             switch ($field->type) {
                 case 1:
                     $fieldoutput = $field->output_textbox();
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 2:
                     $fieldoutput = $field->output_textarea();
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 3:
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    $fieldoutput = $field->output_select();
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 4:
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    $fieldoutput = $field->output_select(true);
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 5:
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 6:
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 7:
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 8:
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 9:
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 10:
-                    eval('$output .= "'.$templates->get("formcreator_field").'";');
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
             }
         }
-                
+
         return $output;
     }
 
@@ -380,7 +382,8 @@ class formcreator_field
                     "description",
                     "options",
                     "required",
-                    "class");
+                    "class",
+                    "size");
             } elseif ($this->type == 5) {
                 $show = array(
                     "name",
@@ -495,40 +498,73 @@ class formcreator_field
             return false;
         }
     }
-    
+
     public function output_textbox()
     {
-        if($this->class){
-            $class = "class='".$this->class."'";
+        if ($this->size) {
+            $size = "size='" . $this->size . "'";
         }
-        
-        if($this->size){
-            $size = "size='".$this->size."'";
-        }
-        
-        return "<input type='text' value='".$this->default."' name='".$this->name."' ".$class." ".$size." />";
-        
+
+        return "<input type='text' value='" . $this->default . "' name='" . $this->name . "' class='textbox " . $this->class . "' " . $size . " />";
     }
-    
+
     public function output_textarea()
     {
-        if($this->class){
-            $class = "class='".$this->class."'";
+        if ($this->class) {
+            $class = "class='" . $this->class . "'";
         }
-        
-        if($this->rows){
-            $rows = "rows='".$this->rows."'";
+
+        if ($this->rows) {
+            $rows = "rows='" . $this->rows . "'";
         }
-        
-        if($this->cols){
-            $cols = "cols='".$this->cols."'";
+
+        if ($this->cols) {
+            $cols = "cols='" . $this->cols . "'";
         }
-        
-        return "<textarea name='".$this->name."' ".$class." ".$rows." ".$cols.">".$this->default."</textarea>";
-        
+
+        return "<textarea name='" . $this->name . "' " . $class . " " . $rows . " " . $cols . ">" . $this->default . "</textarea>";
     }
-    
-    
+
+    public function output_select($multi = false)
+    {
+        $options = explode("\n", $this->options);
+
+        if ($this->class) {
+            $class = "class='" . $this->class . "'";
+        }
+
+        if ($multi) {
+            $multi = "multiple='multiple'";
+        }
+
+        if ($this->size != 0) {
+            $size = "size='" . $this->size . "'";
+        }
+
+        $output = "<select name='" . $this->name . "' " . $class . " " . $multi . " " . $size . ">";
+
+        if (!$multi) {
+            $output .= "<option value=''>- Select option -</option>";
+        }
+
+        foreach ($options as $option) {
+            if ($multi) {
+                if (in_array($option, $this->default)) {
+                    $selected = "selected='selected'";
+                }
+            } else {
+                if ($this->default == $option) {
+                    $selected = "selected='selected'";
+                }
+            }
+
+            $output .= "<option value='" . $option . "' " . $selected . ">" . $option . "</option>";
+        }
+
+        $output .= "</select>";
+
+        return $output;
+    }
 }
 
 ?>
