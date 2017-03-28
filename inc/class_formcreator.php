@@ -405,7 +405,10 @@ class formcreator_field
             } elseif ($this->type == 9) {
                 $show = array("name", "description");
             } elseif ($this->type == 10) {
-                $show = array("name", "html");
+                $show = array(
+                    "name",
+                    "html",
+                    "class");
             } else {
                 $show = array();
             }
@@ -548,7 +551,7 @@ class formcreator_field
         }
 
         foreach ($options as $option) {
-            if ($multi) {
+            if ($multi && is_array($this->default)) {
                 if (in_array($option, $this->default)) {
                     $selected = "selected='selected'";
                 }
