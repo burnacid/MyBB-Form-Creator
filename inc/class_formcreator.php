@@ -452,7 +452,15 @@ class formcreator_field
         global $db;
 
         $this->escape_data();
-
+        
+        $query = $db->simple_select("fc_fields","`order`","formid = ".$this->formid,array("order_by"=>"`order`","order_dir"=>"DESC"));
+        if($db->num_rows($query) == 0){
+            $this->order = 0;
+        }else{
+            $lastfield = $db->fetch_array($query);
+            $this->order = $lastfield['order'] + 1;
+        }
+        
         $result = $db->insert_query("fc_fields", $this->get_data());
         if ($result) {
             $this->fieldid = $result;
