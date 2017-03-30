@@ -9,12 +9,30 @@ $formcreator = new formcreator();
 
 if ($formcreator->get_form($mybb->input['formid']))
 {
-    add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
+    if($formcreator->check_allowed() && $forumcreator->active == 1){
+        
+        if($mybb->request_method == "post"){
+            
+        }
+        
+        add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
-    $formtitle = $formcreator->name;
-    
-    $formcontent = $formcreator->build_form();
-    
+        $formtitle = $formcreator->name;
+        
+        $formcontent = $formcreator->build_form();
+    }elseif($forumcreator->active == 0){
+        add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
+        
+        $formtitle = "Form disabled";
+        
+        $formcontent = '<tr><td class="trow1" colspan="2">This form has been disabled for use!</td></tr>';
+    }else{
+        add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
+        
+        $formtitle = "Access Denied";
+        
+        $formcontent = '<tr><td class="trow1" colspan="2">You are not allowed to use this form!</td></tr>';
+    }
 }
 else
 {

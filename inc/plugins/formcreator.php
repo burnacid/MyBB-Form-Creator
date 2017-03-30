@@ -53,7 +53,7 @@ function formcreator_activate()
 </tr>', 'field_header' => '<tr>
 	<td class="thead" colspan="2">{$fieldoutput}</td>
 </tr>', 'field_submit' => '<tr>
-	<td class="trow1" colspan="2">{$fieldoutput}</td>
+	<td class="trow1" colspan="2" style="text-align:center;">{$fieldoutput}</td>
 </tr>', 'field_seperator' => '</tbody></table><br />
 	<td class="thead" colspan="2">{$fieldoutput}</td>
 </tr><table border="0" cellspacing="0" cellpadding="5" class="tborder">

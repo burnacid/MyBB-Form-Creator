@@ -121,6 +121,29 @@ class formcreator
         return $output;
     }
 
+    public function check_allowed()
+    {
+        global $mybb;
+
+        if ($this->allowedgid == -1) {
+            return true;
+        }
+
+        if (!empty($mybb->user['additionalgroups'])) {
+            $current_groups = $mybb->user['additionalgroups'] . "," . $mybb->user['usergroup'];
+        } else {
+            $current_groups = $mybb->user['usergroup'];
+        }
+
+        $current_groups = explode(",", $current_groups);
+
+        if (array_intersect($this->allowedgid, $current_groups)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function get_type_name($type)
     {
         if (key_exists(intval($type), $this->types)) {
@@ -640,14 +663,14 @@ class formcreator_field
 
         return $output;
     }
-    
+
     public function output_submit()
     {
         if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
-                
-        return "<input type='submit' value='".$this->name."' ".$class." />";
+
+        return "<input type='submit' value='" . $this->name . "' " . $class . " />";
     }
 }
 
