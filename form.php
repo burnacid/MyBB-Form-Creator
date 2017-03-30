@@ -23,8 +23,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     $error_array[] = "'" . $field->name . "' is empty!";
                 }
 
-                if ($field->regex && preg_grep($field->regex, $mybb->input[$field->name])) {
-                    $error_array[] = $field->name . " did not match the expected input!";
+                if ($field->regex && !preg_match("/".$field->regex."/", $mybb->input[$field->name])) {
+                    $error_array[] = "'" . $field->name . "' did not match the expected input!";
                 }
             }
 
