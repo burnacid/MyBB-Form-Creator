@@ -253,6 +253,11 @@ elseif ($mybb->get_input('action') == 'addfield' || $mybb->get_input('action') =
         {
             $field->add_error("There were no options entered");
         }
+        
+        if ($field->show_admin_field('html') && empty($field->html))
+        {
+            $field->add_error("HTML block can't be empty");
+        }
 
         if ($mybb->get_input('action') == 'addfield')
         {
