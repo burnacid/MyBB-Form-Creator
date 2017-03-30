@@ -45,7 +45,7 @@ class formcreator
             }
 
             $formdata['pmgroups'] = explode(",", $formdata['pmgroups']);
-
+            
             $this->load_data($formdata);
             return $formdata;
         } else {
@@ -58,7 +58,6 @@ class formcreator
         global $templates;
 
         $output = "";
-        $this->get_fields();
 
         foreach ($this->fields as $field) {
             $fieldname = $field->name;
