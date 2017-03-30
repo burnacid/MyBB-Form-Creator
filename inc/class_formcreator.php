@@ -28,7 +28,8 @@ class formcreator
         #7 => "Captcha",
         8 => "Seperator",
         9 => "Header",
-        10 => "HTML block");
+        10 => "HTML block",
+        11 => "Submit button");
 
     public function get_form($formid)
     {
@@ -109,6 +110,10 @@ class formcreator
                 case 10:
                     $fieldoutput = $field->html;
                     eval('$output .= "' . $templates->get("formcreator_field_html") . '";');
+                    break;
+                case 11:
+                    $fieldoutput = $field->output_submit();
+                    eval('$output .= "' . $templates->get("formcreator_field_submit") . '";');
                     break;
             }
         }
@@ -413,6 +418,8 @@ class formcreator_field
                     "name",
                     "html",
                     "class");
+            } elseif ($this->type == 11) {
+                $show = array("name", "class");
             } else {
                 $show = array();
             }
@@ -452,15 +459,15 @@ class formcreator_field
         global $db;
 
         $this->escape_data();
-        
-        $query = $db->simple_select("fc_fields","`order`","formid = ".$this->formid,array("order_by"=>"`order`","order_dir"=>"DESC"));
-        if($db->num_rows($query) == 0){
+
+        $query = $db->simple_select("fc_fields", "`order`", "formid = " . $this->formid, array("order_by" => "`order`", "order_dir" => "DESC"));
+        if ($db->num_rows($query) == 0) {
             $this->order = 0;
-        }else{
+        } else {
             $lastfield = $db->fetch_array($query);
             $this->order = $lastfield['order'] + 1;
         }
-        
+
         $result = $db->insert_query("fc_fields", $this->get_data());
         if ($result) {
             $this->fieldid = $result;
@@ -611,7 +618,7 @@ class formcreator_field
 
         return $output;
     }
-    
+
     public function output_checkbox()
     {
         $options = explode("\n", $this->options);
@@ -632,6 +639,15 @@ class formcreator_field
         }
 
         return $output;
+    }
+    
+    public function output_submit()
+    {
+        if ($this->class) {
+            $class = "class='" . $this->class . "'";
+        }
+                
+        return "<input type='submit' value='".$this->name."' ".$class." />";
     }
 }
 

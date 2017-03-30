@@ -36,18 +36,24 @@ function formcreator_activate()
 <br class=\"clear\" />
 {\$footer}
 </body>
-</html>", 'container' => '<table border="0" cellspacing="0" cellpadding="5" class="tborder">
+</html>", 'container' => '<form action="" method="post" class="{$formclass}">
+
+<table border="0" cellspacing="0" cellpadding="5" class="tborder">
 <tbody><tr>
 <td class="thead" colspan="2"><strong>{$formtitle}</strong></td>
 </tr>
 {$formcontent}
-</tbody></table>', 'field' => '<tr>
+</tbody></table>
+	
+</form>', 'field' => '<tr>
 	<td class="trow1">{$fieldname}{$fielddescription}</td>
 	<td class="trow1">{$fieldoutput}</td>
 </tr>', 'field_html' => '<tr>
 	<td class="trow1" colspan="2">{$fieldoutput}</td>
 </tr>', 'field_header' => '<tr>
 	<td class="thead" colspan="2">{$fieldoutput}</td>
+</tr>', 'field_submit' => '<tr>
+	<td class="trow1" colspan="2">{$fieldoutput}</td>
 </tr>', 'field_seperator' => '</tbody></table><br />
 	<td class="thead" colspan="2">{$fieldoutput}</td>
 </tr><table border="0" cellspacing="0" cellpadding="5" class="tborder">
