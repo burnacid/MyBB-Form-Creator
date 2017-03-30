@@ -93,13 +93,14 @@ class formcreator
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 6:
+                    $fieldoutput = $field->output_checkbox();
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 7:
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 8:
-                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
+                    eval('$output .= "' . $templates->get("formcreator_field_seperator") . '";');
                     break;
                 case 9:
                     $fieldoutput = $field->output_header();
@@ -597,6 +598,28 @@ class formcreator_field
             }
 
             $output .= "<input type='radio' name='" . $this->name . "' id='" . $this->name . "_" . $option . "' value='" . $option . "' " . $checked .
+                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "<label><br />";
+        }
+
+        return $output;
+    }
+    
+    public function output_checkbox()
+    {
+        $options = explode("\n", $this->options);
+
+        if ($this->class) {
+            $class = "class='" . $this->class . "'";
+        }
+
+        $output = "";
+
+        foreach ($options as $option) {
+            if ($this->default == $option) {
+                $checked = "checked='checked'";
+            }
+
+            $output .= "<input type='checkbox' name='" . $this->name . "[]' id='" . $this->name . "_" . $option . "' value='" . $option . "' " . $checked .
                 " /><label for='" . $this->name . "_" . $option . "'>" . $option . "<label><br />";
         }
 

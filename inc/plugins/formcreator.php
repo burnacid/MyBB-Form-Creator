@@ -48,7 +48,10 @@ function formcreator_activate()
 	<td class="trow1" colspan="2">{$fieldoutput}</td>
 </tr>', 'field_header' => '<tr>
 	<td class="thead" colspan="2">{$fieldoutput}</td>
-</tr>');
+</tr>', 'field_seperator' => '</tbody></table><br />
+	<td class="thead" colspan="2">{$fieldoutput}</td>
+</tr><table border="0" cellspacing="0" cellpadding="5" class="tborder">
+<tbody>');
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
 
