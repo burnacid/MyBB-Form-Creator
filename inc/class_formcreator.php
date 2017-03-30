@@ -89,6 +89,7 @@ class formcreator
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 5:
+                    $fieldoutput = $field->output_radio();
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 6:
@@ -570,14 +571,36 @@ class formcreator_field
 
         return $output;
     }
-    
+
     public function output_header()
     {
-        if($this->description){
-            return "<strong>".$this->name."</strong><br /><small>".$this->description."</small>";
-        }else{
-            return "<strong>".$this->name."</strong>";
+        if ($this->description) {
+            return "<strong>" . $this->name . "</strong><br /><small>" . $this->description . "</small>";
+        } else {
+            return "<strong>" . $this->name . "</strong>";
         }
+    }
+
+    public function output_radio()
+    {
+        $options = explode("\n", $this->options);
+
+        if ($this->class) {
+            $class = "class='" . $this->class . "'";
+        }
+
+        $output = "";
+
+        foreach ($options as $option) {
+            if ($this->default == $option) {
+                $checked = "checked='checked'";
+            }
+
+            $output .= "<input type='radio' name='" . $this->name . "' id='" . $this->name . "_" . $option . "' value='" . $option . "' " . $checked .
+                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "<label><br />";
+        }
+
+        return $output;
     }
 }
 
