@@ -101,10 +101,12 @@ class formcreator
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 9:
-                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
+                    $fieldoutput = $field->output_header();
+                    eval('$output .= "' . $templates->get("formcreator_field_header") . '";');
                     break;
                 case 10:
-                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
+                    $fieldoutput = $field->html;
+                    eval('$output .= "' . $templates->get("formcreator_field_html") . '";');
                     break;
             }
         }
@@ -567,6 +569,15 @@ class formcreator_field
         $output .= "</select>";
 
         return $output;
+    }
+    
+    public function output_header()
+    {
+        if($this->description){
+            return "<strong>".$this->name."</strong><br /><small>".$this->description."</small>";
+        }else{
+            return "<strong>".$this->name."</strong>";
+        }
     }
 }
 
