@@ -25,7 +25,7 @@ class formcreator
         4 => "Select (multiple)",
         5 => "Radio Buttons",
         6 => "Checkboxs",
-        7 => "Captcha",
+        #7 => "Captcha",
         8 => "Seperator",
         9 => "Header",
         10 => "HTML block");
