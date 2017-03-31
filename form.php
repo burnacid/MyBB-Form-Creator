@@ -31,17 +31,20 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             $error_array = array();
 
             foreach ($formcreator->fields as $field) {
-                if ($field->required && empty($mybb->input[$field->name])) {
+                $field->default = $mybb->input["field_".$field->fieldid];
+                
+                if ($field->required && empty($mybb->input["field_".$field->fieldid])) {
                     $error_array[] = "'" . $field->name . "' is empty!";
                 }
 
-                if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input[$field->name])) {
+                if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input["field_".$field->fieldid])) {
                     $error_array[] = "'" . $field->name . "' did not match the expected input!";
                 }
             }
 
             if (count($error_array) != 0) {
                 $errors = inline_error($error_array);
+                
             } else {
                 $display = false;
             }

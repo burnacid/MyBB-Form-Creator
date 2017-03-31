@@ -48,7 +48,7 @@ class formcreator
             }
 
             $formdata['pmgroups'] = explode(",", $formdata['pmgroups']);
-            
+
             $this->load_data($formdata);
             return $formdata;
         } else {
@@ -58,7 +58,7 @@ class formcreator
 
     public function build_form()
     {
-        global $templates,$stylelabelwidth;
+        global $templates, $stylelabelwidth;
 
         $output = "";
 
@@ -561,7 +561,7 @@ class formcreator_field
             $size = "size='" . $this->size . "'";
         }
 
-        return "<input type='text' value='" . $this->default . "' name='" . $this->name . "' class='textbox " . $this->class . "' " . $size . " />";
+        return "<input type='text' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='textbox " . $this->class . "' " . $size . " />";
     }
 
     public function output_textarea()
@@ -578,7 +578,7 @@ class formcreator_field
             $cols = "cols='" . $this->cols . "'";
         }
 
-        return "<textarea name='" . $this->name . "' " . $class . " " . $rows . " " . $cols . ">" . $this->default . "</textarea>";
+        return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows . " " . $cols . ">" . $this->default . "</textarea>";
     }
 
     public function output_select($multi = false)
@@ -597,24 +597,22 @@ class formcreator_field
             $size = "size='" . $this->size . "'";
         }
 
-        $output = "<select name='" . $this->name . "' " . $class . " " . $multi . " " . $size . ">";
+        $output = "<select name='field_" . $this->fieldid . "[]' " . $class . " " . $multi . " " . $size . ">";
 
         if (!$multi) {
             $output .= "<option value=''>- Select option -</option>";
         }
 
         foreach ($options as $option) {
-            if ($multi && is_array($this->default)) {
-                if (in_array($option, $this->default)) {
+            if (is_array($this->default)) {
+                if (in_array(trim($option), $this->default)) {
                     $selected = "selected='selected'";
-                }
-            } else {
-                if ($this->default == $option) {
-                    $selected = "selected='selected'";
+                } else {
+                    $selected = "";
                 }
             }
 
-            $output .= "<option value='" . $option . "' " . $selected . ">" . $option . "</option>";
+            $output .= "<option value='" . trim($option) . "' " . $selected . ">" . $option . "</option>";
         }
 
         $output .= "</select>";
@@ -642,11 +640,13 @@ class formcreator_field
         $output = "";
 
         foreach ($options as $option) {
-            if ($this->default == $option) {
+            if ($this->default == trim($option)) {
                 $checked = "checked='checked'";
+            } else {
+                $checked = "";
             }
 
-            $output .= "<input type='radio' name='" . $this->name . "' id='" . $this->name . "_" . $option . "' value='" . $option . "' " . $checked .
+            $output .= "<input type='radio' name='field_" . $this->fieldid . "' id='" . $this->name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
                 " /><label for='" . $this->name . "_" . $option . "'>" . $option . "<label><br />";
         }
 
@@ -664,11 +664,15 @@ class formcreator_field
         $output = "";
 
         foreach ($options as $option) {
-            if ($this->default == $option) {
-                $checked = "checked='checked'";
+            if (is_array($this->default)) {
+                if (in_array(trim($option), $this->default)) {
+                    $checked = "checked='checked'";
+                } else {
+                    $checked = "";
+                }
             }
 
-            $output .= "<input type='checkbox' name='" . $this->name . "[]' id='" . $this->name . "_" . $option . "' value='" . $option . "' " . $checked .
+            $output .= "<input type='checkbox' name='field_" . $this->fieldid . "[]' id='" . $this->name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
                 " /><label for='" . $this->name . "_" . $option . "'>" . $option . "<label><br />";
         }
 
