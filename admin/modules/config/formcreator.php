@@ -50,8 +50,6 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             admin_redirect("index.php?module=config-formcreator");
         }
 
-        echo $formcreator->allowedgid;
-
         $form = new Form("index.php?module=config-formcreator&amp;action=edit&amp;formid=" . $formcreator->formid, "post");
     } else {
         $form = new Form("index.php?module=config-formcreator&amp;action=add", "post");

@@ -72,6 +72,8 @@ class formcreator
 
             if ($field->description) {
                 $fielddescription = "<br /><small>" . $field->description . "</small>";
+            }else{
+                $fielddescription = "";
             }
 
             switch ($field->type) {
