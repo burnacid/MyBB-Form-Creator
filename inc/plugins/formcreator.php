@@ -38,7 +38,7 @@ function formcreator_activate()
 </body>
 </html>", 'container' => '<form action="" method="post" class="{$formclass}">
 
-<table border="0" cellspacing="0" cellpadding="5" class="tborder">
+<table border="0" cellspacing="0" cellpadding="5" class="tborder {$styleclass}" style="{$stylewidth}">
 <tbody><tr>
 <td class="thead" colspan="2"><strong>{$formtitle}</strong></td>
 </tr>
@@ -46,7 +46,7 @@ function formcreator_activate()
 </tbody></table>
 	
 </form>', 'field' => '<tr>
-	<td class="trow1">{$fieldname}{$fielddescription}</td>
+	<td class="trow1" style="{$stylelabelwidth}">{$fieldname}{$fielddescription}</td>
 	<td class="trow1">{$fieldoutput}</td>
 </tr>', 'field_html' => '<tr>
 	<td class="trow1" colspan="2">{$fieldoutput}</td>
@@ -56,7 +56,7 @@ function formcreator_activate()
 	<td class="trow1" colspan="2" style="text-align:center;">{$fieldoutput}</td>
 </tr>', 'field_seperator' => '</tbody></table><br />
 	<td class="thead" colspan="2">{$fieldoutput}</td>
-</tr><table border="0" cellspacing="0" cellpadding="5" class="tborder">
+</tr><table border="0" cellspacing="0" cellpadding="5" class="tborder {$styleclass}" style="{$stylewidth}">
 <tbody>');
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
@@ -170,6 +170,9 @@ function formcreator_install()
           `pmgroups` varchar(255) NOT NULL,
           `fid` int(11) NOT NULL,
           `mail` text NOT NULL,
+          `width` varchar(50) NOT NULL,
+          `labelwidth` varchar(50) NOT NULL,
+          `class` varchar(255) NOT NULL,
           PRIMARY KEY (`formid`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");

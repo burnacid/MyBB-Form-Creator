@@ -13,6 +13,18 @@ if ($formcreator->get_form($mybb->input['formid'])) {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
         $display = true;
 
+        if ($formcreator->width) {
+            $stylewidth = "width:" . $formcreator->width . ";";
+        }
+
+        if ($formcreator->labelwidth) {
+            $stylelabelwidth = "width:" . $formcreator->labelwidth . ";";
+        }
+
+        if ($formcreator->class) {
+            $styleclass = $formcreator->class;
+        }
+
         $formcreator->get_fields();
 
         if ($mybb->request_method == "post") {
@@ -23,7 +35,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     $error_array[] = "'" . $field->name . "' is empty!";
                 }
 
-                if ($field->regex && !preg_match("/".$field->regex."/", $mybb->input[$field->name])) {
+                if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input[$field->name])) {
                     $error_array[] = "'" . $field->name . "' did not match the expected input!";
                 }
             }

@@ -168,7 +168,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         allowedgid, array("multiple" => true)));
     $form_container->output_row("Status <em>*</em>", "Is this form active yes or no?", $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
-
+    
     $form_container = new FormContainer("Process Options");
     $form_container->output_row("Send PM to user(s)",
         "Send a PM to the User IDs defined here. If you do not want to trigger a PM leave this empty. Multiple users comma seperated.", $form->
@@ -181,6 +181,12 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row("Send Mail to",
         "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.", $form->generate_text_area("mail",
         $formcreator->mail));
+    $form_container->end();
+
+    $form_container = new FormContainer("Form Layout");
+    $form_container->output_row("Form table width", "Set the width of the table containing the form", $form->generate_text_box("width", $formcreator->width));
+    $form_container->output_row("Label column width", "Set the width of the table column containing the field labels", $form->generate_text_box("labelwidth", $formcreator->labelwidth));
+    $form_container->output_row("Class", "Set the class of the table containing the form", $form->generate_text_box("class", $formcreator->class));
     $form_container->end();
 
     if ($mybb->get_input('action') == 'edit')

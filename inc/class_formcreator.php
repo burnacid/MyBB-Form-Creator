@@ -11,6 +11,9 @@ class formcreator
     public $pmgroups;
     public $mail;
     public $fid;
+    public $class;
+    public $width;
+    public $labelwidth;
 
     public $fields;
 
@@ -55,7 +58,7 @@ class formcreator
 
     public function build_form()
     {
-        global $templates;
+        global $templates,$stylelabelwidth;
 
         $output = "";
 
@@ -217,6 +220,9 @@ class formcreator
         $this->pmgroups = $db->escape_string($this->pmgroups);
         $this->fid = intval($this->fid);
         $this->mail = $db->escape_string($this->mail);
+        $this->width = $db->escape_string($this->width);
+        $this->labelwidth = $db->escape_string($this->labelwidth);
+        $this->class = $db->escape_string($this->class);
     }
 
     public function load_data($data)
@@ -229,6 +235,9 @@ class formcreator
         $this->pmgroups = $data['pmgroups'];
         $this->fid = $data['fid'];
         $this->mail = $data['mail'];
+        $this->width = $data['width'];
+        $this->labelwidth = $data['labelwidth'];
+        $this->class = $data['class'];
     }
 
     public function get_data()
@@ -244,6 +253,9 @@ class formcreator
         $data['pmgroups'] = $this->pmgroups;
         $data['fid'] = $this->fid;
         $data['mail'] = $this->mail;
+        $data['width'] = $this->width;
+        $data['labelwidth'] = $this->labelwidth;
+        $data['class'] = $this->class;
 
         return $data;
     }
