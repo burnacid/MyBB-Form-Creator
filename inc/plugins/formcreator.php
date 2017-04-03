@@ -292,15 +292,22 @@ function get_usergroup_users($gid)
 {
     global $db;
     
-    //echo "usergroup IN (" . intval($gid) . ") OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($gid) . ",%'";
+    if(is_array($gid)){
+        $additionwhere = "";
+        foreach($gid as $groupid){
+            $additionwhere .= " OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($groupid) . ",%'";
+        }
+        
+        $query = $db->simple_select("users", "*", "usergroup IN (" . implode(",",$gid) . ")".$additionwhere);
+    }else{
+        $query = $db->simple_select("users", "*", "usergroup IN (" . intval($gid) . ") OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($gid) . ",%'");
+    }
     
-    $query = $db->simple_select("users", "*", "usergroup IN (" . intval($gid) . ") OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($gid) . ",%'");
     if ($db->num_rows($query)) {
 
         while ($user = $db->fetch_array($query)) {
             $userarray[$user['uid']] = $user;
         }
-        print_r($userarray);
         return $userarray;
     } else {
         return false;

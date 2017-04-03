@@ -72,7 +72,7 @@ class formcreator
 
             if ($field->description) {
                 $fielddescription = "<br /><small>" . $field->description . "</small>";
-            }else{
+            } else {
                 $fielddescription = "";
             }
 
@@ -308,6 +308,28 @@ class formcreator
         global $db;
 
         return $db->update_query("fc_fields", array("order" => intval($order)), "fieldid = " . intval($fieldid) . " and formid = " . $this->formid);
+    }
+
+    public function parse_output()
+    {
+        global $db, $mybb;
+
+        $output = "";
+        foreach ($this->fields as $field) {
+            if (in_array($field->type, array(
+                1,
+                2,
+                5))) {
+                $output .= "[b]" . $field->name . "[/b]: " . $mybb->input["field_" . $field->fieldid] . "\n";
+            } elseif (in_array($field->type, array(
+                4,
+                6,
+                3))) {
+                $output .= "[b]" . $field->name . "[/b]: " . implode(",", $mybb->input["field_" . $field->fieldid]) . "\n";
+            }
+        }
+
+        return $output;
     }
 }
 

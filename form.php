@@ -49,7 +49,10 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
             } else {
                 $display = false;
-
+                
+                $message = $formcreator->parse_output();
+                
+                // Send PM single user
                 if ($formcreator->pmusers) {
                     $users = explode(",", $formcreator->pmusers);
 
@@ -57,8 +60,6 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         if ($user_data = get_user($user)) {
                             $pmhandler = new PMDataHandler();
                             $pmhandler->admin_override = true;
-
-                            $message = implode($mybb->input);
 
                             $pm = array(
                                 "subject" => "Form submittion: " . $formcreator->name,
@@ -72,7 +73,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "signature" => "0",
                                 "disablesmilies" => "0",
                                 "savecopy" => "0",
-                                "readreceipt" => "0");
+                                "readreceipt" => "0",
+                                "allow_html" => 1);
 
                             $pmhandler->set_data($pm);
                             if ($pmhandler->validate_pm()) {
@@ -82,35 +84,32 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     }
                 }
 
-                if ($formcreator->pmgroups) {
-                    $group_members = array();
-                    
-                    foreach ($formcreator->pmgroups as $group) {                        
+                // Send PM groups
+                if (count($formcreator->pmgroups) != 0 AND !empty($formcreator->pmgroups[0])) {
+                    $group_members = get_usergroup_users($formcreator->pmgroups);
 
-                        foreach ($group_members as $user) {
-                            $pmhandler = new PMDataHandler();
-                            $pmhandler->admin_override = true;
+                    foreach ($group_members as $user) {
+                        $pmhandler = new PMDataHandler();
+                        $pmhandler->admin_override = true;
+                        
+                        $pm = array(
+                            "subject" => "Form submittion: " . $formcreator->name,
+                            "message" => $message,
+                            "icon" => "-1",
+                            "toid" => $user['uid'],
+                            "fromid" => $mybb->user['uid'],
+                            "do" => '',
+                            "pmid" => '');
+                        $pm['options'] = array(
+                            "signature" => "0",
+                            "disablesmilies" => "0",
+                            "savecopy" => "0",
+                            "readreceipt" => "0",
+                            "allow_html" => 1);
 
-                            $message = implode($mybb->input);
-
-                            $pm = array(
-                                "subject" => "Form submittion: " . $formcreator->name,
-                                "message" => $message,
-                                "icon" => "-1",
-                                "toid" => $user_data['uid'],
-                                "fromid" => $mybb->user['uid'],
-                                "do" => '',
-                                "pmid" => '');
-                            $pm['options'] = array(
-                                "signature" => "0",
-                                "disablesmilies" => "0",
-                                "savecopy" => "0",
-                                "readreceipt" => "0");
-
-                            $pmhandler->set_data($pm);
-                            if ($pmhandler->validate_pm()) {
-                                $pmhandler->insert_pm();
-                            }
+                        $pmhandler->set_data($pm);
+                        if ($pmhandler->validate_pm()) {
+                            $pmhandler->insert_pm();
                         }
                     }
                 }
