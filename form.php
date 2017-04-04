@@ -62,7 +62,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             $pmhandler->admin_override = true;
 
                             $pm = array(
-                                "subject" => "Form submittion: " . $formcreator->name,
+                                "subject" => "Form submission: " . $formcreator->name,
                                 "message" => $message,
                                 "icon" => "-1",
                                 "toid" => $user_data['uid'],
@@ -93,7 +93,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $pmhandler->admin_override = true;
 
                         $pm = array(
-                            "subject" => "Form submittion: " . $formcreator->name,
+                            "subject" => "Form submission: " . $formcreator->name,
                             "message" => $message,
                             "icon" => "-1",
                             "toid" => $user['uid'],
@@ -113,8 +113,46 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         }
                     }
                 }
-                
+
                 // Mail content
+                /*
+                if ($formcreator->mail) {
+                if ($mybb->user['uid']) {
+                $mybb->input['fromemail'] = $mybb->user['email'];
+                $mybb->input['fromname'] = $mybb->user['username'];
+                } else {
+                $mybb->input['fromemail'] = $mybb->user['email'];
+                //$mybb->input['fromname'] = $mybb->settings[''];
+                }
+
+                if ($mybb->settings['mail_handler'] == 'smtp') {
+                $from = $mybb->input['fromemail'];
+                } else {
+                $from = "{$mybb->input['fromname']} <{$mybb->input['fromemail']}>";
+                }
+
+                $message = $lang->sprintf($lang->email_emailuser, $to_user['username'], $mybb->input['fromname'], $mybb->settings['bbname'], $mybb->settings['bburl'],
+                $mybb->get_input('message'));
+                my_mail($to_user['email'], $mybb->get_input('subject'), $message, $from, "", "", false, "text", "", $mybb->input['fromemail']);
+
+                if ($mybb->settings['mail_logging'] > 0) {
+                // Log the message
+                $log_entry = array(
+                "subject" => $db->escape_string($mybb->get_input('subject')),
+                "message" => $db->escape_string($mybb->get_input('message')),
+                "dateline" => TIME_NOW,
+                "fromuid" => $mybb->user['uid'],
+                "fromemail" => $db->escape_string($mybb->input['fromemail']),
+                "touid" => $to_user['uid'],
+                "toemail" => $db->escape_string($to_user['email']),
+                "tid" => 0,
+                "ipaddress" => $db->escape_binary($session->packedip),
+                "type" => 1);
+                $db->insert_query("maillogs", $log_entry);
+                }
+                }
+                */
+
 
                 // Post in Forum
                 if ($formcreator->fid) {
@@ -125,7 +163,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                         $new_thread = array(
                             "fid" => $forum['fid'],
-                            "subject" => "Form submittion: " . $formcreator->name,
+                            "subject" => "Form submission: " . $formcreator->name,
                             "prefix" => 0,
                             "icon" => -1,
                             "uid" => $mybb->user['uid'],
