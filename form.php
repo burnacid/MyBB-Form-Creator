@@ -49,9 +49,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
             } else {
                 $display = false;
-                
+
                 $message = $formcreator->parse_output();
-                
+
                 // Send PM single user
                 if ($formcreator->pmusers) {
                     $users = explode(",", $formcreator->pmusers);
@@ -85,13 +85,13 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
 
                 // Send PM groups
-                if (count($formcreator->pmgroups) != 0 AND !empty($formcreator->pmgroups[0])) {
+                if (count($formcreator->pmgroups) != 0 and !empty($formcreator->pmgroups[0])) {
                     $group_members = get_usergroup_users($formcreator->pmgroups);
 
                     foreach ($group_members as $user) {
                         $pmhandler = new PMDataHandler();
                         $pmhandler->admin_override = true;
-                        
+
                         $pm = array(
                             "subject" => "Form submittion: " . $formcreator->name,
                             "message" => $message,
@@ -112,6 +112,53 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             $pmhandler->insert_pm();
                         }
                     }
+                }
+                
+                // Mail content
+
+                // Post in Forum
+                if ($formcreator->fid) {
+                    if ($forum = get_forum($formcreator->fid)) {
+                        $posthandler = new PostDataHandler();
+                        $posthandler->action = "thread";
+                        $posthandler->admin_override = true;
+
+                        $new_thread = array(
+                            "fid" => $forum['fid'],
+                            "subject" => "Form submittion: " . $formcreator->name,
+                            "prefix" => 0,
+                            "icon" => -1,
+                            "uid" => $mybb->user['uid'],
+                            "username" => $mybb->user['username'],
+                            "message" => $message,
+                            "ipaddress" => $session->packedip,
+                            "posthash" => "");
+
+                        // Set up the thread options
+                        $new_thread['options'] = array(
+                            "signature" => 'yes',
+                            "emailnotify" => 'no',
+                            "disablesmilies" => 'no');
+
+                        $posthandler->set_data($new_thread);
+
+                        if ($posthandler->validate_thread()) {
+                            $thread_info = $posthandler->insert_thread();
+                            $tid = $thread_info['tid'];
+
+                            $forumpermissions = forum_permissions($forum['fid']);
+
+                            if ($forumpermissions['canviewthreads'] == 1) {
+                                $url = get_thread_link($tid);
+                            }
+                        }
+                    }
+                }
+
+                if ($url) {
+                    redirect($url, "Form is submitted", "", false);
+                } else {
+                    redirect($mybb->settings['bburl'], "Form is submitted", "", false);
                 }
 
             }
