@@ -142,7 +142,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row("Post within forum", "Create a Post within the selected forum", $form->generate_forum_select("fid", $formcreator->fid,
         array('main_option' => "- DISABLED -"), true));
     $form_container->output_row("Send Mail to",
-        "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.", $form->generate_text_area("mail",
+        "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>", $form->generate_text_area("mail",
         $formcreator->mail));
     $form_container->end();
 
