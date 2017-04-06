@@ -164,7 +164,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $new_thread = array(
                             "fid" => $forum['fid'],
                             "subject" => "Form submission: " . $formcreator->name,
-                            "prefix" => 0,
+                            "prefix" => $formcreator->prefix,
                             "icon" => -1,
                             "uid" => $mybb->user['uid'],
                             "username" => $mybb->user['username'],

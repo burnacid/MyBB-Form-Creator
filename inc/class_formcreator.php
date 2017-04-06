@@ -11,6 +11,7 @@ class formcreator
     public $pmgroups;
     public $mail;
     public $fid;
+    public $prefix;
     public $class;
     public $width;
     public $labelwidth;
@@ -229,6 +230,7 @@ class formcreator
         $this->pmusers = $db->escape_string($this->pmusers);
         $this->pmgroups = $db->escape_string($this->pmgroups);
         $this->fid = intval($this->fid);
+        $this->prefix = intval($this->prefix);
         $this->mail = $db->escape_string($this->mail);
         $this->width = $db->escape_string($this->width);
         $this->labelwidth = $db->escape_string($this->labelwidth);
@@ -244,6 +246,7 @@ class formcreator
         $this->pmusers = $data['pmusers'];
         $this->pmgroups = $data['pmgroups'];
         $this->fid = $data['fid'];
+        $this->prefix = $data['prefix'];
         $this->mail = $data['mail'];
         $this->width = $data['width'];
         $this->labelwidth = $data['labelwidth'];
@@ -262,6 +265,7 @@ class formcreator
         $data['pmusers'] = $this->pmusers;
         $data['pmgroups'] = $this->pmgroups;
         $data['fid'] = $this->fid;
+        $data['prefix'] = $this->prefix;
         $data['mail'] = $this->mail;
         $data['width'] = $this->width;
         $data['labelwidth'] = $this->labelwidth;
