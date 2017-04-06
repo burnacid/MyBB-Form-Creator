@@ -105,6 +105,14 @@ class formcreator
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 8:
+                    if ($this->width) {
+                        $stylewidth = "width:" . $this->width . ";";
+                    }
+
+                    if ($this->class) {
+                        $styleclass = $this->class;
+                    }
+
                     eval('$output .= "' . $templates->get("formcreator_field_seperator") . '";');
                     break;
                 case 9:
