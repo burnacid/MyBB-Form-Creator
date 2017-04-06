@@ -4,6 +4,7 @@ class formcreator
 {
     public $formid;
     public $name;
+    public $allowedgidtype;
     public $allowedgid;
     public $allgroups;
     public $active;
@@ -44,9 +45,7 @@ class formcreator
         if ($db->num_rows($query) == 1) {
             $formdata = $db->fetch_array($query);
 
-            if ($formdata['allowedgid'] != -1) {
-                $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
-            }
+            $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
 
             $formdata['pmgroups'] = explode(",", $formdata['pmgroups']);
 
@@ -138,7 +137,7 @@ class formcreator
     {
         global $mybb;
 
-        if ($this->allowedgid == -1) {
+        if ($this->allowedgidtype == -1) {
             return true;
         }
 
@@ -151,9 +150,17 @@ class formcreator
         $current_groups = explode(",", $current_groups);
 
         if (array_intersect($this->allowedgid, $current_groups)) {
-            return true;
+            if ($this->allowedgidtype == 0) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            if ($this->allowedgidtype == 0) {
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 
@@ -170,10 +177,13 @@ class formcreator
     {
         global $db;
 
-        if ($this->allowedgid != -1) {
+        if ($this->allowedgid) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
-        $this->pmgroups = implode(",", $this->pmgroups);
+
+        if ($this->pmgroups) {
+            $this->pmgroups = implode(",", $this->pmgroups);
+        }
 
         $this->escape_data();
 
@@ -191,10 +201,13 @@ class formcreator
     {
         global $db;
 
-        if ($this->allowedgid != -1) {
+        if ($this->allowedgid) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
-        $this->pmgroups = implode(",", $this->pmgroups);
+
+        if ($this->pmgroups) {
+            $this->pmgroups = implode(",", $this->pmgroups);
+        }
 
         $this->escape_data();
 
@@ -225,6 +238,7 @@ class formcreator
 
         $this->formid = intval($this->formid);
         $this->name = $db->escape_string($this->name);
+        $this->allowedgidtype = intval($this->allowedgidtype);
         $this->allowedgid = $db->escape_string($this->allowedgid);
         $this->active = intval($this->active);
         $this->pmusers = $db->escape_string($this->pmusers);
@@ -241,6 +255,7 @@ class formcreator
     {
         $this->formid = $data['formid'];
         $this->name = $data['name'];
+        $this->allowedgidtype = $data['allowedgidtype'];
         $this->allowedgid = $data['allowedgid'];
         $this->active = $data['active'];
         $this->pmusers = $data['pmusers'];
@@ -260,6 +275,7 @@ class formcreator
         }
 
         $data['name'] = $this->name;
+        $data['allowedgidtype'] = $this->allowedgidtype;
         $data['allowedgid'] = $this->allowedgid;
         $data['active'] = $this->active;
         $data['pmusers'] = $this->pmusers;
