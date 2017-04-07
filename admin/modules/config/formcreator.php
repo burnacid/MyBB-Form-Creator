@@ -68,7 +68,11 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             $formcreator->add_error("Form Name is empty!");
         }
 
-        if (empty($formcreator->allowedgid)) {
+        if (!isset($formcreator->allowedgidtype)) {
+            $formcreator->add_error("The way allowed groups are handled wasn't set");
+        }
+
+        if (empty($formcreator->allowedgid) && ($formcreator->allowedgidtype == 0 or $formcreator->allowedgidtype==1)) {
             $formcreator->add_error("There were no allowed groups selected!");
         }
 
@@ -120,14 +124,30 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row("Form Name <em>*</em>", "The title of the form", $form->generate_text_box('name', $formcreator->name, array('id' => 'name')),
         'name');
 
-    if ($formcreator->allowedgid == -1) {
-        $allgroups = true;
-    } else {
-        $allgroups = false;
+    $radioboxes = "";
+    
+    if($formcreator->allowedgidtype == -1){
+        $option = array("checked" => 1);
+    }else{
+        $option = array();
     }
+    $radioboxes .= $form->generate_radio_button("allowedgidtype", -1, "Allow ALL groups",$option) . "<br />";
+    
+    if($formcreator->allowedgidtype == 0){
+        $option = array("checked" => 1);
+    }else{
+        $option = array();
+    }
+    $radioboxes .= $form->generate_radio_button("allowedgidtype", 0, "Allow selected groups",$option) . "<br />";
+    
+    if($formcreator->allowedgidtype == 1){
+        $option = array("checked" => 1);
+    }else{
+        $option = array();
+    }
+    $radioboxes .= $form->generate_radio_button("allowedgidtype", 1, "Allow all BUT selected groups",$option);
 
-    $form_container->output_row("Allowed Groups <em>*</em>", "Which groups are allowed to use this form", $form->generate_check_box("allgroups", "1",
-        "All usergroups (will overrule the selection)", array("checked" => $allgroups)) . "<br /><br />" . $form->generate_group_select("allowedgid[]", $formcreator->
+    $form_container->output_row("Allowed Groups <em>*</em>", "Which groups are allowed to use this form", $radioboxes . "<br /><br />" . $form->generate_group_select("allowedgid[]", $formcreator->
         allowedgid, array("multiple" => true)));
     $form_container->output_row("Status <em>*</em>", "Is this form active yes or no?", $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
@@ -141,9 +161,21 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $formcreator->pmgroups, array("multiple" => true)));
     $form_container->output_row("Post within forum", "Create a Post within the selected forum", $form->generate_forum_select("fid", $formcreator->fid,
         array('main_option' => "- DISABLED -"), true));
+
+    $query = $db->simple_select("threadprefixes", "*");
+    $prefixes = array(0 => "- None -");
+    while ($prefix = $db->fetch_array($query)) {
+        $prefixes[$prefix['pid']] = $prefix['prefix'];
+    }
+
+    $form_container->output_row("Thread prefix",
+        "Select a thread prefix for the thread that will be made. Only has use when option for Post within forum is set.", $form->generate_select_box("prefix",
+        $prefixes, $formcreator->prefix));
+    /*
     $form_container->output_row("Send Mail to",
-        "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>", $form->generate_text_area("mail",
-        $formcreator->mail));
+        "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>",
+        $form->generate_text_area("mail", $formcreator->mail));
+    */
     $form_container->end();
 
     $form_container = new FormContainer("Form Layout");

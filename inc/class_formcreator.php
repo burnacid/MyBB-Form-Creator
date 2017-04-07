@@ -4,6 +4,7 @@ class formcreator
 {
     public $formid;
     public $name;
+    public $allowedgidtype;
     public $allowedgid;
     public $allgroups;
     public $active;
@@ -11,6 +12,7 @@ class formcreator
     public $pmgroups;
     public $mail;
     public $fid;
+    public $prefix;
     public $class;
     public $width;
     public $labelwidth;
@@ -43,9 +45,7 @@ class formcreator
         if ($db->num_rows($query) == 1) {
             $formdata = $db->fetch_array($query);
 
-            if ($formdata['allowedgid'] != -1) {
-                $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
-            }
+            $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
 
             $formdata['pmgroups'] = explode(",", $formdata['pmgroups']);
 
@@ -137,7 +137,7 @@ class formcreator
     {
         global $mybb;
 
-        if ($this->allowedgid == -1) {
+        if ($this->allowedgidtype == -1) {
             return true;
         }
 
@@ -150,9 +150,17 @@ class formcreator
         $current_groups = explode(",", $current_groups);
 
         if (array_intersect($this->allowedgid, $current_groups)) {
-            return true;
+            if ($this->allowedgidtype == 0) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            if ($this->allowedgidtype == 0) {
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 
@@ -169,10 +177,13 @@ class formcreator
     {
         global $db;
 
-        if ($this->allowedgid != -1) {
+        if ($this->allowedgid) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
-        $this->pmgroups = implode(",", $this->pmgroups);
+
+        if ($this->pmgroups) {
+            $this->pmgroups = implode(",", $this->pmgroups);
+        }
 
         $this->escape_data();
 
@@ -190,10 +201,13 @@ class formcreator
     {
         global $db;
 
-        if ($this->allowedgid != -1) {
+        if ($this->allowedgid) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
-        $this->pmgroups = implode(",", $this->pmgroups);
+
+        if ($this->pmgroups) {
+            $this->pmgroups = implode(",", $this->pmgroups);
+        }
 
         $this->escape_data();
 
@@ -224,11 +238,13 @@ class formcreator
 
         $this->formid = intval($this->formid);
         $this->name = $db->escape_string($this->name);
+        $this->allowedgidtype = intval($this->allowedgidtype);
         $this->allowedgid = $db->escape_string($this->allowedgid);
         $this->active = intval($this->active);
         $this->pmusers = $db->escape_string($this->pmusers);
         $this->pmgroups = $db->escape_string($this->pmgroups);
         $this->fid = intval($this->fid);
+        $this->prefix = intval($this->prefix);
         $this->mail = $db->escape_string($this->mail);
         $this->width = $db->escape_string($this->width);
         $this->labelwidth = $db->escape_string($this->labelwidth);
@@ -239,11 +255,13 @@ class formcreator
     {
         $this->formid = $data['formid'];
         $this->name = $data['name'];
+        $this->allowedgidtype = $data['allowedgidtype'];
         $this->allowedgid = $data['allowedgid'];
         $this->active = $data['active'];
         $this->pmusers = $data['pmusers'];
         $this->pmgroups = $data['pmgroups'];
         $this->fid = $data['fid'];
+        $this->prefix = $data['prefix'];
         $this->mail = $data['mail'];
         $this->width = $data['width'];
         $this->labelwidth = $data['labelwidth'];
@@ -257,11 +275,13 @@ class formcreator
         }
 
         $data['name'] = $this->name;
+        $data['allowedgidtype'] = $this->allowedgidtype;
         $data['allowedgid'] = $this->allowedgid;
         $data['active'] = $this->active;
         $data['pmusers'] = $this->pmusers;
         $data['pmgroups'] = $this->pmgroups;
         $data['fid'] = $this->fid;
+        $data['prefix'] = $this->prefix;
         $data['mail'] = $this->mail;
         $data['width'] = $this->width;
         $data['labelwidth'] = $this->labelwidth;

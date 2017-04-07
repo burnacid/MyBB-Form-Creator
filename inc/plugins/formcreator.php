@@ -11,7 +11,7 @@ function formcreator_info()
         'website' => 'https://mybb.com',
         'author' => 'S. Lenders',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '0.1',
+        'version' => '0.2',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
@@ -39,7 +39,7 @@ function formcreator_activate()
 </body>
 </html>",
         'container' => '<form action="" method="post" class="{$formclass}">
-
+{$errors}
 <table border="0" cellspacing="0" cellpadding="5" class="tborder {$styleclass}" style="{$stylewidth}">
 <tbody><tr>
 <td class="thead" colspan="2"><strong>{$formtitle}</strong></td>
@@ -154,11 +154,13 @@ function formcreator_install()
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_forms` (
           `formid` int(11) NOT NULL AUTO_INCREMENT,
           `name` varchar(255) NOT NULL,
+          `allowedgidtype` int(11) NOT NULL,
           `allowedgid` text NOT NULL,
           `active` tinyint(1) NOT NULL,
           `pmusers` varchar(255) NOT NULL,
           `pmgroups` varchar(255) NOT NULL,
           `fid` int(11) NOT NULL,
+          `prefix` int(11) NOT NULL,
           `mail` text NOT NULL,
           `width` varchar(50) NOT NULL,
           `labelwidth` varchar(50) NOT NULL,
