@@ -11,7 +11,7 @@ function formcreator_info()
         'website' => 'https://mybb.com',
         'author' => 'S. Lenders',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '0.2',
+        'version' => '1.0',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
