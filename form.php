@@ -202,10 +202,14 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             }
         }
 
-        if ($display) {
+        if ($display && count($formcreator->fields) != 0) {
             $formtitle = $formcreator->name;
 
             $formcontent = $formcreator->build_form();
+        } elseif (count($formcreator->fields) == 0) {
+            $formtitle = $formcreator->name;
+
+            $formcontent = '<tr><td class="trow1" colspan="2">This form doesn\'t contain any fields yet!</td></tr>';
         }
 
     } elseif ($formcreator->active == 0) {
