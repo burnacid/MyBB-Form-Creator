@@ -7,11 +7,11 @@ function formcreator_info()
 {
     return array(
         'name' => 'Form Creator',
-        'description' => '',
+        'description' => 'Plugin for creating fillable forms to be send as PM or to be created as a new thread',
         'website' => 'https://mybb.com',
-        'author' => 'S. Lenders',
+        'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '0.2',
+        'version' => '1.0',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
