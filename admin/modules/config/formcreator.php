@@ -171,9 +171,11 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row("Thread prefix",
         "Select a thread prefix for the thread that will be made. Only has use when option for Post within forum is set.", $form->generate_select_box("prefix",
         $prefixes, $formcreator->prefix));
+    /*
     $form_container->output_row("Send Mail to",
         "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>",
         $form->generate_text_area("mail", $formcreator->mail));
+    */
     $form_container->end();
 
     $form_container = new FormContainer("Form Layout");
