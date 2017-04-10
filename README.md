@@ -1,4 +1,4 @@
-# MyBB Trash Bin
+# MyBB Form Creator
 Form Creator feature for MyBB 1.8.x
 
 This plugin for MyBB lets forum administrators create fillable forms that can be send through PM or create a new thread in a forum.
