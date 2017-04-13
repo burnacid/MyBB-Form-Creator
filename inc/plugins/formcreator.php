@@ -165,6 +165,8 @@ function formcreator_install()
           `width` varchar(50) NOT NULL,
           `labelwidth` varchar(50) NOT NULL,
           `class` varchar(255) NOT NULL,
+          `subjecttemplate` varchar(255) NOT NULL,
+          `messagetemplate` text,
           PRIMARY KEY (`formid`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");

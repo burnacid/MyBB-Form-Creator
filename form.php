@@ -49,7 +49,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
             } else {
                 $display = false;
-
+                
+                $subject = $formcreator->parse_subject();                
                 $message = $formcreator->parse_output();
 
                 // Send PM single user
@@ -62,7 +63,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             $pmhandler->admin_override = true;
 
                             $pm = array(
-                                "subject" => "Form submission: " . $formcreator->name,
+                                "subject" => $subject,
                                 "message" => $message,
                                 "icon" => "-1",
                                 "toid" => $user_data['uid'],
@@ -93,7 +94,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $pmhandler->admin_override = true;
 
                         $pm = array(
-                            "subject" => "Form submission: " . $formcreator->name,
+                            "subject" => $subject,
                             "message" => $message,
                             "icon" => "-1",
                             "toid" => $user['uid'],
@@ -163,7 +164,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                         $new_thread = array(
                             "fid" => $forum['fid'],
-                            "subject" => "Form submission: " . $formcreator->name,
+                            "subject" => $subject,
                             "prefix" => $formcreator->prefix,
                             "icon" => -1,
                             "uid" => $mybb->user['uid'],

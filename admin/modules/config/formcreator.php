@@ -305,30 +305,49 @@ elseif ($mybb->get_input('action') == 'output')
 
     if ($mybb->request_method == "post")
     {
+        $formcreator->subjecttemplate = $mybb->input['subjecttemplate'];
+        $formcreator->messagetemplate = $mybb->input['messagetemplate'];
 
+        if ($formcreator->update_template())
+        {
+            flash_message("The form output template has been updated", 'success');
+            admin_redirect("index.php?module=config-formcreator&action=output&formid=" . $formcreator->formid);
+        }
+        else
+        {
+            flash_message("Oops something went wrong!", 'error');
+            admin_redirect("index.php?module=config-formcreator");
+        }
     }
-    
+
     $formcreator->get_fields();
-    
-    if(count($formcreator->fields) == 0){
+
+    if (count($formcreator->fields) == 0)
+    {
         flash_message("This form doesn't have any fields yet. Please add fields before you change the output template.", 'error');
         admin_redirect("index.php?module=config-formcreator");
     }
-    
+
     echo "<script src='jscripts/formcreator.js'></script>";
-    
-    $legend = "";
-    foreach($formcreator->fields as $field){
-        $legend .= $field->name .": ";
-        $legend .= "<a href='javascript:addToTemplate(\"\$fieldname[".$field->fieldid."]\");'>Field Name</a> | <a href='javascript:addToTemplate(\"\$fieldvalue[".$field->fieldid."]\");'>Field Value</a><br />";
+
+    $legend = "<a href='javascript:addToTemplate(\"{\$formname}\");'>Form Name</a><br /><br />";
+    foreach ($formcreator->fields as $field)
+    {
+        $legend .= "(ID:".$field->fieldid.") ".$field->name . ": ";
+        $legend .= "<a href='javascript:addToTemplate(\"{\$fieldname[" . $field->fieldid . "]}\");'>Field Name</a> | <a href='javascript:addToTemplate(\"{\$fieldvalue[" .
+            $field->fieldid . "]}\");'>Field Value</a><br />";
     }
 
     $form = new Form("index.php?module=config-formcreator&amp;action=output&amp;formid=" . $mybb->input['formid'], "post");
     $form_container = new FormContainer("Edit Output Template");
-    $form_container->output_row("Subject template", "Please enter in the template string for the subject. Copy any variables from the template.", $form->generate_text_box("subjecttemplate", $mybb->
-        input['subjecttemplate']));
-    $form_container->output_row("Message template", "Please enter in the template for the message. You can use MyCode and the variables by clicking the legend.", $form->generate_text_area("messagetemplate", $mybb->
-        input['messagetemplate'],array("style" => "width: 98%;","rows" => 20,"id" => "msgtemplate")) . "<br /><br /><strong>Add field definitions:<br /></strong><small>".$legend."</small>");
+    $form_container->output_row("Subject template", "Please enter in the template string for the subject. Copy any variables from the template.", $form->
+        generate_text_box("subjecttemplate", $formcreator->subjecttemplate));
+    $form_container->output_row("Message template",
+        "Please enter in the template for the message. You can use MyCode and the variables by clicking the legend.", $form->generate_text_area("messagetemplate",
+        $formcreator->messagetemplate, array(
+        "style" => "width: 98%;",
+        "rows" => 20,
+        "id" => "msgtemplate")) . "<br /><br /><strong>Add Variables:<br /></strong><small>" . $legend . "</small>");
 
     $form_container->end();
 
