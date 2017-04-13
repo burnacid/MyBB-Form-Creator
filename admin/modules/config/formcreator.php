@@ -315,18 +315,20 @@ elseif ($mybb->get_input('action') == 'output')
         admin_redirect("index.php?module=config-formcreator");
     }
     
+    echo "<script src='jscripts/formcreator.js'></script>";
+    
     $legend = "";
     foreach($formcreator->fields as $field){
         $legend .= $field->name .": ";
-        $legend .= "<a href='#'>Field Name</a> | <a href='#'>Field Value</a><br />";
+        $legend .= "<a href='javascript:addToTemplate(\"\$fieldname[".$field->fieldid."]\");'>Field Name</a> | <a href='javascript:addToTemplate(\"\$fieldvalue[".$field->fieldid."]\");'>Field Value</a><br />";
     }
 
     $form = new Form("index.php?module=config-formcreator&amp;action=output&amp;formid=" . $mybb->input['formid'], "post");
     $form_container = new FormContainer("Edit Output Template");
-    $form_container->output_row("Subject template", "Please enter in the template string for the subject", $form->generate_text_box("subjecttemplate", $mybb->
+    $form_container->output_row("Subject template", "Please enter in the template string for the subject. Copy any variables from the template.", $form->generate_text_box("subjecttemplate", $mybb->
         input['subjecttemplate']));
-    $form_container->output_row("Message template", "Please enter in the template for the message", $form->generate_text_area("messagetemplate", $mybb->
-        input['messagetemplate'],array("style" => "width: 98%;","rows" => 20)) . "<br /><br /><strong>Add field definitions:<br /></strong><small>".$legend."</small>");
+    $form_container->output_row("Message template", "Please enter in the template for the message. You can use MyCode and the variables by clicking the legend.", $form->generate_text_area("messagetemplate", $mybb->
+        input['messagetemplate'],array("style" => "width: 98%;","rows" => 20,"id" => "msgtemplate")) . "<br /><br /><strong>Add field definitions:<br /></strong><small>".$legend."</small>");
 
     $form_container->end();
 
