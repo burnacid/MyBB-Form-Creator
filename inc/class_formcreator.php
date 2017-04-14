@@ -32,7 +32,7 @@ class formcreator
         4 => "Select (multiple)",
         5 => "Radio Buttons",
         6 => "Checkboxs",
-        #7 => "Captcha",
+        7 => "Date",
         8 => "Seperator",
         9 => "Header",
         10 => "HTML block",
@@ -113,6 +113,7 @@ class formcreator
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 7:
+                    $fieldoutput = $field->output_dateselect();
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 8:
@@ -258,9 +259,6 @@ class formcreator
         }
 
         $template_data = array("subjecttemplate" => $this->subjecttemplate, "messagetemplate" => $this->messagetemplate);
-
-        print_r($template_data);
-        echo $this->formid;
 
         $result = $db->update_query("fc_forms", $template_data, "formid = " . $this->formid);
 
@@ -508,7 +506,9 @@ class formcreator
                     $output .= "[b]" . $field->name . "[/b]: " . implode(",", $mybb->input["field_" . $field->fieldid]) . "\n";
                 }
             }
-        }else{
+        }
+        else
+        {
             $formname = $this->name;
             $fieldname = $this->get_field_names();
             $fieldvalue = $this->get_field_values();
@@ -536,6 +536,7 @@ class formcreator_field
     public $cols;
     public $rows;
     public $class;
+    public $format;
 
     public function escape_data()
     {
@@ -556,6 +557,7 @@ class formcreator_field
         $this->rows = intval($this->rows);
         $this->class = $db->escape_string($this->class);
         $this->html = $db->escape_string($this->html);
+        $this->format = $db->escape_string($this->format);
     }
 
     public function load_data($data)
@@ -575,6 +577,7 @@ class formcreator_field
         $this->rows = $data['rows'];
         $this->class = $data['class'];
         $this->html = $data['html'];
+        $this->format = $data['format'];
     }
 
     public function get_data()
@@ -598,6 +601,7 @@ class formcreator_field
         $data['rows'] = $this->rows;
         $data['class'] = $this->class;
         $data['html'] = $this->html;
+        $data['format'] = $this->format;
 
         return $data;
     }
@@ -668,7 +672,13 @@ class formcreator_field
             }
             elseif ($this->type == 7)
             {
-                $show = array("name", "description");
+                $show = array(
+                    "name",
+                    "description",
+                    "format",
+                    "default",
+                    "required",
+                    "class");
             }
             elseif ($this->type == 8)
             {
@@ -885,6 +895,36 @@ class formcreator_field
         }
 
         $output .= "</select>";
+
+        return $output;
+    }
+
+    public function output_dateselect()
+    {
+        if ($this->class)
+        {
+            $class = $this->class;
+        }
+
+        $output = "<input type='text' id='field_".$this->fieldid."' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='textbox dateselect " . $this->class . "' />";
+
+        if(empty($this->format)){
+            $output .= "<script>
+        	  $( function() {
+        		$( \"#field_".$this->fieldid."\" ).datepicker();
+        	  } );
+          </script>";
+        }else{
+            $output .= "<script>
+        	  $( function() {
+        		$( \"#field_".$this->fieldid."\" ).datepicker({
+          dateFormat: '" . $this->format . "'
+        });
+        	  } );
+          </script>";
+        }
+
+        
 
         return $output;
     }

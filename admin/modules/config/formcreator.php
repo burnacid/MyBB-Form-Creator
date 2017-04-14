@@ -486,6 +486,11 @@ elseif ($mybb->get_input('action') == 'addfield' || $mybb->get_input('action') =
                 $form_container->output_row("Options <em>*</em>", "Please enter the options for the field. One option per line", $form->generate_text_area("options",
                     $field->options));
             }
+            if ($field->show_admin_field("format"))
+            {
+                $form_container->output_row("Format", "Please enter the format for the field (e.g. for dates use jQuery <a href='http://api.jqueryui.com/datepicker/#utility-formatDate'>dateformat</a>)", $form->generate_text_box("format",
+                    $field->format));
+            }
             if ($field->show_admin_field("default"))
             {
                 $form_container->output_row("Default", "Enter the default value for this field", $form->generate_text_box("default", $field->default));

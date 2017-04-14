@@ -11,7 +11,7 @@ function formcreator_info()
         'website' => 'https://mybb.com',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '1.0',
+        'version' => '2.0',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
@@ -27,6 +27,7 @@ function formcreator_activate()
 <head>
     <title>{\$mybb->settings['bbname']}</title>
     {\$headerinclude}
+    <script src=\"https://code.jquery.com/ui/1.12.1/jquery-ui.js\"></script>
 </head>
 <body>
 {\$header}
@@ -179,6 +180,7 @@ function formcreator_install()
           `name` varchar(255) NOT NULL,
           `description` varchar(2000) DEFAULT NULL,
           `type` int(11) NOT NULL,
+          `format` varchar(255) NOT NULL,
           `options` varchar(2000) DEFAULT NULL,
           `default` varchar(2000) DEFAULT NULL,
           `required` tinyint(1) DEFAULT NULL,
