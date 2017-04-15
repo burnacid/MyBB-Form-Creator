@@ -497,14 +497,14 @@ class formcreator
                     5,
                     7)))
                 {
-                    $output .= "[b]" . $field->name . "[/b]: " . $mybb->input["field_" . $field->fieldid] . "\n";
+                    $output .= "[b]" . $field->name . "[/b]: " . $mybb->input["field_" . $field->fieldid] . "\n[hr]";
                 }
                 elseif (in_array($field->type, array(
                     4,
                     6,
                     3)))
                 {
-                    $output .= "[b]" . $field->name . "[/b]: " . implode(",", $mybb->input["field_" . $field->fieldid]) . "\n";
+                    $output .= "[b]" . $field->name . "[/b]: " . implode(",", $mybb->input["field_" . $field->fieldid]) . "\n[hr]";
                 }
             }
         }
