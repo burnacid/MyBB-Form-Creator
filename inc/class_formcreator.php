@@ -494,7 +494,8 @@ class formcreator
                 if (in_array($field->type, array(
                     1,
                     2,
-                    5)))
+                    5,
+                    7)))
                 {
                     $output .= "[b]" . $field->name . "[/b]: " . $mybb->input["field_" . $field->fieldid] . "\n";
                 }
