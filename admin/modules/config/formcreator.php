@@ -700,7 +700,8 @@ elseif ($mybb->get_input('action') == 'export')
         $form_container = new FormContainer("Export");
         $form = new Form("index.php?module=config-formcreator&amp;action=export", "post");
 
-        $form_container->output_row("Export data","Copy and save this to a file or use this to import it else where.",$form->generate_text_area("export",json_encode($output_array),array("style"=>"width:98%;","rows"=>25)));
+        $form_container->output_row("Export data", "Copy and save this to a file or use this to import it else where.", $form->generate_text_area("export",
+            json_encode($output_array), array("style" => "width:98%;", "rows" => 25)));
 
         $form_container->end();
         $form->end();
@@ -720,12 +721,14 @@ elseif ($mybb->get_input('action') == 'export')
         {
             while ($form_data = $db->fetch_array($query))
             {
-                $forms .= $form->generate_check_box("forms[]", $form_data['formid'], $form_data['name']);
+                $forms .= $form->generate_check_box("forms[]", $form_data['formid'], $form_data['name'])."<br/>";
             }
 
             $form_container->output_row("Forms <em>*</em>", "Which forms do you like to export?", $forms);
-            $form_container->output_row("Export Permissions", "Do you like to export the permissions? Set this to 'OFF' if you are going to import this on other forums.", $form->generate_on_off_radio("permissions"));
-            $form_container->output_row("Export Process Options", "Do you like to export the process options? Set this to 'OFF' if you are going to import this on other forums.", $form->generate_on_off_radio("process"));
+            $form_container->output_row("Export Permissions",
+                "Do you like to export the permissions? Set this to 'OFF' if you are going to import this on other forums.", $form->generate_on_off_radio("permissions"));
+            $form_container->output_row("Export Process Options",
+                "Do you like to export the process options? Set this to 'OFF' if you are going to import this on other forums.", $form->generate_on_off_radio("process"));
 
             $form_container->end();
 
@@ -743,6 +746,63 @@ elseif ($mybb->get_input('action') == 'import')
     $page->add_breadcrumb_item("Import Forms", "");
     $page->output_header("Import forms");
     $page->output_nav_tabs($sub_tabs, 'formcreator_import');
+
+
+    if ($mybb->request_method == "post" && !empty($mybb->input['import']))
+    {
+        $import = json_decode($mybb->input['import'], true);
+
+        if (count($import))
+        {
+            foreach ($import as $form)
+            {
+                $fields = $form['fields'];
+                
+                $formcreator->load_data($form);
+                if ($formid = $formcreator->insert_form())
+                {
+                    if (count($fields) != 0)
+                    {
+                        foreach ($fields as $field_data)
+                        {
+                            $field_data['formid'] = $formid;
+
+                            $field = new formcreator_field();
+                            $field->load_data($field_data);
+
+                            $field->insert_field();
+                            
+                            $count_fields++;
+                        }
+                    }
+                }
+                $count_forms++;
+            }
+            
+            flash_message("Forms imported (".$count_forms." forms and ".$count_fields." fields)", 'success');
+            admin_redirect("index.php?module=config-formcreator");
+        }
+        else
+        {
+            flash_message("No forms found to import", 'error');
+            admin_redirect("index.php?module=config-formcreator&amp;action=import");
+        }
+    }
+    else
+    {
+        $form_container = new FormContainer("Import forms");
+        $form = new Form("index.php?module=config-formcreator&amp;action=import", "post");
+
+        $form_container->output_row("Import code <em>*</em>", "Enter the import code.", $form->generate_text_area("import", "", array("style" => "width:98%;",
+                "rows" => 25)));
+
+        $form_container->end();
+
+        $buttons[] = $form->generate_submit_button("Import Forms");
+
+        $form->output_submit_wrapper($buttons);
+        $form->end();
+    }
 }
 elseif ($mybb->get_input('action') == 'fields')
 {
