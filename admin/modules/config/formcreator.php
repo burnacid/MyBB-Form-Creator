@@ -724,8 +724,8 @@ elseif ($mybb->get_input('action') == 'export')
             }
 
             $form_container->output_row("Forms <em>*</em>", "Which forms do you like to export?", $forms);
-            $form_container->output_row("Export Permissions", "Do you like to export the permissions?", $form->generate_on_off_radio("permissions"));
-            $form_container->output_row("Export Process Options", "Do you like to export the process options?", $form->generate_on_off_radio("process"));
+            $form_container->output_row("Export Permissions", "Do you like to export the permissions? Set this to 'OFF' if you are going to import this on other forums.", $form->generate_on_off_radio("permissions"));
+            $form_container->output_row("Export Process Options", "Do you like to export the process options? Set this to 'OFF' if you are going to import this on other forums.", $form->generate_on_off_radio("process"));
 
             $form_container->end();
 
