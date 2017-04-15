@@ -5,10 +5,19 @@ if (!defined('IN_MYBB'))
 
 function formcreator_info()
 {
+    $donate = '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="3A2B883GGPH2U">
+<input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal – The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+';
+
     return array(
         'name' => 'Form Creator',
-        'description' => 'Plugin for creating fillable forms to be send as PM or to be created as a new thread',
-        'website' => 'https://mybb.com',
+        'description' => 'Plugin for creating fillable forms to be send as PM or to be created as a new thread<p>Although this plugin is completly free donations are greatly appreciated to keep the plugin updated. ' .
+            $donate . '</p>',
+        'website' => 'https://community.mybb.com/mods.php?action=view&pid=975',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
         'version' => '2.0',
@@ -18,7 +27,7 @@ function formcreator_info()
 
 function formcreator_activate()
 {
-    global $db,$mybb;
+    global $db, $mybb;
 
     change_admin_permission('config', 'formcreator', 1);
 
