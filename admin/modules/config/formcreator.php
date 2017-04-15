@@ -13,6 +13,14 @@ $sub_tabs['formcreator_add'] = array(
     'title' => 'Create New Form',
     'link' => 'index.php?module=config-formcreator&amp;action=add',
     'description' => 'Create a new form for this website');
+$sub_tabs['formcreator_export'] = array(
+    'title' => 'Export',
+    'link' => 'index.php?module=config-formcreator&amp;action=export',
+    'description' => 'Export forms for backuping or sharing');
+$sub_tabs['formcreator_import'] = array(
+    'title' => 'Import',
+    'link' => 'index.php?module=config-formcreator&amp;action=import',
+    'description' => 'Import forms from a export code');
 
 if ($mybb->get_input('action') == "edit")
 {
@@ -333,7 +341,7 @@ elseif ($mybb->get_input('action') == 'output')
     $legend = "<a href='javascript:addToTemplate(\"{\$formname}\");'>Form Name</a><br /><br />";
     foreach ($formcreator->fields as $field)
     {
-        $legend .= "(ID:".$field->fieldid.") ".$field->name . ": ";
+        $legend .= "(ID:" . $field->fieldid . ") " . $field->name . ": ";
         $legend .= "<a href='javascript:addToTemplate(\"{\$fieldname[" . $field->fieldid . "]}\");'>Field Name</a> | <a href='javascript:addToTemplate(\"{\$fieldvalue[" .
             $field->fieldid . "]}\");'>Field Value</a><br />";
     }
@@ -488,8 +496,9 @@ elseif ($mybb->get_input('action') == 'addfield' || $mybb->get_input('action') =
             }
             if ($field->show_admin_field("format"))
             {
-                $form_container->output_row("Format", "Please enter the format for the field (e.g. for dates use jQuery <a href='http://api.jqueryui.com/datepicker/#utility-formatDate'>dateformat</a>)", $form->generate_text_box("format",
-                    $field->format));
+                $form_container->output_row("Format",
+                    "Please enter the format for the field (e.g. for dates use jQuery <a href='http://api.jqueryui.com/datepicker/#utility-formatDate'>dateformat</a>)", $form->
+                    generate_text_box("format", $field->format));
             }
             if ($field->show_admin_field("default"))
             {
@@ -622,6 +631,118 @@ elseif ($mybb->get_input('action') == 'orderfields')
         flash_message("Oops something went wrong!", 'error');
         admin_redirect("index.php?module=config-formcreator");
     }
+}
+elseif ($mybb->get_input('action') == 'export')
+{
+    $formcreator = new formcreator();
+
+    $page->add_breadcrumb_item("Export Forms", "");
+    $page->output_header("Export forms");
+    $page->output_nav_tabs($sub_tabs, 'formcreator_export');
+
+    if ($mybb->request_method == "post" && count($mybb->input['forms']))
+    {
+        foreach ($mybb->input['forms'] as $form)
+        {
+            if ($formcreator->get_form($form))
+            {
+                $data = $formcreator->get_data();
+
+                unset($data['formid']);
+
+                if ($mybb->input['permissions'] == 0)
+                {
+                    unset($data['allowedgid']);
+                    $data['allowedgidtype'] = -1;
+                }
+
+                if ($mybb->input['process'] == 0)
+                {
+                    unset($data['pmusers']);
+                    unset($data['pmgroups']);
+                    unset($data['fid']);
+                    unset($data['prefix']);
+                    unset($data['mail']);
+                }
+
+                $formcreator->get_fields();
+
+                if (count($formcreator->fields) != 0)
+                {
+                    foreach ($formcreator->fields as $field)
+                    {
+                        $fielddata = $field->get_data();
+
+                        unset($fielddata['fieldid']);
+                        unset($fielddata['formid']);
+
+                        $field_array[] = $fielddata;
+                    }
+
+                    $data['fields'] = $field_array;
+
+                }
+                else
+                {
+                    $data['fields'] = array();
+                }
+
+                $output_array[] = $data;
+
+            }
+            else
+            {
+                flash_message("Oops something went wrong!", 'error');
+                admin_redirect("index.php?module=config-formcreator");
+            }
+        }
+
+        $form_container = new FormContainer("Export");
+        $form = new Form("index.php?module=config-formcreator&amp;action=export", "post");
+
+        $form_container->output_row("Export data","Copy and save this to a file or use this to import it else where.",$form->generate_text_area("export",json_encode($output_array),array("style"=>"width:98%;","rows"=>25)));
+
+        $form_container->end();
+        $form->end();
+    }
+    else
+    {
+        $form_container = new FormContainer("Export forms");
+        $form = new Form("index.php?module=config-formcreator&amp;action=export", "post");
+
+        $query = $db->simple_select("fc_forms", "formid,name");
+        if ($db->num_rows($query) == 0)
+        {
+            flash_message("You have no forms that can be exported!", 'error');
+            admin_redirect("index.php?module=config-formcreator");
+        }
+        else
+        {
+            while ($form_data = $db->fetch_array($query))
+            {
+                $forms .= $form->generate_check_box("forms[]", $form_data['formid'], $form_data['name']);
+            }
+
+            $form_container->output_row("Forms <em>*</em>", "Which forms do you like to export?", $forms);
+            $form_container->output_row("Export Permissions", "Do you like to export the permissions?", $form->generate_on_off_radio("permissions"));
+            $form_container->output_row("Export Process Options", "Do you like to export the process options?", $form->generate_on_off_radio("process"));
+
+            $form_container->end();
+
+            $buttons[] = $form->generate_submit_button("Export Forms");
+
+            $form->output_submit_wrapper($buttons);
+            $form->end();
+        }
+    }
+}
+elseif ($mybb->get_input('action') == 'import')
+{
+    $formcreator = new formcreator();
+
+    $page->add_breadcrumb_item("Import Forms", "");
+    $page->output_header("Import forms");
+    $page->output_nav_tabs($sub_tabs, 'formcreator_import');
 }
 elseif ($mybb->get_input('action') == 'fields')
 {
