@@ -316,6 +316,21 @@ elseif ($mybb->get_input('action') == 'output')
         $formcreator->subjecttemplate = $mybb->input['subjecttemplate'];
         $formcreator->messagetemplate = $mybb->input['messagetemplate'];
 
+        $testsubject = str_replace("'", "\'", $mybb->input['subjecttemplate']);
+        $testmessage = str_replace("'", "\'", $mybb->input['subjecttemplate']);
+
+        if (check_template($testsubject))
+        {
+            flash_message("Validation of the subject template failed!", 'error');
+            admin_redirect("index.php?module=config-formcreator&action=output&formid=" . $formcreator->formid);
+        }
+
+        if (check_template($testmessage))
+        {
+            flash_message("Validation of the message template failed!", 'error');
+            admin_redirect("index.php?module=config-formcreator&action=output&formid=" . $formcreator->formid);
+        }
+
         if ($formcreator->update_template())
         {
             flash_message("The form output template has been updated", 'success');
@@ -721,7 +736,7 @@ elseif ($mybb->get_input('action') == 'export')
         {
             while ($form_data = $db->fetch_array($query))
             {
-                $forms .= $form->generate_check_box("forms[]", $form_data['formid'], $form_data['name'])."<br/>";
+                $forms .= $form->generate_check_box("forms[]", $form_data['formid'], $form_data['name']) . "<br/>";
             }
 
             $form_container->output_row("Forms <em>*</em>", "Which forms do you like to export?", $forms);
@@ -757,7 +772,7 @@ elseif ($mybb->get_input('action') == 'import')
             foreach ($import as $form)
             {
                 $fields = $form['fields'];
-                
+
                 $formcreator->load_data($form);
                 if ($formid = $formcreator->insert_form())
                 {
@@ -771,15 +786,15 @@ elseif ($mybb->get_input('action') == 'import')
                             $field->load_data($field_data);
 
                             $field->insert_field();
-                            
+
                             $count_fields++;
                         }
                     }
                 }
                 $count_forms++;
             }
-            
-            flash_message("Forms imported (".$count_forms." forms and ".$count_fields." fields)", 'success');
+
+            flash_message("Forms imported (" . $count_forms . " forms and " . $count_fields . " fields)", 'success');
             admin_redirect("index.php?module=config-formcreator");
         }
         else

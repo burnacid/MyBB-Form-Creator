@@ -471,6 +471,8 @@ class formcreator
         }
         else
         {
+            $this->subjecttemplate = str_replace('"','\"',$this->subjecttemplate);
+            
             $formname = $this->name;
             $fieldname = $this->get_field_names();
             $fieldvalue = $this->get_field_values();
@@ -513,6 +515,8 @@ class formcreator
             $formname = $this->name;
             $fieldname = $this->get_field_names();
             $fieldvalue = $this->get_field_values();
+            
+            $this->messagetemplate = str_replace('"','\"',$this->messagetemplate);
 
             eval("\$output = \"" . $this->messagetemplate . "\";");
         }
