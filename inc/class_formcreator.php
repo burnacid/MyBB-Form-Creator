@@ -448,6 +448,10 @@ class formcreator
             {
                 $value = implode(",", $value);
             }
+            
+            if(empty($value)){
+                $value = "Unknown";
+            }
 
             $result[$field->fieldid] = $value;
         }
