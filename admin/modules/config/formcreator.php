@@ -781,11 +781,7 @@ elseif ($mybb->get_input('action') == 'import')
                 $formcreator->load_data($form);
                 
                 if ($formid = $formcreator->insert_form())
-                {
-                    $formcreator->subjecttemplate = $form['subjecttemplate'];
-                    $formcreator->messagetemplate = $form['messagetemplate'];
-                    $formcreator->update_template();
-                    
+                {                    
                     if (count($fields) != 0)
                     {
                         foreach ($fields as $field_data)
@@ -799,11 +795,20 @@ elseif ($mybb->get_input('action') == 'import')
                             
                             $field->load_data($field_data);
 
-                            $field->insert_field();
-
+                            $newid = $field->insert_field();
+                            
+                            $form['subjecttemplate'] = str_replace("\$fieldname[".$oldid."]","\$fieldname[".$newid."]",$form['subjecttemplate']);
+                            $form['subjecttemplate'] = str_replace("\$fieldvalue[".$oldid."]","\$fieldvalue[".$newid."]",$form['subjecttemplate']);
+                            $form['messagetemplate'] = str_replace("\$fieldname[".$oldid."]","\$fieldname[".$newid."]",$form['messagetemplate']);
+                            $form['messagetemplate'] = str_replace("\$fieldvalue[".$oldid."]","\$fieldvalue[".$newid."]",$form['messagetemplate']);
+                            
                             $count_fields++;
                         }
                     }
+
+                    $formcreator->subjecttemplate = $form['subjecttemplate'];
+                    $formcreator->messagetemplate = $form['messagetemplate'];
+                    $formcreator->update_template();
                 }
                 $count_forms++;
             }
