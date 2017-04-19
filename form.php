@@ -52,6 +52,19 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 $subject = $formcreator->parse_subject();
                 $message = $formcreator->parse_output();
+                
+                $uid = $mybb->user['uid'];
+                $username = $mybb->user['username'];
+                
+                if(!empty($formcreator->uid)){
+                    if($user = get_user($formcreator->uid)){
+                        $uid = $user['uid'];
+                        $username = $user['username'];
+                    }elseif($formcreator->uid == -1){
+                        $uid = -1;
+                        $username = "Form Creator Bot";
+                    }
+                }
 
                 // Send PM single user
                 if ($formcreator->pmusers) {
@@ -67,7 +80,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "message" => $message,
                                 "icon" => "-1",
                                 "toid" => $user_data['uid'],
-                                "fromid" => $mybb->user['uid'],
+                                "fromid" => $uid,
                                 "do" => '',
                                 "pmid" => '');
                             $pm['options'] = array(
@@ -98,7 +111,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             "message" => $message,
                             "icon" => "-1",
                             "toid" => $user['uid'],
-                            "fromid" => $mybb->user['uid'],
+                            "fromid" => $uid,
                             "do" => '',
                             "pmid" => '');
                         $pm['options'] = array(
@@ -156,7 +169,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 // Thread in Forum
                 if ($formcreator->tid) {
-                    if ($thread = get_thread($formcreator->tid)) {                        
+                    if ($thread = get_thread($formcreator->tid)) {
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "post";
                         $posthandler->admin_override = true;
@@ -165,8 +178,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             "fid" => $thread['fid'],
                             "tid" => $thread['tid'],
                             "subject" => $subject,
-                            "uid" => $mybb->user['uid'],
-                            "username" => $mybb->user['username'],
+                            "uid" => $uid,
+                            "username" => $username,
                             "message" => $message,
                             "ipaddress" => $session->packedip,
                             "posthash" => "");
@@ -186,7 +199,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             $forumpermissions = forum_permissions($thread['fid']);
 
                             if ($forumpermissions['canviewthreads'] == 1) {
-                                $url = get_post_link($pid,$thread['tid']);
+                                $url = get_post_link($pid, $thread['tid']);
                             }
                         }
                     }
@@ -204,8 +217,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             "subject" => $subject,
                             "prefix" => $formcreator->prefix,
                             "icon" => -1,
-                            "uid" => $mybb->user['uid'],
-                            "username" => $mybb->user['username'],
+                            "uid" => $uid,
+                            "username" => $username,
                             "message" => $message,
                             "ipaddress" => $session->packedip,
                             "posthash" => "");

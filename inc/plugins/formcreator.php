@@ -81,12 +81,9 @@ function formcreator_activate()
     // Update or create template group:
     $query = $db->simple_select('templategroups', 'prefix', "prefix='{$group['prefix']}'");
 
-    if ($db->fetch_field($query, 'prefix'))
-    {
+    if ($db->fetch_field($query, 'prefix')) {
         $db->update_query('templategroups', $group, "prefix='{$group['prefix']}'");
-    }
-    else
-    {
+    } else {
         $db->insert_query('templategroups', $group);
     }
 
@@ -95,38 +92,29 @@ function formcreator_activate()
 
     $templates = $duplicates = array();
 
-    while ($row = $db->fetch_array($query))
-    {
+    while ($row = $db->fetch_array($query)) {
         $title = $row['title'];
         $row['tid'] = (int)$row['tid'];
 
-        if (isset($templates[$title]))
-        {
+        if (isset($templates[$title])) {
             // PluginLibrary had a bug that caused duplicated templates.
             $duplicates[] = $row['tid'];
             $templates[$title]['template'] = false; // force update later
-        }
-        else
-        {
+        } else {
             $templates[$title] = $row;
         }
     }
 
     // Delete duplicated master templates, if they exist.
-    if ($duplicates)
-    {
+    if ($duplicates) {
         $db->delete_query('templates', 'tid IN (' . implode(",", $duplicates) . ')');
     }
 
     // Update or create templates.
-    foreach ($templatearray as $name => $code)
-    {
-        if (strlen($name))
-        {
+    foreach ($templatearray as $name => $code) {
+        if (strlen($name)) {
             $name = "formcreator_{$name}";
-        }
-        else
-        {
+        } else {
             $name = "formcreator";
         }
 
@@ -138,10 +126,8 @@ function formcreator_activate()
             'dateline' => TIME_NOW);
 
         // Update
-        if (isset($templates[$name]))
-        {
-            if ($templates[$name]['template'] !== $code)
-            {
+        if (isset($templates[$name])) {
+            if ($templates[$name]['template'] !== $code) {
                 // Update version for custom templates if present
                 $db->update_query('templates', array('version' => 0), "title='{$template['title']}'");
 
@@ -150,8 +136,7 @@ function formcreator_activate()
             }
         }
         // Create
-        else
-        {
+        else {
             $db->insert_query('templates', $template);
         }
 
@@ -160,8 +145,7 @@ function formcreator_activate()
     }
 
     // Remove no longer used templates.
-    foreach ($templates as $name => $row)
-    {
+    foreach ($templates as $name => $row) {
         $db->delete_query('templates', "title='" . $db->escape_string($name) . "'");
     }
 
@@ -189,21 +173,16 @@ function formcreator_activate()
     $query = $db->simple_select('themestylesheets', 'sid', "tid='{$tid}' AND cachefile='{$name}'");
     $sid = intval($db->fetch_field($query, 'sid'));
 
-    if ($sid)
-    {
+    if ($sid) {
         $db->update_query('themestylesheets', $dbstylesheet, "sid='$sid'");
-    }
-
-    else
-    {
+    } else {
         $sid = $db->insert_query('themestylesheets', $dbstylesheet);
         $stylesheet['sid'] = intval($sid);
     }
 
     require_once MYBB_ROOT . $mybb->config['admin_dir'] . '/inc/functions_themes.php';
 
-    if ($stylesheet)
-    {
+    if ($stylesheet) {
         cache_stylesheet($stylesheet['tid'], $stylesheet['cachefile'], $stylesheet['stylesheet']);
     }
 
@@ -220,8 +199,7 @@ function formcreator_install()
 {
     global $db, $mybb;
 
-    if (!$db->table_exists('fc_forms'))
-    {
+    if (!$db->table_exists('fc_forms')) {
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_forms` (
           `formid` int(11) NOT NULL AUTO_INCREMENT,
           `name` varchar(255) NOT NULL,
@@ -232,6 +210,7 @@ function formcreator_install()
           `pmgroups` varchar(255) NOT NULL,
           `fid` int(11) NOT NULL,
           `tid` int(11) NOT NULL,
+          `uid` int(11) NOT NULL,
           `prefix` int(11) NOT NULL,
           `mail` text NOT NULL,
           `width` varchar(50) NOT NULL,
@@ -244,8 +223,7 @@ function formcreator_install()
         ");
     }
 
-    if (!$db->table_exists('fc_fields'))
-    {
+    if (!$db->table_exists('fc_fields')) {
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_fields` (
           `fieldid` int(11) NOT NULL AUTO_INCREMENT,
           `formid` int(11) NOT NULL,
@@ -282,8 +260,7 @@ function formcreator_uninstall()
 {
     global $db, $mybb;
 
-    if ($mybb->request_method != 'post')
-    {
+    if ($mybb->request_method != 'post') {
         global $page;
 
         $page->output_confirm_action('index.php?module=config-plugins&action=deactivate&uninstall=1&plugin=formcreator',
@@ -294,8 +271,7 @@ function formcreator_uninstall()
     rebuild_settings();
 
     // Drop tables if desired
-    if (!isset($mybb->input['no']))
-    {
+    if (!isset($mybb->input['no'])) {
         $db->drop_table('fc_forms');
         $db->drop_table('fc_fields');
 
@@ -337,21 +313,18 @@ function formcreator_location_end(&$plugin_array)
     require_once MYBB_ROOT . 'inc/class_formcreator.php';
 
 
-    if (preg_match("/form\.php/", $plugin_array['user_activity']['location']))
-    {
+    if (preg_match("/form\.php/", $plugin_array['user_activity']['location'])) {
         $url = explode("?", $plugin_array['user_activity']['location']);
         $get_data = explode("&", $url[1]);
         $get_array = array();
-        foreach ($get_data as $var)
-        {
+        foreach ($get_data as $var) {
             $keyvalue = explode("=", $var);
             $get_array[$keyvalue[0]] = $keyvalue[1];
         }
 
         $formcreator = new formcreator();
 
-        if ($formcreator->get_form($get_array['formid']))
-        {
+        if ($formcreator->get_form($get_array['formid'])) {
             $plugin_array['user_activity']['activity'] = "Form";
             $plugin_array['location_name'] = "Form: <a href='form.php?formid=" . $formcreator->formid . "'>" . $formcreator->name . "</a>";
         }
@@ -364,12 +337,9 @@ function get_usergroup($gid)
 
     $query = $db->simple_select("usergroups", "*", "gid = " . intval($gid));
 
-    if ($db->num_rows($query) == 1)
-    {
+    if ($db->num_rows($query) == 1) {
         return $db->fetch_array($query);
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
@@ -378,32 +348,24 @@ function get_usergroup_users($gid)
 {
     global $db;
 
-    if (is_array($gid))
-    {
+    if (is_array($gid)) {
         $additionwhere = "";
-        foreach ($gid as $groupid)
-        {
+        foreach ($gid as $groupid) {
             $additionwhere .= " OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($groupid) . ",%'";
         }
 
         $query = $db->simple_select("users", "*", "usergroup IN (" . implode(",", $gid) . ")" . $additionwhere);
-    }
-    else
-    {
+    } else {
         $query = $db->simple_select("users", "*", "usergroup IN (" . intval($gid) . ") OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($gid) . ",%'");
     }
 
-    if ($db->num_rows($query))
-    {
+    if ($db->num_rows($query)) {
 
-        while ($user = $db->fetch_array($query))
-        {
+        while ($user = $db->fetch_array($query)) {
             $userarray[$user['uid']] = $user;
         }
         return $userarray;
-    }
-    else
-    {
+    } else {
         return false;
     }
 
