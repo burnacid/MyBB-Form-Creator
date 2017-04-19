@@ -217,9 +217,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row("Send PM to Groups",
         "Send a PM to the Users within the selected groups. If you do not want to trigger a group PM select nothing.", $form->generate_group_select("pmgroups[]",
         $formcreator->pmgroups, array("multiple" => true)));
-    $form_container->output_row("Post within forum", "Create a Post within the selected forum", $form->generate_forum_select("fid", $formcreator->fid,
+    $form_container->output_row("Post within forum", "Create a new thread within the selected forum", $form->generate_forum_select("fid", $formcreator->fid,
         array('main_option' => "- DISABLED -"), true));
-
+        
     $query = $db->simple_select("threadprefixes", "*");
     $prefixes = array(0 => "- None -");
     while ($prefix = $db->fetch_array($query))
@@ -230,6 +230,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row("Thread prefix",
         "Select a thread prefix for the thread that will be made. Only has use when option for Post within forum is set.", $form->generate_select_box("prefix",
         $prefixes, $formcreator->prefix));
+        
+    $form_container->output_row("Post within thread", "Create a post within the given thread ID", $form->generate_numeric_field("tid", $formcreator->tid));
     /*
     $form_container->output_row("Send Mail to",
     "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>",
@@ -662,7 +664,10 @@ elseif ($mybb->get_input('action') == 'export')
             if ($formcreator->get_form($form))
             {
                 $data = $formcreator->get_data();
-
+                
+                $data['subjecttemplate'] = $formcreator->subjecttemplate;
+                $data['messagetemplate'] = $formcreator->messagetemplate;
+                
                 unset($data['formid']);
 
                 if ($mybb->input['permissions'] == 0)
@@ -688,7 +693,7 @@ elseif ($mybb->get_input('action') == 'export')
                     {
                         $fielddata = $field->get_data();
 
-                        unset($fielddata['fieldid']);
+                        //unset($fielddata['fieldid']);
                         unset($fielddata['formid']);
 
                         $field_array[] = $fielddata;
@@ -774,8 +779,13 @@ elseif ($mybb->get_input('action') == 'import')
                 $fields = $form['fields'];
 
                 $formcreator->load_data($form);
+                
                 if ($formid = $formcreator->insert_form())
                 {
+                    $formcreator->subjecttemplate = $form['subjecttemplate'];
+                    $formcreator->messagetemplate = $form['messagetemplate'];
+                    $formcreator->update_template();
+                    
                     if (count($fields) != 0)
                     {
                         foreach ($fields as $field_data)
@@ -783,6 +793,10 @@ elseif ($mybb->get_input('action') == 'import')
                             $field_data['formid'] = $formid;
 
                             $field = new formcreator_field();
+                            
+                            $oldid = $field_data['fieldid'];
+                            unset($field_data['fieldid']);
+                            
                             $field->load_data($field_data);
 
                             $field->insert_field();

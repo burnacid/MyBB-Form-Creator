@@ -231,6 +231,7 @@ function formcreator_install()
           `pmusers` varchar(255) NOT NULL,
           `pmgroups` varchar(255) NOT NULL,
           `fid` int(11) NOT NULL,
+          `tid` int(11) NOT NULL,
           `prefix` int(11) NOT NULL,
           `mail` text NOT NULL,
           `width` varchar(50) NOT NULL,

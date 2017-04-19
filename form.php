@@ -49,8 +49,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
             } else {
                 $display = false;
-                
-                $subject = $formcreator->parse_subject();                
+
+                $subject = $formcreator->parse_subject();
                 $message = $formcreator->parse_output();
 
                 // Send PM single user
@@ -154,8 +154,45 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
                 */
 
+                // Thread in Forum
+                if ($formcreator->tid) {
+                    if ($thread = get_thread($formcreator->tid)) {                        
+                        $posthandler = new PostDataHandler();
+                        $posthandler->action = "post";
+                        $posthandler->admin_override = true;
 
-                // Post in Forum
+                        $new_post = array(
+                            "fid" => $thread['fid'],
+                            "tid" => $thread['tid'],
+                            "subject" => $subject,
+                            "uid" => $mybb->user['uid'],
+                            "username" => $mybb->user['username'],
+                            "message" => $message,
+                            "ipaddress" => $session->packedip,
+                            "posthash" => "");
+
+                        // Set up the thread options
+                        $new_post['options'] = array(
+                            "signature" => 'yes',
+                            "emailnotify" => 'no',
+                            "disablesmilies" => 'no');
+
+                        $posthandler->set_data($new_post);
+
+                        if ($posthandler->validate_post()) {
+                            $post_info = $posthandler->insert_post();
+                            $pid = $post_info['pid'];
+
+                            $forumpermissions = forum_permissions($thread['fid']);
+
+                            if ($forumpermissions['canviewthreads'] == 1) {
+                                $url = get_post_link($pid,$thread['tid']);
+                            }
+                        }
+                    }
+                }
+
+                // Thread in Forum
                 if ($formcreator->fid) {
                     if ($forum = get_forum($formcreator->fid)) {
                         $posthandler = new PostDataHandler();
