@@ -75,7 +75,10 @@ function formcreator_activate()
 	<td class="thead" colspan="2">{$fieldoutput}</td>
 </tr><table border="0" cellspacing="0" cellpadding="5" class="tborder {$styleclass}" style="{$stylewidth}">
 <tbody>',
-        'thread_button' => '<a href="form.php?formid={$formid}" class="button new_thread_button"><span>{$lang->post_thread}</span></a>');
+        'thread_button' => '<a href="form.php?formid={$formid}" class="button new_thread_button"><span>{$lang->post_thread}</span></a>',
+        'thread_newreply' => '<a href="form.php?formid={$formid}" class="button new_reply_button"><span>{$lang->new_reply}</span></a>&nbsp;',
+        'thread_newreply_closed' => '<a href="form.php?formid={$formid}" class="button closed_button"><span>{$lang->thread_closed}</span></a>&nbsp;',
+        'thread_newthread' => '<a href="form.php?formid={$formid}" class="button new_thread_button"><span>{$lang->post_thread}</span></a>&nbsp;');
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
 
@@ -336,16 +339,44 @@ function formcreator_location_end(&$plugin_array)
 $plugins->add_hook("forumdisplay_get_threads", "formcreator_forumdisplay_get_threads");
 function formcreator_forumdisplay_get_threads()
 {
-    global $foruminfo,$fpermissions,$mybb,$db,$newthread,$lang,$templates;
-    
-    $query = $db->simple_select("fc_forms","*","fid=".$foruminfo['fid']." AND overridebutton=1");
-    if($db->num_rows($query) == 1){
-        
+    global $foruminfo, $fpermissions, $mybb, $db, $newthread, $lang, $templates;
+
+    $query = $db->simple_select("fc_forms", "*", "fid=" . $foruminfo['fid'] . " AND overridebutton=1");
+    if ($db->num_rows($query) == 1) {
+
         $form = $db->fetch_array($query);
         $formid = $form['formid'];
-        
+
         if ($foruminfo['type'] == "f" && $foruminfo['open'] != 0 && $fpermissions['canpostthreads'] != 0 && $mybb->user['suspendposting'] == 0) {
             eval("\$newthread = \"" . $templates->get("formcreator_thread_button") . "\";");
+        }
+    }
+}
+
+$plugins->add_hook("showthread_threaded", "formcreator_showthread_buttons");
+$plugins->add_hook("showthread_linear", "formcreator_showthread_buttons");
+function formcreator_showthread_buttons()
+{
+    global $forum, $thread, $forumpermissions, $mybb, $db, $newthread, $newreply, $lang, $templates;
+
+    $query = $db->simple_select("fc_forms", "*", "tid=" . $thread['tid'] . " AND overridebutton=1");
+    if ($db->num_rows($query) == 1) {
+
+        $form = $db->fetch_array($query);
+        $formid = $form['formid'];
+
+        if ($forum['open'] != 0 && $forum['type'] == "f") {
+            if ($forumpermissions['canpostthreads'] != 0 && $mybb->user['suspendposting'] != 1) {
+                eval("\$newthread = \"" . $templates->get("formcreator_thread_newthread") . "\";");
+            }
+
+            // Show the appropriate reply button if this thread is open or closed
+            if ($forumpermissions['canpostreplys'] != 0 && $mybb->user['suspendposting'] != 1 && ($thread['closed'] != 1 || is_moderator($forum['fid'],
+                "canpostclosedthreads")) && ($thread['uid'] == $mybb->user['uid'] || $forumpermissions['canonlyreplyownthreads'] != 1)) {
+                eval("\$newreply = \"" . $templates->get("formcreator_thread_newreply") . "\";");
+            } elseif ($thread['closed'] == 1) {
+                eval("\$newreply = \"" . $templates->get("formcreator_thread_newreply_closed") . "\";");
+            }
         }
     }
 }
