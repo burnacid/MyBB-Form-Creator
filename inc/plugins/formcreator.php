@@ -381,6 +381,22 @@ function formcreator_showthread_buttons()
     }
 }
 
+$plugins->add_hook("showthread_end", "formcreator_showthread_end");
+function formcreator_showthread_end()
+{
+    global $thread, $forumpermissions, $db, $quickreply;
+
+    $query = $db->simple_select("fc_forms", "*", "tid=" . $thread['tid'] . " AND overridebutton=1");
+    if ($db->num_rows($query) == 1) {
+
+        $form = $db->fetch_array($query);
+        $formid = $form['formid'];
+        
+        //Remove quick reply if override is enabled
+        $quickreply = "";
+    }
+}
+
 function get_usergroup($gid)
 {
     global $db;
