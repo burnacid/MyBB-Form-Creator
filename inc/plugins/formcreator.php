@@ -74,7 +74,8 @@ function formcreator_activate()
         'field_seperator' => '</tbody></table><br />
 	<td class="thead" colspan="2">{$fieldoutput}</td>
 </tr><table border="0" cellspacing="0" cellpadding="5" class="tborder {$styleclass}" style="{$stylewidth}">
-<tbody>');
+<tbody>',
+        'thread_button' => '<a href="form.php?formid={$formid}" class="button new_thread_button"><span>{$lang->post_thread}</span></a>');
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
 
@@ -212,6 +213,7 @@ function formcreator_install()
           `tid` int(11) NOT NULL,
           `uid` int(11) NOT NULL,
           `prefix` int(11) NOT NULL,
+          `overridebutton` tinyint(1) NOT NULL,
           `mail` text NOT NULL,
           `width` varchar(50) NOT NULL,
           `labelwidth` varchar(50) NOT NULL,
@@ -331,6 +333,23 @@ function formcreator_location_end(&$plugin_array)
     }
 }
 
+$plugins->add_hook("forumdisplay_get_threads", "formcreator_forumdisplay_get_threads");
+function formcreator_forumdisplay_get_threads()
+{
+    global $foruminfo,$fpermissions,$mybb,$db,$newthread,$lang,$templates;
+    
+    $query = $db->simple_select("fc_forms","*","fid=".$foruminfo['fid']." AND overridebutton=1");
+    if($db->num_rows($query) == 1){
+        
+        $form = $db->fetch_array($query);
+        $formid = $form['formid'];
+        
+        if ($foruminfo['type'] == "f" && $foruminfo['open'] != 0 && $fpermissions['canpostthreads'] != 0 && $mybb->user['suspendposting'] == 0) {
+            eval("\$newthread = \"" . $templates->get("formcreator_thread_button") . "\";");
+        }
+    }
+}
+
 function get_usergroup($gid)
 {
     global $db;
@@ -368,7 +387,6 @@ function get_usergroup_users($gid)
     } else {
         return false;
     }
-
 }
 
 ?>

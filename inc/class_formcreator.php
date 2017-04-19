@@ -15,6 +15,7 @@ class formcreator
     public $tid;
     public $uid;
     public $prefix;
+    public $overridebutton;
     public $class;
     public $width;
     public $labelwidth;
@@ -273,6 +274,7 @@ class formcreator
         $this->tid = intval($this->tid);
         $this->uid = intval($this->uid);
         $this->prefix = intval($this->prefix);
+        $this->overridebutton = intval($this->overridebutton);
         $this->mail = $db->escape_string($this->mail);
         $this->width = $db->escape_string($this->width);
         $this->labelwidth = $db->escape_string($this->labelwidth);
@@ -294,6 +296,7 @@ class formcreator
         $this->tid = $data['tid'];
         $this->uid = $data['uid'];
         $this->prefix = $data['prefix'];
+        $this->overridebutton = $data['overridebutton'];
         $this->mail = $data['mail'];
         $this->width = $data['width'];
         $this->labelwidth = $data['labelwidth'];
@@ -318,6 +321,7 @@ class formcreator
         $data['tid'] = $this->tid;
         $data['uid'] = $this->uid;
         $data['prefix'] = $this->prefix;
+        $data['overridebutton'] = $this->overridebutton;
         $data['mail'] = $this->mail;
         $data['width'] = $this->width;
         $data['labelwidth'] = $this->labelwidth;

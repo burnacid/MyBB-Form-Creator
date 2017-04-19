@@ -191,6 +191,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row("Post as user",
         "Which user is used to post a thread, post or reply. (leave empty to use the user who submits the form, set to -1 to use the Form Creator Bot as user)",
         $form->generate_numeric_field("uid", $formcreator->uid));
+    $form_container->output_row("Override post button",
+        "Change the create new thread or post reply button to link to the form. Only usefull when set to post a new thread or reply.",
+        $form->generate_on_off_radio("overridebutton",$formcreator->overridebutton));
     /*
     $form_container->output_row("Send Mail to",
     "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>",
@@ -540,6 +543,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                     unset($data['pmusers']);
                     unset($data['pmgroups']);
                     unset($data['fid']);
+                    unset($data['tid']);
+                    unset($data['uid']);
+                    unset($data['overridebutton']);
                     unset($data['prefix']);
                     unset($data['mail']);
                 }
