@@ -39,7 +39,8 @@ class formcreator
         8 => "Seperator",
         9 => "Header",
         10 => "HTML block",
-        11 => "Submit button");
+        11 => "Submit button",
+        12 => "Captcha");
 
     public function get_form($formid)
     {
@@ -132,6 +133,10 @@ class formcreator
                 case 11:
                     $fieldoutput = $field->output_submit();
                     eval('$output .= "' . $templates->get("formcreator_field_submit") . '";');
+                    break;
+                case 12:
+                    $fieldoutput = $field->output_captcha();
+                    eval('$output .= "' . $templates->get("formcreator_field_captcha") . '";');
                     break;
             }
         }
@@ -620,6 +625,8 @@ class formcreator_field
                     "class");
             } elseif ($this->type == 11) {
                 $show = array("name", "class");
+            } elseif ($this->type == 12) {
+                $show = array("name");
             } else {
                 $show = array();
             }
@@ -881,6 +888,35 @@ class formcreator_field
         }
 
         return "<input type='submit' value='" . $this->name . "' " . $class . " />";
+    }
+
+    public function output_captcha()
+    {
+        global $mybb;
+
+        if ($this->class) {
+            $class = "class='" . $this->class . "'";
+        }
+
+        $captcha = new captcha();
+        $captcha->type = $mybb->settings['captchaimage'];
+
+        if ($captcha->type == 1) {
+            $captcha->captcha_template = "formcreator_captcha";
+            $captcha->build_captcha();
+        } elseif ($captcha->type == 2 || $captcha->type == 4) {
+            if ($captcha->type == 2) {
+                $captcha->captcha_template = "formcreator_recaptcha";
+            } elseif ($captcha->type == 4) {
+                $captcha->captcha_template = "formcreator_nocaptcha";
+            }
+
+            $captcha->build_recaptcha();
+        } else {
+            echo "error";
+        }
+
+        return $captcha->html;
     }
 }
 

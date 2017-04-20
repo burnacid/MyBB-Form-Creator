@@ -71,6 +71,9 @@ function formcreator_activate()
         'field_submit' => '<tr>
 	<td class="trow1" colspan="2" style="text-align:center;">{$fieldoutput}</td>
 </tr>',
+        'field_captcha' => '<tr>
+	<td class="trow1" colspan="2" style="text-align:center;">{$fieldoutput}</td>
+</tr>',
         'field_seperator' => '</tbody></table><br />
 	<td class="thead" colspan="2">{$fieldoutput}</td>
 </tr><table border="0" cellspacing="0" cellpadding="5" class="tborder {$styleclass}" style="{$stylewidth}">
@@ -78,7 +81,46 @@ function formcreator_activate()
         'thread_button' => '<a href="form.php?formid={$formid}" class="button new_thread_button"><span>{$lang->post_thread}</span></a>',
         'thread_newreply' => '<a href="form.php?formid={$formid}" class="button new_reply_button"><span>{$lang->new_reply}</span></a>&nbsp;',
         'thread_newreply_closed' => '<a href="form.php?formid={$formid}" class="button closed_button"><span>{$lang->thread_closed}</span></a>&nbsp;',
-        'thread_newthread' => '<a href="form.php?formid={$formid}" class="button new_thread_button"><span>{$lang->post_thread}</span></a>&nbsp;');
+        'thread_newthread' => '<a href="form.php?formid={$formid}" class="button new_thread_button"><span>{$lang->post_thread}</span></a>&nbsp;',
+        'captcha' => '<fieldset class="trow2">
+<script type="text/javascript">
+<!--
+	lang.captcha_fetch_failure = "{$lang->captcha_fetch_failure}";
+// -->
+</script>
+<script type="text/javascript" src="{$mybb->asset_url}/jscripts/captcha.js?ver=1808"></script>
+<legend><strong>{$lang->image_verification}</strong></legend>
+<table cellspacing="0" cellpadding="{$theme[\'tablespace\']}">
+<tr>
+<td><span class="smalltext">{$lang->verification_note}</span></td>
+<td rowspan="2" align="center"><img src="captcha.php?action=regimage&amp;imagehash={$imagehash}" alt="{$lang->image_verification}" title="{$lang->image_verification}" id="captcha_img" /><br /><span style="color: red;" class="smalltext">{$lang->verification_subnote}</span>
+<script type="text/javascript">
+<!--
+	if(use_xmlhttprequest == "1")
+	{
+		document.write(\'<br \/><br \/><input type="button" class="button" tabindex="10000" name="refresh" value="{$lang->refresh}" onclick="return captcha.refresh();" \/>\');
+	}
+// -->
+</script>
+</td>
+</tr>
+<tr>
+<td><input type="text" class="textbox" name="imagestring" value="" id="imagestring" style="width: 100%;" /><input type="hidden" name="imagehash" value="{$imagehash}" id="imagehash" /></td>
+</tr>
+<tr>
+	<td id="imagestring_status"  style="display: none;" colspan="2">&nbsp;</td>
+</tr>
+</table>
+</fieldset>',
+        'nocaptcha' => '<script type="text/javascript" src="{$server}"></script><div class="g-recaptcha" data-sitekey="{$public_key}"></div>',
+        'recaptcha' => '<script type="text/javascript">
+<!--
+	var RecaptchaOptions = {
+		theme: \'clean\'
+	};
+// -->
+</script>
+<script type="text/javascript" src="{$server}/challenge?k={$public_key}"></script>');
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
 
@@ -391,7 +433,7 @@ function formcreator_showthread_end()
 
         $form = $db->fetch_array($query);
         $formid = $form['formid'];
-        
+
         //Remove quick reply if override is enabled
         $quickreply = "";
     }

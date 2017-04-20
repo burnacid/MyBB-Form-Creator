@@ -4,6 +4,7 @@ define('THIS_SCRIPT', "form.php");
 define('IN_MYBB', 1);
 require "./global.php";
 require_once "./inc/class_formcreator.php";
+require_once "./inc/class_captcha.php";
 require_once MYBB_ROOT . "inc/datahandlers/pm.php";
 require_once MYBB_ROOT . "inc/datahandlers/post.php";
 
@@ -42,6 +43,16 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input["field_" . $field->fieldid])) {
                     $error_array[] = "'" . $field->name . "' did not match the expected input!";
                 }
+
+                if ($field->type == 11) {
+                    $captcha = new captcha();
+                    if ($captcha->validate_captcha() == false) {
+                        // CAPTCHA validation failed
+                        foreach ($captcha->get_errors() as $error) {
+                            $error_array[] = $error;
+                        }
+                    }
+                }
             }
 
             if (count($error_array) != 0) {
@@ -52,15 +63,15 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 $subject = $formcreator->parse_subject();
                 $message = $formcreator->parse_output();
-                
+
                 $uid = $mybb->user['uid'];
                 $username = $mybb->user['username'];
-                
-                if(!empty($formcreator->uid)){
-                    if($user = get_user($formcreator->uid)){
+
+                if (!empty($formcreator->uid)) {
+                    if ($user = get_user($formcreator->uid)) {
                         $uid = $user['uid'];
                         $username = $user['username'];
-                    }elseif($formcreator->uid == -1){
+                    } elseif ($formcreator->uid == -1) {
                         $uid = -1;
                         $username = "Form Creator Bot";
                     }
