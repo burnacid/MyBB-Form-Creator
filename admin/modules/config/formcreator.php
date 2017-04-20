@@ -425,8 +425,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 $form_container->output_row("Required", "Select if the field is required to fill.", $form->generate_yes_no_radio("required", $field->required));
             }
             if ($field->show_admin_field("regex")) {
-                $form_container->output_row("Regex", "Enter a Regex to check the entered value is to the requested format", $form->generate_text_box("regex", $field->
-                    regex));
+                $form_container->output_row("Regex", "Enter a Regex to check the entered value is to the requested format", "<strong>/ ".$form->generate_text_box("regex", $field->
+                    regex)." /</strong>");
+                $form_container->output_row("Regex Error Message", "Enter the error message that should be shown when the regex fails.", $form->generate_text_box("regexerror", $field->
+                    regexerror));
             }
             if ($field->show_admin_field("size")) {
                 $form_container->output_row("Size", "Enter the size of the field", $form->generate_numeric_field("size", $field->size));

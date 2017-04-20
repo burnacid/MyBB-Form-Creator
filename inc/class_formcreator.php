@@ -489,6 +489,7 @@ class formcreator_field
     public $default;
     public $required;
     public $regex;
+    public $regexerror;
     public $order;
     public $size;
     public $cols;
@@ -509,6 +510,7 @@ class formcreator_field
         $this->default = $db->escape_string($this->default);
         $this->required = intval($this->required);
         $this->regex = $db->escape_string($this->regex);
+        $this->regexerror = $db->escape_string($this->regexerror);
         $this->order = intval($this->order);
         $this->size = intval($this->size);
         $this->cols = intval($this->cols);
@@ -529,6 +531,7 @@ class formcreator_field
         $this->default = $data['default'];
         $this->required = $data['required'];
         $this->regex = $data['regex'];
+        $this->regexerror = $data['regexerror'];
         $this->order = $data['order'];
         $this->size = $data['size'];
         $this->cols = $data['cols'];
@@ -552,6 +555,7 @@ class formcreator_field
         $data['default'] = $this->default;
         $data['required'] = $this->required;
         $data['regex'] = $this->regex;
+        $data['regexerror'] = $this->regexerror;
         $data['order'] = $this->order;
         $data['size'] = $this->size;
         $data['cols'] = $this->cols;

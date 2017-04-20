@@ -41,7 +41,12 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
 
                 if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input["field_" . $field->fieldid])) {
-                    $error_array[] = "'" . $field->name . "' did not match the expected input!";
+                    if(!empty($field->regexerror)){
+                        $error_array[] = $field->regexerror;
+                    }else{
+                        $error_array[] = "'" . $field->name . "' did not match the expected input!";
+                    }
+                    
                 }
 
                 if ($field->type == 12) {
