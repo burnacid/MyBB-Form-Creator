@@ -44,7 +44,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     $error_array[] = "'" . $field->name . "' did not match the expected input!";
                 }
 
-                if ($field->type == 11) {
+                if ($field->type == 12) {
                     $captcha = new captcha();
                     if ($captcha->validate_captcha() == false) {
                         // CAPTCHA validation failed
