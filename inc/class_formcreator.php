@@ -211,6 +211,14 @@ class formcreator
     public function update_template()
     {
         global $db;
+        
+        if ($this->allowedgid) {
+            $this->allowedgid = implode(",", $this->allowedgid);
+        }
+
+        if ($this->pmgroups) {
+            $this->pmgroups = implode(",", $this->pmgroups);
+        }
 
         $this->escape_data();
 
