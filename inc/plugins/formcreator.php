@@ -112,7 +112,17 @@ function formcreator_activate()
 </tr>
 </table>
 </fieldset>',
-        'nocaptcha' => '<script type="text/javascript" src="{$server}"></script><div class="g-recaptcha" data-sitekey="{$public_key}"></div>',
+        'nocaptcha' => '<fieldset class="trow2">
+	<legend><strong>{$lang->human_verification}</strong></legend>
+	<table cellspacing="0" cellpadding="{$theme[\'tablespace\']}">
+	<tr>
+		<td><span class="smalltext">{$lang->verification_note_nocaptcha}</span></td>
+	</tr>
+	<tr>
+		<td><script type="text/javascript" src="{$server}"></script><div class="g-recaptcha" data-sitekey="{$public_key}"></div></td>
+	</tr>
+</table>
+</fieldset>',
         'recaptcha' => '<script type="text/javascript">
 <!--
 	var RecaptchaOptions = {
@@ -120,7 +130,17 @@ function formcreator_activate()
 	};
 // -->
 </script>
-<script type="text/javascript" src="{$server}/challenge?k={$public_key}"></script>');
+<fieldset class="trow2">
+	<legend><strong>{$lang->image_verification}</strong></legend>
+	<table cellspacing="0" cellpadding="{$theme[\'tablespace\']}">
+	<tr>
+		<td><span class="smalltext">{$lang->verification_note}</span></td>
+	</tr>
+	<tr>
+		<td><script type="text/javascript" src="{$server}/challenge?k={$public_key}"></script></td>
+	</tr>
+</table>
+</fieldset>');
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
 
