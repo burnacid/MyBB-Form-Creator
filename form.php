@@ -68,9 +68,13 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 $subject = $formcreator->parse_subject();
                 $message = $formcreator->parse_output();
-
+                
                 $uid = $mybb->user['uid'];
                 $username = $mybb->user['username'];
+                
+                if($mybb->user['usergroup'] == 1 || empty($username)){
+                    $username = "Guest";
+                }
 
                 if (!empty($formcreator->uid)) {
                     if ($user = get_user($formcreator->uid)) {
@@ -81,6 +85,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $username = "Form Creator Bot";
                     }
                 }
+                
+                print_r($mybb->user);
 
                 // Send PM single user
                 if ($formcreator->pmusers) {
