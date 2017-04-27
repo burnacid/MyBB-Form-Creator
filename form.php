@@ -183,7 +183,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
                 */
 
-                // Thread in Forum
+                // Post in Thread
                 if ($formcreator->tid) {
                     if ($thread = get_thread($formcreator->tid)) {
                         $posthandler = new PostDataHandler();
@@ -211,10 +211,12 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         if ($posthandler->validate_post()) {
                             $post_info = $posthandler->insert_post();
                             $pid = $post_info['pid'];
+                            
+                            $post = get_post($pid);
 
                             $forumpermissions = forum_permissions($thread['fid']);
 
-                            if ($forumpermissions['canviewthreads'] == 1) {
+                            if ($forumpermissions['canviewthreads'] == 1 && $post['visible'] == 1) {
                                 $url = get_post_link($pid, $thread['tid']);
                             }
                         }
@@ -250,10 +252,13 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         if ($posthandler->validate_thread()) {
                             $thread_info = $posthandler->insert_thread();
                             $tid = $thread_info['tid'];
+                            
+                            $thread = get_thread($tid);
+                            $post = get_post($thread['firstpost']);
 
                             $forumpermissions = forum_permissions($forum['fid']);
 
-                            if ($forumpermissions['canviewthreads'] == 1) {
+                            if ($forumpermissions['canviewthreads'] == 1 && $post['visible'] == 1) {
                                 $url = get_thread_link($tid);
                             }
                         }
