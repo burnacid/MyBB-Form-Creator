@@ -294,10 +294,11 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     echo "<script src='jscripts/formcreator.js'></script>";
 
-    $legend = "<a href='javascript:addToTemplate(\"{\$formname}\");'>Form Name</a><br /><br />";
+    $legend = "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$formname}\");'>Form Name</a><br />";
+    $legend .= "User Info: <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$username}\");'>Username</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$uid}\");'>ID</a><br /><br />";
     foreach ($formcreator->fields as $field) {
         $legend .= "(ID:" . $field->fieldid . ") " . $field->name . ": ";
-        $legend .= "<a href='javascript:addToTemplate(\"{\$fieldname[" . $field->fieldid . "]}\");'>Field Name</a> | <a href='javascript:addToTemplate(\"{\$fieldvalue[" .
+        $legend .= "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldname[" . $field->fieldid . "]}\");'>Field Name</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldvalue[" .
             $field->fieldid . "]}\");'>Field Value</a><br />";
     }
 

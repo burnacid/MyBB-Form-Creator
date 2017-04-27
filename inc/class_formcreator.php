@@ -426,13 +426,15 @@ class formcreator
 
     public function parse_subject()
     {
-        global $templates;
+        global $templates,$mybb;
 
         if (empty($this->subjecttemplate)) {
             return "Form submission: " . $this->name;
         } else {
             $this->subjecttemplate = str_replace('"', '\"', $this->subjecttemplate);
-
+            
+            $username = $mybb->user['username'];
+            $uid = $mybb->user['uid'];
             $formname = $this->name;
             $fieldname = $this->get_field_names();
             $fieldvalue = $this->get_field_values();
@@ -465,7 +467,8 @@ class formcreator
                 }
             }
         } else {
-            $formname = $this->name;
+            $username = $mybb->user['username'];
+            $uid = $mybb->user['uid'];
             $fieldname = $this->get_field_names();
             $fieldvalue = $this->get_field_values();
 
