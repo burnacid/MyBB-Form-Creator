@@ -521,7 +521,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         admin_redirect("index.php?module=config-formcreator");
     }
 } elseif ($mybb->get_input('action') == 'export') {
-    $formcreator = new formcreator();
+    
 
     $page->add_breadcrumb_item("Export Forms", "");
     $page->output_header("Export forms");
@@ -529,6 +529,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     if ($mybb->request_method == "post" && count($mybb->input['forms'])) {
         foreach ($mybb->input['forms'] as $form) {
+            $formcreator = new formcreator();
             if ($formcreator->get_form($form)) {
                 $data = $formcreator->get_data();
 
@@ -552,9 +553,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                     unset($data['prefix']);
                     unset($data['mail']);
                 }
-
+                
                 $formcreator->get_fields();
-
+                $field_array = array();
+                
                 if (count($formcreator->fields) != 0) {
                     foreach ($formcreator->fields as $field) {
                         $fielddata = $field->get_data();
