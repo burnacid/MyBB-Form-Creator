@@ -400,6 +400,22 @@ function formcreator_uninstall()
     }
 }
 
+$plugins->add_hook('admin_load', 'formcreator_admin_load');
+function formcreator_admin_load()
+{
+    global $page;
+    
+    require_once MYBB_ROOT . 'inc/class_formcreator.php';
+    
+    $formcreator = new formcreator();
+    
+    $error = formcreator_check_database($formcreator);
+    
+    if($error[0] == false){
+        $page->extra_messages[] = array("type" => "error", "message" => "Form Creator: ". $error[1]);
+    }
+}
+
 $plugins->add_hook('admin_config_menu', 'formcreator_admin_config_menu');
 function formcreator_admin_config_menu(&$sub_menu)
 {
