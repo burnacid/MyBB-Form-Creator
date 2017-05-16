@@ -142,7 +142,7 @@ class formcreator
                 "NULL" => 1),
             array(
                 "Field" => "regex",
-                "Type" => "varchar(500)",
+                "Type" => "text",
                 "NULL" => 1),
             array(
                 "Field" => "regexerror",
