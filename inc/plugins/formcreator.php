@@ -3,6 +3,44 @@
 if (!defined('IN_MYBB'))
     die('This file cannot be accessed directly.');
 
+// Table structures from Array
+$fields['fc_forms'][] = array("Field" => "formid", "Type" => "int(11)", "NULL" => 0, "AI" => 1);
+$fields['fc_forms'][] = array("Field" => "name", "Type" => "varchar(255)", "NULL" => 0);
+$fields['fc_forms'][] = array("Field" => "allowedgidtype", "Type" => "int(11)", "NULL" => 0);
+$fields['fc_forms'][] = array("Field" => "allowedgid", "Type" => "text", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "active", "Type" => "tinyint(1)", "NULL" => 0);
+$fields['fc_forms'][] = array("Field" => "pmusers", "Type" => "varchar(255)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "pmgroups", "Type" => "varchar(255)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "fid", "Type" => "int(11)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "tid", "Type" => "int(11)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "uid", "Type" => "int(11)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "prefix", "Type" => "int(11)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "overridebutton", "Type" => "tinyint(1)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "mail", "Type" => "text", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "width", "Type" => "varchar(50)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "labelwidth", "Type" => "varchar(50)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "class", "Type" => "varchar(255)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "subjecttemplate", "Type" => "varchar(255)", "NULL" => 1);
+$fields['fc_forms'][] = array("Field" => "messagetemplate", "Type" => "text", "NULL" => 1);
+
+$fields['fc_fields'][] = array("Field" => "fieldid", "Type" => "int(11)", "NULL" => 0, "AI" => 1);
+$fields['fc_fields'][] = array("Field" => "formid", "Type" => "int(11)", "NULL" => 0);
+$fields['fc_fields'][] = array("Field" => "name", "Type" => "varchar(255)", "NULL" => 0);
+$fields['fc_fields'][] = array("Field" => "description", "Type" => "varchar(2000)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "type", "Type" => "int(11)", "NULL" => 0);
+$fields['fc_fields'][] = array("Field" => "format", "Type" => "varchar(255)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "options", "Type" => "varchar(2000)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "default", "Type" => "varchar(2000)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "required", "Type" => "tinyint(1)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "regex", "Type" => "varchar(500)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "regexerror", "Type" => "varchar(500)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "order", "Type" => "int(11)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "size", "Type" => "int(11)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "cols", "Type" => "int(11)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "rows", "Type" => "int(11)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "class", "Type" => "varchar(50)", "NULL" => 1);
+$fields['fc_fields'][] = array("Field" => "html", "Type" => "text");
+
 function formcreator_info()
 {
     $donate = '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
@@ -267,24 +305,7 @@ function formcreator_install()
 
     if (!$db->table_exists('fc_forms')) {
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_forms` (
-          `formid` int(11) NOT NULL AUTO_INCREMENT,
-          `name` varchar(255) NOT NULL,
-          `allowedgidtype` int(11) NOT NULL,
-          `allowedgid` text DEFAULT NULL,
-          `active` tinyint(1) NOT NULL,
-          `pmusers` varchar(255) DEFAULT NULL,
-          `pmgroups` varchar(255) DEFAULT NULL,
-          `fid` int(11) DEFAULT NULL,
-          `tid` int(11) DEFAULT NULL,
-          `uid` int(11) DEFAULT NULL,
-          `prefix` int(11) DEFAULT NULL,
-          `overridebutton` tinyint(1) DEFAULT NULL,
-          `mail` text DEFAULT NULL,
-          `width` varchar(50) DEFAULT NULL,
-          `labelwidth` varchar(50) DEFAULT NULL,
-          `class` varchar(255) DEFAULT NULL,
-          `subjecttemplate` varchar(255) DEFAULT NULL,
-          `messagetemplate` text,
+          ".formcreator_generate_table_fields("fc_forms")."
           PRIMARY KEY (`formid`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");
@@ -292,33 +313,54 @@ function formcreator_install()
 
     if (!$db->table_exists('fc_fields')) {
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_fields` (
-          `fieldid` int(11) NOT NULL AUTO_INCREMENT,
-          `formid` int(11) NOT NULL,
-          `name` varchar(255) NOT NULL,
-          `description` varchar(2000) DEFAULT NULL,
-          `type` int(11) NOT NULL,
-          `format` varchar(255) DEFAULT NULL,
-          `options` varchar(2000) DEFAULT NULL,
-          `default` varchar(2000) DEFAULT NULL,
-          `required` tinyint(1) DEFAULT NULL,
-          `regex` varchar(500) DEFAULT NULL,
-          `regexerror` varchar(500) DEFAULT NULL,
-          `order` int(11) DEFAULT NULL,
-          `size` int(11) DEFAULT NULL,
-          `cols` int(11) DEFAULT NULL,
-          `rows` int(11) DEFAULT NULL,
-          `class` varchar(50) DEFAULT NULL,
-          `html` text,
+          ".formcreator_generate_table_fields("fc_fields")."
           PRIMARY KEY (`fieldid`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");
     }
 }
 
+function formcreator_generate_table_fields($table)
+{
+    global $fields;
+    
+    $output = "";
+    
+    foreach($fields[$table] as $field){
+        $output .= "`".$field['Field']."` ".$field['Type'];
+        
+        if($field['NULL'] == 1){
+            $output .= " DEFAULT NULL";
+        }else{
+            $output .= " NOT NULL";
+        }
+        
+        if($field['AI'] == 1){
+            $output .= " AUTO_INCREMENT";
+        }
+        
+        $output .= ",\n";
+    }
+    
+    return $output;
+}
+
+function formcreator_check_database()
+{
+    global $db;
+    
+    if($db->table_exists('fc_fields') && $db->table_exists('fc_forms')){
+        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."_fc_forms");
+        
+    }else{
+        return array(false,"The database structure doesn't contain the needed tables. Please repair the plugin by reinstalling");
+    }
+}
+
 function formcreator_is_installed()
 {
     global $db;
-
+    
     // If the table exists then it means the plugin is installed because we only drop it on uninstallation
     return $db->table_exists('fc_fields') && $db->table_exists('fc_forms');
 }
