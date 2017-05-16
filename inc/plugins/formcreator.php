@@ -3,22 +3,33 @@
 if (!defined('IN_MYBB'))
     die('This file cannot be accessed directly.');
 
+
+
 function formcreator_info()
 {
+    $donate = '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="3A2B883GGPH2U">
+<input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal – The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+';
+
     return array(
         'name' => 'Form Creator',
-        'description' => 'Plugin for creating fillable forms to be send as PM or to be created as a new thread',
-        'website' => 'https://mybb.com',
+        'description' => 'Plugin for creating fillable forms to be send as PM or to be created as a new thread<p>Although this plugin is completly free donations are greatly appreciated to keep the plugin updated. ' .
+            $donate . '</p>',
+        'website' => 'https://community.mybb.com/mods.php?action=view&pid=975',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '1.0',
+        'version' => '2.0',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
 
 function formcreator_activate()
 {
-    global $db;
+    global $db, $mybb;
 
     change_admin_permission('config', 'formcreator', 1);
 
@@ -27,6 +38,7 @@ function formcreator_activate()
 <head>
     <title>{\$mybb->settings['bbname']}</title>
     {\$headerinclude}
+    <script src=\"https://code.jquery.com/ui/1.12.1/jquery-ui.js\"></script>
 </head>
 <body>
 {\$header}
@@ -61,10 +73,76 @@ function formcreator_activate()
         'field_submit' => '<tr>
 	<td class="trow1" colspan="2" style="text-align:center;">{$fieldoutput}</td>
 </tr>',
+        'field_captcha' => '<tr>
+	<td class="trow1" colspan="2" style="text-align:center;">{$fieldoutput}</td>
+</tr>',
         'field_seperator' => '</tbody></table><br />
 	<td class="thead" colspan="2">{$fieldoutput}</td>
 </tr><table border="0" cellspacing="0" cellpadding="5" class="tborder {$styleclass}" style="{$stylewidth}">
-<tbody>');
+<tbody>',
+        'thread_button' => '<a href="form.php?formid={$formid}" class="button new_thread_button"><span>{$lang->post_thread}</span></a>',
+        'thread_newreply' => '<a href="form.php?formid={$formid}" class="button new_reply_button"><span>{$lang->new_reply}</span></a>&nbsp;',
+        'thread_newreply_closed' => '<a href="form.php?formid={$formid}" class="button closed_button"><span>{$lang->thread_closed}</span></a>&nbsp;',
+        'thread_newthread' => '<a href="form.php?formid={$formid}" class="button new_thread_button"><span>{$lang->post_thread}</span></a>&nbsp;',
+        'captcha' => '<fieldset class="trow2">
+<script type="text/javascript">
+<!--
+	lang.captcha_fetch_failure = "{$lang->captcha_fetch_failure}";
+// -->
+</script>
+<script type="text/javascript" src="{$mybb->asset_url}/jscripts/captcha.js?ver=1808"></script>
+<legend><strong>{$lang->image_verification}</strong></legend>
+<table cellspacing="0" cellpadding="{$theme[\'tablespace\']}">
+<tr>
+<td><span class="smalltext">{$lang->verification_note}</span></td>
+<td rowspan="2" align="center"><img src="captcha.php?action=regimage&amp;imagehash={$imagehash}" alt="{$lang->image_verification}" title="{$lang->image_verification}" id="captcha_img" /><br /><span style="color: red;" class="smalltext">{$lang->verification_subnote}</span>
+<script type="text/javascript">
+<!--
+	if(use_xmlhttprequest == "1")
+	{
+		document.write(\'<br \/><br \/><input type="button" class="button" tabindex="10000" name="refresh" value="{$lang->refresh}" onclick="return captcha.refresh();" \/>\');
+	}
+// -->
+</script>
+</td>
+</tr>
+<tr>
+<td><input type="text" class="textbox" name="imagestring" value="" id="imagestring" style="width: 100%;" /><input type="hidden" name="imagehash" value="{$imagehash}" id="imagehash" /></td>
+</tr>
+<tr>
+	<td id="imagestring_status"  style="display: none;" colspan="2">&nbsp;</td>
+</tr>
+</table>
+</fieldset>',
+        'nocaptcha' => '<fieldset class="trow2">
+	<legend><strong>{$lang->human_verification}</strong></legend>
+	<table cellspacing="0" cellpadding="{$theme[\'tablespace\']}">
+	<tr>
+		<td><span class="smalltext">{$lang->verification_note_nocaptcha}</span></td>
+	</tr>
+	<tr>
+		<td><script type="text/javascript" src="{$server}"></script><div class="g-recaptcha" data-sitekey="{$public_key}"></div></td>
+	</tr>
+</table>
+</fieldset>',
+        'recaptcha' => '<script type="text/javascript">
+<!--
+	var RecaptchaOptions = {
+		theme: \'clean\'
+	};
+// -->
+</script>
+<fieldset class="trow2">
+	<legend><strong>{$lang->image_verification}</strong></legend>
+	<table cellspacing="0" cellpadding="{$theme[\'tablespace\']}">
+	<tr>
+		<td><span class="smalltext">{$lang->verification_note}</span></td>
+	</tr>
+	<tr>
+		<td><script type="text/javascript" src="{$server}/challenge?k={$public_key}"></script></td>
+	</tr>
+</table>
+</fieldset>');
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
 
@@ -139,6 +217,45 @@ function formcreator_activate()
         $db->delete_query('templates', "title='" . $db->escape_string($name) . "'");
     }
 
+    // Add stylesheet
+    $tid = 1; // MyBB Master Style
+    $name = "formcreator.datepicker.css";
+    $styles = file_get_contents(MYBB_ROOT . 'inc/plugins/formcreator/jquery-ui.css');
+    $attachedto = "form.php";
+
+    $stylesheet = array(
+        'name' => $name,
+        'tid' => $tid,
+        'attachedto' => $attachedto,
+        'stylesheet' => $styles,
+        'cachefile' => $name,
+        'lastmodified' => TIME_NOW,
+        );
+
+    $dbstylesheet = array_map(array($db, 'escape_string'), $stylesheet);
+
+    // Activate children, if present.
+    $db->update_query('themestylesheets', array('attachedto' => $dbstylesheet['attachedto']), "name='{$dbstylesheet['name']}'");
+
+    // Update or insert parent stylesheet.
+    $query = $db->simple_select('themestylesheets', 'sid', "tid='{$tid}' AND cachefile='{$name}'");
+    $sid = intval($db->fetch_field($query, 'sid'));
+
+    if ($sid) {
+        $db->update_query('themestylesheets', $dbstylesheet, "sid='$sid'");
+    } else {
+        $sid = $db->insert_query('themestylesheets', $dbstylesheet);
+        $stylesheet['sid'] = intval($sid);
+    }
+
+    require_once MYBB_ROOT . $mybb->config['admin_dir'] . '/inc/functions_themes.php';
+
+    if ($stylesheet) {
+        cache_stylesheet($stylesheet['tid'], $stylesheet['cachefile'], $stylesheet['stylesheet']);
+    }
+
+    update_theme_stylesheet_list($tid, false, true); // includes all children
+
 }
 
 function formcreator_deactivate()
@@ -152,19 +269,7 @@ function formcreator_install()
 
     if (!$db->table_exists('fc_forms')) {
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_forms` (
-          `formid` int(11) NOT NULL AUTO_INCREMENT,
-          `name` varchar(255) NOT NULL,
-          `allowedgidtype` int(11) NOT NULL,
-          `allowedgid` text NOT NULL,
-          `active` tinyint(1) NOT NULL,
-          `pmusers` varchar(255) NOT NULL,
-          `pmgroups` varchar(255) NOT NULL,
-          `fid` int(11) NOT NULL,
-          `prefix` int(11) NOT NULL,
-          `mail` text NOT NULL,
-          `width` varchar(50) NOT NULL,
-          `labelwidth` varchar(50) NOT NULL,
-          `class` varchar(255) NOT NULL,
+          ".formcreator_generate_table_fields("fc_forms")."
           PRIMARY KEY (`formid`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");
@@ -172,31 +277,97 @@ function formcreator_install()
 
     if (!$db->table_exists('fc_fields')) {
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_fields` (
-          `fieldid` int(11) NOT NULL AUTO_INCREMENT,
-          `formid` int(11) NOT NULL,
-          `name` varchar(255) NOT NULL,
-          `description` varchar(2000) DEFAULT NULL,
-          `type` int(11) NOT NULL,
-          `options` varchar(2000) DEFAULT NULL,
-          `default` varchar(2000) DEFAULT NULL,
-          `required` tinyint(1) DEFAULT NULL,
-          `regex` varchar(255) DEFAULT NULL,
-          `order` int(11) DEFAULT NULL,
-          `size` int(11) DEFAULT NULL,
-          `cols` int(11) DEFAULT NULL,
-          `rows` int(11) DEFAULT NULL,
-          `class` varchar(50) DEFAULT NULL,
-          `html` text,
+          ".formcreator_generate_table_fields("fc_fields")."
           PRIMARY KEY (`fieldid`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");
     }
 }
 
+function formcreator_generate_table_fields($table)
+{
+    require_once MYBB_ROOT . 'inc/class_formcreator.php';
+    
+    global $fields;
+    
+    $formcreator = new formcreator();
+    
+    $fields = $formcreator->formcreator_fields;
+    
+    $output = "";
+    
+    foreach($fields[$table] as $field){
+        $output .= "`".$field['Field']."` ".$field['Type'];
+        
+        if($field['NULL'] == 1){
+            $output .= " DEFAULT NULL";
+        }else{
+            $output .= " NOT NULL";
+        }
+        
+        if($field['AI'] == 1){
+            $output .= " AUTO_INCREMENT";
+        }
+        
+        $output .= ",\n";
+    }
+    
+    return $output;
+}
+
+function formcreator_check_database()
+{
+    require_once MYBB_ROOT . 'inc/class_formcreator.php';
+    
+    global $db;
+    
+    $formcreator = new formcreator();
+    $fields = $formcreator->formcreator_fields;
+    
+    $errors = 0;
+    
+    if($db->table_exists('fc_fields') && $db->table_exists('fc_forms')){
+        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_forms");
+        
+        while($row = $db->fetch_array($query)){
+            $cols_db[$row['Field']] = $row;
+        }
+        
+        foreach($fields['fc_forms'] as $field){
+            if($cols_db[$field['Field']]['Type'] != $field['Type']){
+                $error++;
+            }
+        }
+        
+        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_fields");
+        $cols_db = array();
+        
+        while($row = $db->fetch_array($query)){
+            $cols_db[$row['Field']] = $row;
+        }
+        
+        foreach($fields['fc_fields'] as $field){
+            if($cols_db[$field['Field']]['Type'] != $field['Type']){
+                $error++;
+            }
+        }
+        
+        if($error == 0){
+            return array(true);
+        }else{
+            return array(false,"The table structures have changed. It is adviced to create an export of your forms and reinstall the plugin!");
+        }
+        
+        
+    }else{
+        return array(false,"The database structure doesn't contain the needed tables. Please repair the plugin by reinstalling");
+    }
+}
+
 function formcreator_is_installed()
 {
     global $db;
-
+    
     // If the table exists then it means the plugin is installed because we only drop it on uninstallation
     return $db->table_exists('fc_fields') && $db->table_exists('fc_forms');
 }
@@ -226,6 +397,22 @@ function formcreator_uninstall()
 
         // Delete templates belonging to template groups.
         $db->delete_query('templates', "title='formcreator' OR title LIKE 'formcreator_%'");
+    }
+}
+
+$plugins->add_hook('admin_load', 'formcreator_admin_load');
+function formcreator_admin_load()
+{
+    global $page;
+    
+    require_once MYBB_ROOT . 'inc/class_formcreator.php';
+    
+    $formcreator = new formcreator();
+    
+    $error = formcreator_check_database($formcreator);
+    
+    if($error[0] == false){
+        $page->extra_messages[] = array("type" => "error", "message" => "Form Creator: ". $error[1]);
     }
 }
 
@@ -277,6 +464,67 @@ function formcreator_location_end(&$plugin_array)
     }
 }
 
+$plugins->add_hook("forumdisplay_get_threads", "formcreator_forumdisplay_get_threads");
+function formcreator_forumdisplay_get_threads()
+{
+    global $foruminfo, $fpermissions, $mybb, $db, $newthread, $lang, $templates;
+
+    $query = $db->simple_select("fc_forms", "*", "fid=" . $foruminfo['fid'] . " AND overridebutton=1");
+    if ($db->num_rows($query) == 1) {
+
+        $form = $db->fetch_array($query);
+        $formid = $form['formid'];
+
+        if ($foruminfo['type'] == "f" && $foruminfo['open'] != 0 && $fpermissions['canpostthreads'] != 0 && $mybb->user['suspendposting'] == 0) {
+            eval("\$newthread = \"" . $templates->get("formcreator_thread_button") . "\";");
+        }
+    }
+}
+
+$plugins->add_hook("showthread_threaded", "formcreator_showthread_buttons");
+$plugins->add_hook("showthread_linear", "formcreator_showthread_buttons");
+function formcreator_showthread_buttons()
+{
+    global $forum, $thread, $forumpermissions, $mybb, $db, $newthread, $newreply, $lang, $templates;
+
+    $query = $db->simple_select("fc_forms", "*", "tid=" . $thread['tid'] . " AND overridebutton=1");
+    if ($db->num_rows($query) == 1) {
+
+        $form = $db->fetch_array($query);
+        $formid = $form['formid'];
+
+        if ($forum['open'] != 0 && $forum['type'] == "f") {
+            if ($forumpermissions['canpostthreads'] != 0 && $mybb->user['suspendposting'] != 1) {
+                eval("\$newthread = \"" . $templates->get("formcreator_thread_newthread") . "\";");
+            }
+
+            // Show the appropriate reply button if this thread is open or closed
+            if ($forumpermissions['canpostreplys'] != 0 && $mybb->user['suspendposting'] != 1 && ($thread['closed'] != 1 || is_moderator($forum['fid'],
+                "canpostclosedthreads")) && ($thread['uid'] == $mybb->user['uid'] || $forumpermissions['canonlyreplyownthreads'] != 1)) {
+                eval("\$newreply = \"" . $templates->get("formcreator_thread_newreply") . "\";");
+            } elseif ($thread['closed'] == 1) {
+                eval("\$newreply = \"" . $templates->get("formcreator_thread_newreply_closed") . "\";");
+            }
+        }
+    }
+}
+
+$plugins->add_hook("showthread_end", "formcreator_showthread_end");
+function formcreator_showthread_end()
+{
+    global $thread, $forumpermissions, $db, $quickreply;
+
+    $query = $db->simple_select("fc_forms", "*", "tid=" . $thread['tid'] . " AND overridebutton=1");
+    if ($db->num_rows($query) == 1) {
+
+        $form = $db->fetch_array($query);
+        $formid = $form['formid'];
+
+        //Remove quick reply if override is enabled
+        $quickreply = "";
+    }
+}
+
 function get_usergroup($gid)
 {
     global $db;
@@ -293,18 +541,18 @@ function get_usergroup($gid)
 function get_usergroup_users($gid)
 {
     global $db;
-    
-    if(is_array($gid)){
+
+    if (is_array($gid)) {
         $additionwhere = "";
-        foreach($gid as $groupid){
+        foreach ($gid as $groupid) {
             $additionwhere .= " OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($groupid) . ",%'";
         }
-        
-        $query = $db->simple_select("users", "*", "usergroup IN (" . implode(",",$gid) . ")".$additionwhere);
-    }else{
+
+        $query = $db->simple_select("users", "*", "usergroup IN (" . implode(",", $gid) . ")" . $additionwhere);
+    } else {
         $query = $db->simple_select("users", "*", "usergroup IN (" . intval($gid) . ") OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($gid) . ",%'");
     }
-    
+
     if ($db->num_rows($query)) {
 
         while ($user = $db->fetch_array($query)) {
@@ -314,7 +562,6 @@ function get_usergroup_users($gid)
     } else {
         return false;
     }
-
 }
 
 ?>
