@@ -85,8 +85,6 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $username = "Form Creator Bot";
                     }
                 }
-                
-                print_r($mybb->user);
 
                 // Send PM single user
                 if ($formcreator->pmusers) {

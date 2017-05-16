@@ -318,11 +318,11 @@ class formcreator
     public function insert_form()
     {
         global $db;
-        if ($this->allowedgid) {
+        if ($this->allowedgid && is_array($this->allowedgid)) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
 
-        if ($this->pmgroups) {
+        if ($this->pmgroups && is_array($this->pmgroups)) {
             $this->pmgroups = implode(",", $this->pmgroups);
         }
 
@@ -339,11 +339,11 @@ class formcreator
     public function update_template()
     {
         global $db;
-        if ($this->allowedgid) {
+        if ($this->allowedgid && is_array($this->allowedgid)) {
             $this->allowedgid = implode(",", $this->allowedgid);
         }
 
-        if ($this->pmgroups) {
+        if ($this->pmgroups && is_array($this->pmgroups)) {
             $this->pmgroups = implode(",", $this->pmgroups);
         }
 
