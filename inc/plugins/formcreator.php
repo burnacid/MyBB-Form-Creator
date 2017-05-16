@@ -3,43 +3,7 @@
 if (!defined('IN_MYBB'))
     die('This file cannot be accessed directly.');
 
-// Table structures from Array
-$fields['fc_forms'][] = array("Field" => "formid", "Type" => "int(11)", "NULL" => 0, "AI" => 1);
-$fields['fc_forms'][] = array("Field" => "name", "Type" => "varchar(255)", "NULL" => 0);
-$fields['fc_forms'][] = array("Field" => "allowedgidtype", "Type" => "int(11)", "NULL" => 0);
-$fields['fc_forms'][] = array("Field" => "allowedgid", "Type" => "text", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "active", "Type" => "tinyint(1)", "NULL" => 0);
-$fields['fc_forms'][] = array("Field" => "pmusers", "Type" => "varchar(255)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "pmgroups", "Type" => "varchar(255)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "fid", "Type" => "int(11)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "tid", "Type" => "int(11)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "uid", "Type" => "int(11)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "prefix", "Type" => "int(11)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "overridebutton", "Type" => "tinyint(1)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "mail", "Type" => "text", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "width", "Type" => "varchar(50)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "labelwidth", "Type" => "varchar(50)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "class", "Type" => "varchar(255)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "subjecttemplate", "Type" => "varchar(255)", "NULL" => 1);
-$fields['fc_forms'][] = array("Field" => "messagetemplate", "Type" => "text", "NULL" => 1);
 
-$fields['fc_fields'][] = array("Field" => "fieldid", "Type" => "int(11)", "NULL" => 0, "AI" => 1);
-$fields['fc_fields'][] = array("Field" => "formid", "Type" => "int(11)", "NULL" => 0);
-$fields['fc_fields'][] = array("Field" => "name", "Type" => "varchar(255)", "NULL" => 0);
-$fields['fc_fields'][] = array("Field" => "description", "Type" => "varchar(2000)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "type", "Type" => "int(11)", "NULL" => 0);
-$fields['fc_fields'][] = array("Field" => "format", "Type" => "varchar(255)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "options", "Type" => "varchar(2000)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "default", "Type" => "varchar(2000)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "required", "Type" => "tinyint(1)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "regex", "Type" => "varchar(500)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "regexerror", "Type" => "varchar(500)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "order", "Type" => "int(11)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "size", "Type" => "int(11)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "cols", "Type" => "int(11)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "rows", "Type" => "int(11)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "class", "Type" => "varchar(50)", "NULL" => 1);
-$fields['fc_fields'][] = array("Field" => "html", "Type" => "text");
 
 function formcreator_info()
 {
@@ -322,7 +286,13 @@ function formcreator_install()
 
 function formcreator_generate_table_fields($table)
 {
+    require_once MYBB_ROOT . 'inc/class_formcreator.php';
+    
     global $fields;
+    
+    $formcreator = new formcreator();
+    
+    $fields = $formcreator->formcreator_fields;
     
     $output = "";
     
@@ -347,10 +317,47 @@ function formcreator_generate_table_fields($table)
 
 function formcreator_check_database()
 {
+    require_once MYBB_ROOT . 'inc/class_formcreator.php';
+    
     global $db;
     
+    $formcreator = new formcreator();
+    $fields = $formcreator->formcreator_fields;
+    
+    $errors = 0;
+    
     if($db->table_exists('fc_fields') && $db->table_exists('fc_forms')){
-        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."_fc_forms");
+        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_forms");
+        
+        while($row = $db->fetch_array($query)){
+            $cols_db[$row['Field']] = $row;
+        }
+        
+        foreach($fields['fc_forms'] as $field){
+            if($cols_db[$field['Field']]['Type'] != $field['Type']){
+                $error++;
+            }
+        }
+        
+        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_fields");
+        $cols_db = array();
+        
+        while($row = $db->fetch_array($query)){
+            $cols_db[$row['Field']] = $row;
+        }
+        
+        foreach($fields['fc_fields'] as $field){
+            if($cols_db[$field['Field']]['Type'] != $field['Type']){
+                $error++;
+            }
+        }
+        
+        if($error == 0){
+            return array(true);
+        }else{
+            return array(false,"The table structures have changed. It is adviced to create an export of your forms and reinstall the plugin!");
+        }
+        
         
     }else{
         return array(false,"The database structure doesn't contain the needed tables. Please repair the plugin by reinstalling");

@@ -55,6 +55,12 @@ if ($mybb->get_input('action') == 'editfield') {
         'description' => "Edit a field");
 }
 
+$db_check = formcreator_check_database();
+
+if($db_check[0] == false){
+    $page->extra_messages[] = array("type" => "error", "message" => $db_check[1]);
+}
+
 if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit') {
 
     $formcreator = new formcreator();
