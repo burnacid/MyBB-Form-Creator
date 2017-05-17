@@ -3,7 +3,7 @@
 !inc\class_formcreator.php
 !inc\plugins\formcreator.php
 !inc\languages\english\formcreator.lang.php
-!inc\languages\english\admin\formcreator.lang.php
+!inc\languages\english\admin\config_formcreator.lang.php
 !inc\plugins\formcreator\jquery-ui.css
 !admin\modules\config\formcreator.php
 !admin\jscripts\formcreator.js
