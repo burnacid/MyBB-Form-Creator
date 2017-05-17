@@ -2,57 +2,59 @@
 
 require_once MYBB_ROOT . "inc/class_formcreator.php";
 
-$page->add_breadcrumb_item("Form Creator", "index.php?module=config-formcreator");
+$lang->load("formcreator");
+
+$page->add_breadcrumb_item($lang->formcreator, "index.php?module=config-formcreator");
 
 
 $sub_tabs['formcreator_forms'] = array(
-    'title' => 'View Forms',
+    'title' => $lang->fc_view_forms,
     'link' => 'index.php?module=config-formcreator',
-    'description' => 'View all forms created for this website');
+    'description' => $lang->fc_view_forms_desc);
 $sub_tabs['formcreator_add'] = array(
-    'title' => 'Create New Form',
+    'title' => $lang->fc_create_form,
     'link' => 'index.php?module=config-formcreator&amp;action=add',
-    'description' => 'Create a new form for this website');
+    'description' => $lang->fc_create_form_desc);
 $sub_tabs['formcreator_export'] = array(
-    'title' => 'Export',
+    'title' => $lang->fc_export,
     'link' => 'index.php?module=config-formcreator&amp;action=export',
-    'description' => 'Export forms for backuping or sharing');
+    'description' => $lang->fc_export_desc);
 $sub_tabs['formcreator_import'] = array(
-    'title' => 'Import',
+    'title' => $lang->fc_import,
     'link' => 'index.php?module=config-formcreator&amp;action=import',
-    'description' => 'Import forms from a export code');
+    'description' => $lang->fc_import_desc);
 
 if ($mybb->get_input('action') == "edit") {
     $sub_tabs['formcreator_edit'] = array(
-        'title' => 'Edit Form',
+        'title' => $lang->fc_edit_form,
         'link' => 'index.php?module=config-formcreator&amp;action=edit&amp;formid=' . $mybb->input['formid'],
-        'description' => "Change the settings of the form");
+        'description' => $lang->fc_edit_form_desc);
 }
 
 if ($mybb->get_input('action') == "output") {
     $sub_tabs['formcreator_output'] = array(
-        'title' => 'Form Output Template',
+        'title' => $lang->fc_output_template,
         'link' => 'index.php?module=config-formcreator&amp;action=output&amp;formid=' . $mybb->input['formid'],
-        'description' => "Change the output template for this form. Leave fields empty to use the default outputs");
+        'description' => $lang->fc_output_template_desc);
 }
 
 if ($mybb->get_input('action') == 'fields' or $mybb->get_input('action') == 'addfield' or $mybb->get_input('action') == 'editfield' or $mybb->
     get_input('action') == 'deletefield') {
     $sub_tabs['formcreator_fields'] = array(
-        'title' => 'View Form Fields',
+        'title' => $lang->fc_view_form_fields,
         'link' => 'index.php?module=config-formcreator&amp;action=fields&amp;formid=' . $mybb->input['formid'],
-        'description' => "Change the form fields. Add/Edit or Delete");
+        'description' => $lang->fc_view_form_fields_desc);
     $sub_tabs['formcreator_addfield'] = array(
-        'title' => 'Add Field',
+        'title' => $lang->fc_add_field,
         'link' => 'index.php?module=config-formcreator&amp;action=addfield&amp;formid=' . $mybb->input['formid'],
-        'description' => "Add a field");
+        'description' => $lang->fc_add_field_desc);
 }
 
 if ($mybb->get_input('action') == 'editfield') {
     $sub_tabs['formcreator_editfield'] = array(
-        'title' => 'Edit Field',
+        'title' => $lang->fc_edit_field,
         'link' => 'index.php?module=config-formcreator&amp;action=editfield&amp;formid=' . $mybb->input['formid'] . '&amp;fieldid=' . $mybb->input['fieldid'],
-        'description' => "Edit a field");
+        'description' => $lang->fc_edit_field_desc);
 }
 
 if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit') {
