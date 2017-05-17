@@ -2,7 +2,7 @@
 
 require_once MYBB_ROOT . "inc/class_formcreator.php";
 
-$lang->load("formcreator");
+$lang->load("config_formcreator");
 
 $page->add_breadcrumb_item($lang->formcreator, "index.php?module=config-formcreator");
 
@@ -63,7 +63,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     if ($mybb->get_input('action') == 'edit') {
         if ($formcreator->get_form($mybb->input['formid']) == false) {
-            flash_message("The form you tried to edit doesn't exist!", 'error');
+            flash_message($lang->fc_form_edit_not_found, 'error');
             admin_redirect("index.php?module=config-formcreator");
         }
 
@@ -82,15 +82,15 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $formcreator->clear_error();
 
         if (empty($formcreator->name)) {
-            $formcreator->add_error("Form Name is empty!");
+            $formcreator->add_error($lang->fc_empty_formname);
         }
 
         if (!isset($formcreator->allowedgidtype)) {
-            $formcreator->add_error("The way allowed groups are handled wasn't set");
+            $formcreator->add_error($lang->fc_empty_allowed_groups_type);
         }
 
         if (empty($formcreator->allowedgid) && ($formcreator->allowedgidtype == 0 or $formcreator->allowedgidtype == 1)) {
-            $formcreator->add_error("There were no allowed groups selected!");
+            $formcreator->add_error($lang->fc_empty_allowed_groups);
         }
 
         if ($mybb->get_input('action') == 'add') {
@@ -100,10 +100,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 if ($formid = $formcreator->insert_form()) {
                     log_admin_action($formcreator->formid, $formcreator->name);
 
-                    flash_message("The form is added succesfully. You can now configure fields.", 'success');
+                    flash_message($lang->fc_success_form_add, 'success');
                     admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formid);
                 } else {
-                    flash_message("Oops something went wrong!", 'error');
+                    flash_message($lang->fc_error_oops, 'error');
                     admin_redirect("index.php?module=config-formcreator");
                 }
             }
@@ -114,31 +114,31 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 if ($formcreator->update_form()) {
                     log_admin_action($formcreator->formid, $formcreator->name);
 
-                    flash_message("The form is edited succesfully.", 'success');
+                    flash_message($lang->fc_success_form_edit, 'success');
                     admin_redirect("index.php?module=config-formcreator");
                 } else {
-                    flash_message("Oops something went wrong!", 'error');
+                    flash_message($lang->fc_error_oops, 'error');
                     admin_redirect("index.php?module=config-formcreator");
                 }
             }
         } else {
-            flash_message("Oops something went wrong!", 'error');
+            flash_message($lang->fc_error_oops, 'error');
             admin_redirect("index.php?module=config-formcreator");
         }
     }
 
     if ($mybb->get_input('action') == 'add') {
-        $page->add_breadcrumb_item("Add Form", "");
-        $page->output_header("Add Form");
+        $page->add_breadcrumb_item($lang->fc_add_form, "");
+        $page->output_header($lang->fc_add_form);
         $page->output_nav_tabs($sub_tabs, 'formcreator_add');
     } elseif ($mybb->get_input('action') == 'edit') {
-        $page->add_breadcrumb_item("Edit Form", "");
-        $page->output_header("Edit Form");
+        $page->add_breadcrumb_item($lang->fc_edit_form, "");
+        $page->output_header($lang->fc_edit_form);
         $page->output_nav_tabs($sub_tabs, 'formcreator_edit');
     }
 
-    $form_container = new FormContainer("Create a new Form");
-    $form_container->output_row("Form Name <em>*</em>", "The title of the form", $form->generate_text_box('name', $formcreator->name, array('id' => 'name')),
+    $form_container = new FormContainer($lang->fc_create_new_form);
+    $form_container->output_row($lang->fc_form_name." <em>*</em>", $lang->fc_form_name_desc, $form->generate_text_box('name', $formcreator->name, array('id' => 'name')),
         'name');
 
     $radioboxes = "";
@@ -148,53 +148,53 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     } else {
         $option = array();
     }
-    $radioboxes .= $form->generate_radio_button("allowedgidtype", -1, "Allow ALL groups", $option) . "<br />";
+    $radioboxes .= $form->generate_radio_button("allowedgidtype", -1, $lang->fc_allow_all_groups, $option) . "<br />";
 
     if ($formcreator->allowedgidtype == 0) {
         $option = array("checked" => 1);
     } else {
         $option = array();
     }
-    $radioboxes .= $form->generate_radio_button("allowedgidtype", 0, "Allow selected groups", $option) . "<br />";
+    $radioboxes .= $form->generate_radio_button("allowedgidtype", 0, $lang->fc_allow_selected_groups, $option) . "<br />";
 
     if ($formcreator->allowedgidtype == 1) {
         $option = array("checked" => 1);
     } else {
         $option = array();
     }
-    $radioboxes .= $form->generate_radio_button("allowedgidtype", 1, "Allow all BUT selected groups", $option);
+    $radioboxes .= $form->generate_radio_button("allowedgidtype", 1, $lang->fc_allow_unselected_groups, $option);
 
-    $form_container->output_row("Allowed Groups <em>*</em>", "Which groups are allowed to use this form", $radioboxes . "<br /><br />" . $form->
+    $form_container->output_row($lang->fc_allowed_groups." <em>*</em>", $lang->fc_allowed_groups_desc, $radioboxes . "<br /><br />" . $form->
         generate_group_select("allowedgid[]", $formcreator->allowedgid, array("multiple" => true)));
-    $form_container->output_row("Status <em>*</em>", "Is this form active yes or no?", $form->generate_yes_no_radio("active", $formcreator->active));
+    $form_container->output_row($lang->fc_status." <em>*</em>", $lang->fc_status_desc, $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
 
-    $form_container = new FormContainer("Process Options");
-    $form_container->output_row("Send PM to user(s)",
-        "Send a PM to the User IDs defined here. If you do not want to trigger a PM leave this empty. Multiple users comma seperated.", $form->
+    $form_container = new FormContainer($lang->fc_process_options);
+    $form_container->output_row($lang->fc_process_send_pm,
+        $lang->fc_process_send_pm_desc, $form->
         generate_text_box("pmusers", $formcreator->pmusers));
-    $form_container->output_row("Send PM to Groups",
-        "Send a PM to the Users within the selected groups. If you do not want to trigger a group PM select nothing.", $form->generate_group_select("pmgroups[]",
+    $form_container->output_row($lang->fc_process_send_pm_group,
+        $lang->fc_process_send_pm_group_desc, $form->generate_group_select("pmgroups[]",
         $formcreator->pmgroups, array("multiple" => true)));
-    $form_container->output_row("Post within forum", "Create a new thread within the selected forum", $form->generate_forum_select("fid", $formcreator->
-        fid, array('main_option' => "- DISABLED -"), true));
+    $form_container->output_row($lang->fc_process_post_thread, $lang->fc_process_post_thread_desc, $form->generate_forum_select("fid", $formcreator->
+        fid, array('main_option' => "- ".$lang->fc_disabled." -"), true));
 
     $query = $db->simple_select("threadprefixes", "*");
-    $prefixes = array(0 => "- None -");
+    $prefixes = array(0 => "- ".$lang->fc_none." -");
     while ($prefix = $db->fetch_array($query)) {
         $prefixes[$prefix['pid']] = $prefix['prefix'];
     }
 
-    $form_container->output_row("Thread prefix",
-        "Select a thread prefix for the thread that will be made. Only has use when option for Post within forum is set.", $form->generate_select_box("prefix",
+    $form_container->output_row($lang->fc_process_prefix,
+        $lang->fc_process_prefix_desc, $form->generate_select_box("prefix",
         $prefixes, $formcreator->prefix));
 
-    $form_container->output_row("Post within thread", "Create a post within the given thread ID", $form->generate_numeric_field("tid", $formcreator->tid));
-    $form_container->output_row("Post as user",
-        "Which user is used to post a thread, post or reply. (leave empty to use the user who submits the form, set to -1 to use the Form Creator Bot as user)",
+    $form_container->output_row($lang->fc_process_reply_post, $lang->fc_process_reply_post_desc, $form->generate_numeric_field("tid", $formcreator->tid));
+    $form_container->output_row($lang->fc_process_post_as,
+        $lang->fc_process_post_as_desc,
         $form->generate_numeric_field("uid", $formcreator->uid));
-    $form_container->output_row("Override post button",
-        "Change the create new thread or post reply button to link to the form. Only useful when set to post a new thread or reply.", $form->
+    $form_container->output_row($lang->fc_override_button,
+        $lang->fc_override_button_desc, $form->
         generate_on_off_radio("overridebutton", $formcreator->overridebutton));
     /*
     $form_container->output_row("Send Mail to",
@@ -203,19 +203,19 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     */
     $form_container->end();
 
-    $form_container = new FormContainer("Form Layout");
-    $form_container->output_row("Form table width", "Set the width of the table containing the form (either in pixels or percentage, e.g. 100px or 75% )",
+    $form_container = new FormContainer($lang->fc_form_layout);
+    $form_container->output_row($lang->fc_form_talbe_width, $lang->fc_form_table_width_desc,
         $form->generate_text_box("width", $formcreator->width));
-    $form_container->output_row("Label column width",
-        "Set the width of the table column containing the field labels (either in pixels or percentage, e.g. 100px or 75% )", $form->generate_text_box("labelwidth",
+    $form_container->output_row($lang->fc_label_width,
+        $lang->fc_lang_width_desc, $form->generate_text_box("labelwidth",
         $formcreator->labelwidth));
-    $form_container->output_row("Class", "Set the class of the table containing the form", $form->generate_text_box("class", $formcreator->class));
+    $form_container->output_row($lang->fc_class, $lang->fc_class_desc, $form->generate_text_box("class", $formcreator->class));
     $form_container->end();
 
     if ($mybb->get_input('action') == 'edit') {
-        $buttons[] = $form->generate_submit_button("Update Form");
+        $buttons[] = $form->generate_submit_button($lang->fc_update_form);
     } else {
-        $buttons[] = $form->generate_submit_button("Create Form");
+        $buttons[] = $form->generate_submit_button($lang->fc_create_form);
     }
     $form->output_submit_wrapper($buttons);
     $form->end();
