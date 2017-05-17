@@ -8,6 +8,8 @@ require_once "./inc/class_captcha.php";
 require_once MYBB_ROOT . "inc/datahandlers/pm.php";
 require_once MYBB_ROOT . "inc/datahandlers/post.php";
 
+$lang->load("formcreator");
+
 $formcreator = new formcreator();
 
 if ($formcreator->get_form($mybb->input['formid'])) {
@@ -37,14 +39,14 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 $field->default = $mybb->input["field_" . $field->fieldid];
 
                 if ($field->required && empty($mybb->input["field_" . $field->fieldid])) {
-                    $error_array[] = "'" . $field->name . "' is empty!";
+                    $error_array[] = "'" . $field->name . "' ".$lang->fc_is_empty;
                 }
 
                 if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input["field_" . $field->fieldid])) {
                     if(!empty($field->regexerror)){
                         $error_array[] = $field->regexerror;
                     }else{
-                        $error_array[] = "'" . $field->name . "' did not match the expected input!";
+                        $error_array[] = "'" . $field->name . "' ". $lang->fc_no_match_regex;
                     }
                     
                 }
@@ -270,9 +272,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
 
                 if ($url) {
-                    redirect($url, "Form is submitted", "", false);
+                    redirect($url, $lang->fc_submitted, "", false);
                 } else {
-                    redirect($mybb->settings['bburl'], "Form is submitted", "", false);
+                    redirect($mybb->settings['bburl'], $lang->fc_submitted, "", false);
                 }
 
             }
@@ -285,7 +287,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
         } elseif (count($formcreator->fields) == 0) {
             $formtitle = $formcreator->name;
 
-            $formcontent = '<tr><td class="trow1" colspan="2">This form doesn\'t contain any fields yet!</td></tr>';
+            $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_no_fields.'</td></tr>';
         }
 
     } elseif ($formcreator->active == 0) {
@@ -293,19 +295,19 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
         $formtitle = "Form disabled";
 
-        $formcontent = '<tr><td class="trow1" colspan="2">This form has been disabled for use!</td></tr>';
+        $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_form_disabled.'</td></tr>';
     } else {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
         $formtitle = "Access Denied";
 
-        $formcontent = '<tr><td class="trow1" colspan="2">You are not allowed to use this form!</td></tr>';
+        $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_form_no_permissions.'</td></tr>';
     }
 } else {
-    add_breadcrumb("Form Creator", "form.php");
+    add_breadcrumb($lang->formcreator, "form.php");
 
-    $formtitle = "Form Creator";
-    $formcontent = '<tr><td class="trow1" colspan="2">The form you are looking for doesn\'t exist!</td></tr>';
+    $formtitle = $lang->formcreator;
+    $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_no_form_found.'</td></tr>';
 }
 
 eval("\$form = \"" . $templates->get("formcreator_container") . "\";");
