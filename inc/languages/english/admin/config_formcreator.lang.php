@@ -28,6 +28,14 @@ $l['fc_empty_allowed_groups'] = "There were no allowed groups selected!";
 $l['fc_success_form_add'] = "The form is added succesfully. You can now configure fields.";
 $l['fc_error_oops'] = "Oops something went wrong!";
 $l['fc_success_form_edit'] = "The form is edited succesfully.";
+$l['fc_form_del_not_found'] = "The form you are trying to delete doesn't exist";
+$l['fc_success_form_delete'] = "The form was succesfully deleted";
+$l['fc_confirm_form_delete'] = "Are you sure you would like to delete";
+$l['fc_form_output_template'] = "Form Output Template";
+$l['fc_form_output_not_found'] = "The form output you are trying to edit doesn't exist";
+$l['fc_subject_validation_failed'] = "Validation of the subject template failed!";
+$l['fc_message_validation_failed'] = "Validation of the message template failed!";
+$l['fc_form_no_fields'] = "This form doesn't have any fields yet. Please add fields before you change the output template.";
 
 $l['fc_add_form'] = "Add Form";
 $l['fc_create_new_form'] = "Create a new Form";
@@ -67,5 +75,17 @@ $l['fc_class'] = "Class";
 $l['fc_class_desc'] = "Set the class of the table containing the form";
 $l['fc_update_form'] = "Update Form";
 $l['fc_create_form'] = "Create Form";
+
+$l['fc_user_info'] = "User Info";
+$l['fc_username'] = "Username";
+$l['fc_id'] = "ID";
+$l['fc_fieldname'] = "Field Name";
+$l['fc_fieldvalue'] = "Field Value";
+$l['fc_edit_output_template'] = "Edit Output Template";
+$l['fc_subject_template'] = "Subject template";
+$l['fc_subject_template_desc'] = "Please enter in the template string for the subject. Copy any variables from the template.";
+$l['fc_message_template'] = "Message template";
+$l['fc_message_template_desc'] = "Please enter in the template for the message. You can use MyCode and the variables by clicking the legend.";
+$l['fc_add_variables'] = "Add Variables";
 
 ?>

@@ -225,7 +225,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $formcreator = new formcreator();
 
     if (!$formcreator->get_form($mybb->input['formid'])) {
-        flash_message("The form you are trying to delete doesn't exist", 'error');
+        flash_message($lang->fc_form_del_not_found, 'error');
         admin_redirect("index.php?module=config-formcreator");
     }
 
@@ -238,26 +238,26 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         if ($formcreator->delete_form()) {
             log_admin_action($formcreator->formid, $formcreator->name);
 
-            flash_message("The form was succesfully deleted", 'success');
+            flash_message($lang->fc_success_form_delete, 'success');
             admin_redirect("index.php?module=config-formcreator");
         } else {
-            flash_message("Oops something went wrong!", 'error');
+            flash_message($lang->fc_error_oops, 'error');
             admin_redirect("index.php?module=config-formcreator");
         }
     } else {
         $page->output_confirm_action("index.php?module=config-formcreator&action=delete&formid=" . $formcreator->formid,
-            "Are you sure you would like to delete '" . $formcreator->name . "'");
+            $lang->fc_confirm_form_delete ." '" . $formcreator->name . "'");
     }
 
 } elseif ($mybb->get_input('action') == 'output') {
     $formcreator = new formcreator();
 
-    $page->add_breadcrumb_item("Form Output Template", "");
-    $page->output_header("Form Output Template");
+    $page->add_breadcrumb_item($lang->fc_form_output_template, "");
+    $page->output_header($lang->fc_form_output_template);
     $page->output_nav_tabs($sub_tabs, 'formcreator_output');
 
     if (!$formcreator->get_form($mybb->input['formid'])) {
-        flash_message("The form output you are trying to edit doesn't exist", 'error');
+        flash_message($lang->fc_form_output_not_found, 'error');
         admin_redirect("index.php?module=config-formcreator");
     }
 
@@ -269,20 +269,20 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $testmessage = str_replace("'", "\'", $mybb->input['subjecttemplate']);
 
         if (check_template($testsubject)) {
-            flash_message("Validation of the subject template failed!", 'error');
+            flash_message($lang->fc_subject_validation_failed, 'error');
             admin_redirect("index.php?module=config-formcreator&action=output&formid=" . $formcreator->formid);
         }
 
         if (check_template($testmessage)) {
-            flash_message("Validation of the message template failed!", 'error');
+            flash_message($lang->fc_message_validation_failed, 'error');
             admin_redirect("index.php?module=config-formcreator&action=output&formid=" . $formcreator->formid);
         }
 
         if ($formcreator->update_template()) {
-            flash_message("The form output template has been updated", 'success');
+            flash_message($lang->fc_message_validation_failed, 'success');
             admin_redirect("index.php?module=config-formcreator&action=output&formid=" . $formcreator->formid);
         } else {
-            flash_message("Oops something went wrong!", 'error');
+            flash_message($lang->fc_error_oops, 'error');
             admin_redirect("index.php?module=config-formcreator");
         }
     }
@@ -290,34 +290,34 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $formcreator->get_fields();
 
     if (count($formcreator->fields) == 0) {
-        flash_message("This form doesn't have any fields yet. Please add fields before you change the output template.", 'error');
+        flash_message($lang->fc_form_no_fields, 'error');
         admin_redirect("index.php?module=config-formcreator");
     }
 
     echo "<script src='jscripts/formcreator.js'></script>";
 
-    $legend = "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$formname}\");'>Form Name</a><br />";
-    $legend .= "User Info: <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$username}\");'>Username</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$uid}\");'>ID</a><br /><br />";
+    $legend = "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$formname}\");'>".$lang->fc_form_name."</a><br />";
+    $legend .= $lang->fc_user_info .": <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$username}\");'>".$lang->fc_username."</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$uid}\");'>".$lang->fc_id."</a><br /><br />";
     foreach ($formcreator->fields as $field) {
         $legend .= "(ID:" . $field->fieldid . ") " . $field->name . ": ";
-        $legend .= "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldname[" . $field->fieldid . "]}\");'>Field Name</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldvalue[" .
-            $field->fieldid . "]}\");'>Field Value</a><br />";
+        $legend .= "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldname[" . $field->fieldid . "]}\");'>".$lang->fc_fieldname."</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldvalue[" .
+            $field->fieldid . "]}\");'>".$lang->fc_fieldvalue."</a><br />";
     }
 
     $form = new Form("index.php?module=config-formcreator&amp;action=output&amp;formid=" . $mybb->input['formid'], "post");
-    $form_container = new FormContainer("Edit Output Template");
-    $form_container->output_row("Subject template", "Please enter in the template string for the subject. Copy any variables from the template.", $form->
+    $form_container = new FormContainer($lang->fc_edit_output_template);
+    $form_container->output_row($lang->fc_subject_template, $lang->fc_subject_template_desc, $form->
         generate_text_box("subjecttemplate", $formcreator->subjecttemplate));
-    $form_container->output_row("Message template",
-        "Please enter in the template for the message. You can use MyCode and the variables by clicking the legend.", $form->generate_text_area("messagetemplate",
+    $form_container->output_row($lang->fc_message_template,
+        $lang->fc_message_template_desc, $form->generate_text_area("messagetemplate",
         $formcreator->messagetemplate, array(
         "style" => "width: 98%;",
         "rows" => 20,
-        "id" => "msgtemplate")) . "<br /><br /><strong>Add Variables:<br /></strong><small>" . $legend . "</small>");
+        "id" => "msgtemplate")) . "<br /><br /><strong>".$lang->fc_add_variables.":<br /></strong><small>" . $legend . "</small>");
 
     $form_container->end();
 
-    $buttons[] = $form->generate_submit_button("Edit Output Template");
+    $buttons[] = $form->generate_submit_button($lang->fc_edit_output_template);
 
     $form->output_submit_wrapper($buttons);
     $form->end();
