@@ -129,4 +129,22 @@ $l['fc_button_update_field'] = "Update Field";
 $l['fc_button_create_field'] = "Create Field";
 $l['fc_add_field_unknown_form'] = "You are trying to add a field to a form that doesn't exist!";
 
+$l['fc_delete_field_unknown'] = "The field you are trying to delete doesn't exist";
+$l['fc_delete_field_form_unknown'] = "The field's form you are trying to delete doesn't exist";
+$l['fc_delete_field_success'] = "The field was succesfully deleted";
+$l['fc_confirmation_delete_field'] = "Are you sure you would like to delete";
+$l['fc_order_saved'] = "Order saved";
+
+$l['fc_export_form'] = "Export Forms";
+$l['fc_export_description'] = "Copy and save this to a file or use this to import it else where.";
+$l['fc_no_forms_to_export'] = "You have no forms that can be exported!";
+$l['fc_forms'] = "Forms";
+$l['fc_field_forms_desc'] = "Which forms do you like to export?";
+$l['fc_export_perms'] = "Export Permissions";
+$l['fc_export_perms_desc'] = "Do you like to export the permissions? Set this to 'OFF' if you are going to import this on other forums.";
+$l['fc_export_process_options'] = "Export Process Options";
+$l['fc_export_process_options_desc'] = "Do you like to export the process options? Set this to 'OFF' if you are going to import this on other forums.";
+
+$l['fc_import_form'] = "Import Forms";
+
 ?>

@@ -479,12 +479,12 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $field = new formcreator_field();
 
     if (!$formcreator->get_form($mybb->input['formid'])) {
-        flash_message("The field's form you are trying to delete doesn't exist", 'error');
+        flash_message($lang->fc_delete_field_form_unknown, 'error');
         admin_redirect("index.php?module=config-formcreator");
     }
 
     if (!$field->get_field($mybb->input['fieldid'])) {
-        flash_message("The field you are trying to delete doesn't exist", 'error');
+        flash_message($lang->fc_delete_field_unknown, 'error');
         admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
     }
 
@@ -497,15 +497,15 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         if ($field->delete_field()) {
             log_admin_action($formcreator->formid, $formcreator->name);
 
-            flash_message("The field was succesfully deleted", 'success');
+            flash_message($lang->fc_delete_field_success, 'success');
             admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
         } else {
-            flash_message("Oops something went wrong!", 'error');
+            flash_message($lang->error_oops, 'error');
             admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
         }
     } else {
         $page->output_confirm_action("index.php?module=config-formcreator&action=deletefield&formid=" . $formcreator->formid . "&amp;fieldid=" . $field->
-            fieldid, "Are you sure you would like to delete '" . $field->name . "'");
+            fieldid, $lang->fc_confirmation_delete_field ." '" . $field->name . "'");
     }
 
 } elseif ($mybb->get_input('action') == 'orderfields') {
@@ -516,17 +516,17 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             $formcreator->order_field($key, $value);
         }
 
-        flash_message("Order saved", 'success');
+        flash_message($lang->fc_order_saved, 'success');
         admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
     } else {
-        flash_message("Oops something went wrong!", 'error');
+        flash_message($lang->error_oops, 'error');
         admin_redirect("index.php?module=config-formcreator");
     }
 } elseif ($mybb->get_input('action') == 'export') {
     
 
-    $page->add_breadcrumb_item("Export Forms", "");
-    $page->output_header("Export forms");
+    $page->add_breadcrumb_item($lang->fc_export_form, "");
+    $page->output_header($lang->fc_export_form);
     $page->output_nav_tabs($sub_tabs, 'formcreator_export');
 
     if ($mybb->request_method == "post" && count($mybb->input['forms'])) {
@@ -578,41 +578,41 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 $output_array[] = $data;
 
             } else {
-                flash_message("Oops something went wrong!", 'error');
+                flash_message($lang->error_oops, 'error');
                 admin_redirect("index.php?module=config-formcreator");
             }
         }
 
-        $form_container = new FormContainer("Export");
+        $form_container = new FormContainer();
         $form = new Form("index.php?module=config-formcreator&amp;action=export", "post");
 
-        $form_container->output_row("Export data", "Copy and save this to a file or use this to import it else where.", $form->generate_text_area("export",
+        $form_container->output_row($lang->fc_export, $lang->fc_export_description, $form->generate_text_area("export",
             json_encode($output_array), array("style" => "width:98%;", "rows" => 25)));
 
         $form_container->end();
         $form->end();
     } else {
-        $form_container = new FormContainer("Export forms");
+        $form_container = new FormContainer($lang->fc_export_form);
         $form = new Form("index.php?module=config-formcreator&amp;action=export", "post");
 
         $query = $db->simple_select("fc_forms", "formid,name");
         if ($db->num_rows($query) == 0) {
-            flash_message("You have no forms that can be exported!", 'error');
+            flash_message($lang->fc_no_forms_to_export, 'error');
             admin_redirect("index.php?module=config-formcreator");
         } else {
             while ($form_data = $db->fetch_array($query)) {
                 $forms .= $form->generate_check_box("forms[]", $form_data['formid'], $form_data['name']) . "<br/>";
             }
 
-            $form_container->output_row("Forms <em>*</em>", "Which forms do you like to export?", $forms);
-            $form_container->output_row("Export Permissions",
-                "Do you like to export the permissions? Set this to 'OFF' if you are going to import this on other forums.", $form->generate_on_off_radio("permissions"));
-            $form_container->output_row("Export Process Options",
-                "Do you like to export the process options? Set this to 'OFF' if you are going to import this on other forums.", $form->generate_on_off_radio("process"));
+            $form_container->output_row($lang->fc_forms." <em>*</em>", $lang->fc_field_forms_desc, $forms);
+            $form_container->output_row($lang->fc_export_perms,
+                $lang->fc_export_perms_desc, $form->generate_on_off_radio("permissions"));
+            $form_container->output_row($lang->fc_export_process_options,
+                $lang->fc_export_process_options_desc, $form->generate_on_off_radio("process"));
 
             $form_container->end();
 
-            $buttons[] = $form->generate_submit_button("Export Forms");
+            $buttons[] = $form->generate_submit_button($lang->fc_export_form);
 
             $form->output_submit_wrapper($buttons);
             $form->end();
@@ -621,8 +621,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 } elseif ($mybb->get_input('action') == 'import') {
     $formcreator = new formcreator();
 
-    $page->add_breadcrumb_item("Import Forms", "");
-    $page->output_header("Import forms");
+    $page->add_breadcrumb_item($lang->fc_import_form, "");
+    $page->output_header($lang->fc_import_form);
     $page->output_nav_tabs($sub_tabs, 'formcreator_import');
 
 
