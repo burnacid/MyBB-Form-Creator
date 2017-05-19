@@ -176,7 +176,7 @@ class formcreator
         3 => "Select (single)",
         4 => "Select (multiple)",
         5 => "Radio Buttons",
-        6 => "Checkboxs",
+        6 => "Checkboxes",
         7 => "Date",
         8 => "Seperator",
         9 => "Header",

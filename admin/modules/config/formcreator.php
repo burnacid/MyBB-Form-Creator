@@ -331,15 +331,15 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $field->clear_error();
 
         if ($field->show_admin_field('name') && empty($field->name)) {
-            $field->add_error("Field name is empty");
+            $field->add_error($lang->fc_field_name_empty);
         }
 
         if ($field->show_admin_field('options') && empty($field->options)) {
-            $field->add_error("There were no options entered");
+            $field->add_error($lang->fc_options_empty);
         }
 
         if ($field->show_admin_field('html') && empty($field->html)) {
-            $field->add_error("HTML block can't be empty");
+            $field->add_error($lang->fc_html_empty);
         }
 
         if ($mybb->get_input('action') == 'addfield') {
@@ -349,10 +349,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 if ($fieldid = $field->insert_field()) {
                     log_admin_action($field->formid, $fieldid, $field->name);
 
-                    flash_message("The field is added succesfully", 'success');
+                    flash_message($lang->fc_success_field_add, 'success');
                     admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $field->formid);
                 } else {
-                    flash_message("Oops something went wrong!", 'error');
+                    flash_message($lang->fc_error_oops, 'error');
                     admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $field->formid);
                 }
             }
@@ -363,10 +363,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 if ($fieldid = $field->update_field()) {
                     log_admin_action($field->formid, $fieldid, $field->name);
 
-                    flash_message("The field is updated succesfully", 'success');
+                    flash_message($lang->fc_success_field_edit, 'success');
                     admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $field->formid);
                 } else {
-                    flash_message("Oops something went wrong!", 'error');
+                    flash_message($lang->fc_error_oops, 'error');
                     admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $field->formid);
                 }
             }
@@ -375,7 +375,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         if ($field->get_field($mybb->input['fieldid'])) {
 
         } else {
-            flash_message("Oops something went wrong!", 'error');
+            flash_message($lang->fc_error_oops, 'error');
             admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . intval($mybb->input['formid']));
         }
     } elseif ($mybb->request_method == "post" && isset($mybb->input['type'])) {
@@ -383,17 +383,17 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     }
 
     if ($mybb->get_input('action') == 'editfield') {
-        $page->add_breadcrumb_item("Form Fields", "index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $mybb->input['formid']);
-        $page->add_breadcrumb_item("Edit Field", "");
-        $page->output_header("Edit Field");
+        $page->add_breadcrumb_item($lang->fc_form_fields, "index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $mybb->input['formid']);
+        $page->add_breadcrumb_item($lang->fc_edit_field, "");
+        $page->output_header($lang->fc_edit_field);
         $page->output_nav_tabs($sub_tabs, 'formcreator_editfield');
 
         $form = new Form("index.php?module=config-formcreator&amp;action=editfield&amp;formid=" . $mybb->input['formid'] . "&amp;fieldid=" . $field->fieldid,
             "post");
     } else {
-        $page->add_breadcrumb_item("Form Fields", "index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $mybb->input['formid']);
-        $page->add_breadcrumb_item("Add Field", "");
-        $page->output_header("Add Field");
+        $page->add_breadcrumb_item($lang->fc_form_fields, "index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $mybb->input['formid']);
+        $page->add_breadcrumb_item($lang->fc_add_field, "");
+        $page->output_header($lang->fc_add_field);
         $page->output_nav_tabs($sub_tabs, 'formcreator_addfield');
 
         $form = new Form("index.php?module=config-formcreator&amp;action=addfield&amp;formid=" . $mybb->input['formid'], "post");
@@ -403,73 +403,73 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     if ($formcreator->get_form($mybb->input['formid'])) {
         if ($fieldtype = $formcreator->get_type_name($field->type) or isset($field->fieldid)) {
-            $form_container = new FormContainer("Add " . $fieldtype);
+            $form_container = new FormContainer($lang->fc_add." " . $fieldtype);
             echo $form->generate_hidden_field("type", $field->type);
 
             if ($field->show_admin_field("name")) {
-                $form_container->output_row("Name <em>*</em>", "Please enter a field name", $form->generate_text_box("name", $field->name));
+                $form_container->output_row($lang->fc_name." <em>*</em>", $lang->fc_field_name_desc, $form->generate_text_box("name", $field->name));
             }
             if ($field->show_admin_field("description")) {
-                $form_container->output_row("Description", "Write a description for the field", $form->generate_text_area("description", $field->description));
+                $form_container->output_row($lang->fc_description, $lang->fc_field_description_desc, $form->generate_text_area("description", $field->description));
             }
             if ($field->show_admin_field("options")) {
-                $form_container->output_row("Options <em>*</em>", "Please enter the options for the field. One option per line", $form->generate_text_area("options",
+                $form_container->output_row($lang->fc_options." <em>*</em>", $lang->fc_field_options_desc, $form->generate_text_area("options",
                     $field->options));
             }
             if ($field->show_admin_field("format")) {
-                $form_container->output_row("Format",
-                    "Please enter the format for the field (e.g. for dates use jQuery <a href='http://api.jqueryui.com/datepicker/#utility-formatDate'>dateformat</a>)", $form->
+                $form_container->output_row($lang->fc_format,
+                    $form->fc_field_format_desc ,
                     generate_text_box("format", $field->format));
             }
             if ($field->show_admin_field("default")) {
-                $form_container->output_row("Default", "Enter the default value for this field", $form->generate_text_box("default", $field->default));
+                $form_container->output_row($lang->fc_default, $lang->fc_field_default_desc, $form->generate_text_box("default", $field->default));
             }
             if ($field->show_admin_field("required")) {
-                $form_container->output_row("Required", "Select if the field is required to fill.", $form->generate_yes_no_radio("required", $field->required));
+                $form_container->output_row($lang->fc_required, $lang->fc_field_required_desc, $form->generate_yes_no_radio("required", $field->required));
             }
             if ($field->show_admin_field("regex")) {
-                $form_container->output_row("Regex", "Enter a Regex to check the entered value is to the requested format", "<strong>/ ".$form->generate_text_box("regex", $field->
+                $form_container->output_row($lang->fc_regex, $lang->fc_field_regex_desc, "<strong>/ ".$form->generate_text_box("regex", $field->
                     regex)." /</strong>");
-                $form_container->output_row("Regex Error Message", "Enter the error message that should be shown when the regex fails.", $form->generate_text_box("regexerror", $field->
+                $form_container->output_row($lang->fc_regex_error, $lang->fc_field_regex_error_desc, $form->generate_text_box("regexerror", $field->
                     regexerror));
             }
             if ($field->show_admin_field("size")) {
-                $form_container->output_row("Size", "Enter the size of the field", $form->generate_numeric_field("size", $field->size));
+                $form_container->output_row($lang->fc_size, $lang->fc_field_size_desc, $form->generate_numeric_field("size", $field->size));
             }
             if ($field->show_admin_field("cols")) {
-                $form_container->output_row("Cols", "Enter the size in cols of the field", $form->generate_numeric_field("cols", $field->cols));
+                $form_container->output_row($lang->fc_cols, $lang->fc_field_cols_desc, $form->generate_numeric_field("cols", $field->cols));
             }
             if ($field->show_admin_field("rows")) {
-                $form_container->output_row("Rows", "Enter the size in rows of the field", $form->generate_numeric_field("rows", $field->rows));
+                $form_container->output_row($lang->fc_rows, $lang->fc_field_rows_desc, $form->generate_numeric_field("rows", $field->rows));
             }
             if ($field->show_admin_field("class")) {
-                $form_container->output_row("Class", "Enter a class for the field container", $form->generate_text_box("class", $field->class));
+                $form_container->output_row($lang->fc_class, $lang->fc_field_class_desc, $form->generate_text_box("class", $field->class));
             }
             if ($field->show_admin_field("html")) {
-                $form_container->output_row("HTML Block <em>*</em>", "Enter the HTML code you would like to display", $form->generate_text_area("html", $field->html,
+                $form_container->output_row($lang->fc_html_block." <em>*</em>", $lang->fc_field_html_block_desc, $form->generate_text_area("html", $field->html,
                     array(
                     "rows" => "30",
                     "cols" => "300",
                     "style" => "width:97%;")));
             }
         } else {
-            $form_container = new FormContainer("Add Field");
+            $form_container = new FormContainer($lang->fc_add_field);
             echo $form->generate_hidden_field("fieldselect", 1);
-            $form_container->output_row("Field type", "Select what type of field you would like to add.", $form->generate_select_box("type", $formcreator->types));
+            $form_container->output_row($lang->fc_field_type, $lang->fc_field_type_desc, $form->generate_select_box("type", $formcreator->types));
         }
 
         $form_container->end();
 
         if ($mybb->get_input('action') == 'editfield') {
-            $buttons[] = $form->generate_submit_button("Update Field");
+            $buttons[] = $form->generate_submit_button($lang->fc_button_update_field);
         } else {
-            $buttons[] = $form->generate_submit_button("Create Field");
+            $buttons[] = $form->generate_submit_button($lang->fc_button_create_field);
         }
         $form->output_submit_wrapper($buttons);
         $form->end();
 
     } else {
-        flash_message("You are trying to add a field to a form that doesn't exist!", 'error');
+        flash_message($lang->fc_add_field_unknown_form, 'error');
         admin_redirect("index.php?module=config-formcreator");
     }
 
