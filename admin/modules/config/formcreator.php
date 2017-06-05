@@ -360,8 +360,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             if ($error = $field->is_error()) {
                 $page->extra_messages[] = array("type" => "error", "message" => $error);
             } else {
-                if ($fieldid = $field->update_field()) {
-                    log_admin_action($field->formid, $fieldid, $field->name);
+                if ($field->update_field()) {
+                    log_admin_action($field->formid, $field->fieldid, $field->name);
 
                     flash_message($lang->fc_success_field_edit, 'success');
                     admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $field->formid);
@@ -495,7 +495,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     if ($mybb->request_method == "post") {
 
         if ($field->delete_field()) {
-            log_admin_action($formcreator->formid, $formcreator->name);
+            log_admin_action($field->formid, $field->fieldid, $field->name);
 
             flash_message($lang->fc_delete_field_success, 'success');
             admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);

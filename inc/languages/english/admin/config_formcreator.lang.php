@@ -147,4 +147,10 @@ $l['fc_export_process_options_desc'] = "Do you like to export the process option
 
 $l['fc_import_form'] = "Import Forms";
 
+$l['admin_log_config_formcreator_add'] = 'Created form #{1} ({2})';
+$l['admin_log_config_formcreator_edit'] = 'Edited form #{1} ({2})';
+$l['admin_log_config_formcreator_delete'] = 'Deleted form #{1} ({2})';
+$l['admin_log_config_formcreator_addfield'] = 'Added field #{2} ({3}) in form #{1}';
+$l['admin_log_config_formcreator_editfield'] = 'Edited field #{2} ({3}) in form #{1}';
+$l['admin_log_config_formcreator_deletefield'] = 'Deleted field #{2} ({3}) in form #{1}';
 ?>
