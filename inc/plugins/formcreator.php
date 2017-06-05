@@ -440,6 +440,14 @@ function formcreator_admin_config_action_handler(&$actions)
         );
 }
 
+$plugins->add_hook('admin_tools_get_admin_log_action', 'formcreator_admin_tools_get_admin_log_action');
+function formcreator_admin_tools_get_admin_log_action()
+{
+    global $lang;
+    
+    $lang->load('config_formcreator');
+}
+
 $plugins->add_hook("build_friendly_wol_location_end", "formcreator_location_end");
 function formcreator_location_end(&$plugin_array)
 {
