@@ -740,27 +740,27 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $table->construct_cell('<strong>Create Thread in Forum</strong>: <br />' . $forumlink);
 
         if ($formcreator->mail == "") {
-            $mail = "(No mail selected)";
+            $mail = "(".$lang->fc_no_mail_selected.")";
         } else {
             $mail = nl2br($formcreator->mail);
         }
 
-        $table->construct_cell('<strong>Send Mail to</strong>: <br />' . $mail);
+        $table->construct_cell('<strong>'.$lang->fc_send_mail_to.'</strong>: <br />' . $mail);
 
         $table->construct_row();
 
-        $table->output("Form Info");
+        $table->output($lang->fc_form_info);
 
         $table = new Table;
-        $table->construct_header("Field Name / Description");
-        $table->construct_header("Type", array("style" => "width: 300px;"));
-        $table->construct_header("Order", array("style" => "width: 100px;"));
+        $table->construct_header($lang->fc_fieldname ." / ". $lang->fc_description);
+        $table->construct_header($lang->fc_type, array("style" => "width: 300px;"));
+        $table->construct_header($lang->fc_order, array("style" => "width: 100px;"));
         $table->construct_header("", array("style" => "width: 125px;"));
 
         $form = new Form("index.php?module=config-formcreator&amp;action=orderfields&amp;formid=" . $formcreator->formid, "post");
 
         if (count($formcreator->fields) == 0) {
-            $table->construct_cell("<div align='center'>This form has no fields yet!</div>", array("colspan" => "4"));
+            $table->construct_cell("<div align='center'>".$lang->fc_form_has_no_fields."</div>", array("colspan" => "4"));
             $table->construct_row();
         } else {
             foreach ($formcreator->fields as $field) {
@@ -776,9 +776,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                         "text-align:center;"));
 
                 $popup = new PopupMenu("field_" . $field->fieldid, $lang->options);
-                $popup->add_item("Edit Field", "index.php?module=config-formcreator&amp;action=editfield&amp;formid=" . $field->formid . "&amp;fieldid=" . $field->
+                $popup->add_item($lang->fc_edit_field, "index.php?module=config-formcreator&amp;action=editfield&amp;formid=" . $field->formid . "&amp;fieldid=" . $field->
                     fieldid);
-                $popup->add_item("Delete Field", "index.php?module=config-formcreator&amp;action=deletefield&amp;formid=" . $field->formid . "&amp;fieldid=" . $field->
+                $popup->add_item($lang->fc_delete_field, "index.php?module=config-formcreator&amp;action=deletefield&amp;formid=" . $field->formid . "&amp;fieldid=" . $field->
                     fieldid);
 
                 $table->construct_cell($popup->fetch(), array("style" => "text-align:center;"));
@@ -786,26 +786,26 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             }
         }
 
-        $table->output("Fields");
+        $table->output($lang['fc_fields']);
 
-        $buttons[] = $form->generate_submit_button("Save Order");
+        $buttons[] = $form->generate_submit_button($lang->fc_save_order);
         $form->output_submit_wrapper($buttons);
         $form->end();
 
     } else {
-        flash_message("The form you are looking for doesn't exist!", 'error');
+        flash_message($lang->fc_form_does_not_exist, 'error');
         admin_redirect("index.php?module=config-formcreator");
     }
 
 } else {
 
-    $page->output_header("Form Creator");
+    $page->output_header($lang->formcreator);
     $page->output_nav_tabs($sub_tabs, 'formcreator_forms');
 
     $table = new Table;
-    $table->construct_header("Form name", array());
-    $table->construct_header("Active", array());
-    $table->construct_header("Link / URL", array());
+    $table->construct_header($lang->fc_form_name, array());
+    $table->construct_header($lang->fc_active, array());
+    $table->construct_header($lang->fc_url, array());
     $table->construct_header("", array());
 
     $numquery = $db->simple_select('fc_forms', '*', '');
@@ -831,9 +831,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         "limit" => 10));
 
     if (!$db->num_rows($query)) {
-        $table->construct_cell('<div align="center">No forms</div>', array('colspan' => 4));
+        $table->construct_cell('<div align="center">'.$lang->fc_no_forms.'</div>', array('colspan' => 4));
         $table->construct_row();
-        $table->output("Forms");
+        $table->output($lang->fc_forms);
     } else {
         while ($form = $db->fetch_array($query)) {
 
@@ -841,25 +841,25 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
             $table->construct_cell("<a href='" . $link_fields . "'>" . $form['name'] . "</a>");
             if ($form['active'] == 0) {
-                $active = "No";
+                $active = $lang->fc_no;
             } elseif ($form['active'] == 1) {
-                $active = "Yes";
+                $active = $lang->fc_yes;
             }
             $table->construct_cell($active);
             $table->construct_cell("<a href='" . $mybb->settings['bburl'] . "/form.php?formid=" . $form['formid'] . "'>" . $mybb->settings['bburl'] .
                 "/form.php?formid=" . $form['formid'] . "</a>");
 
             $popup = new PopupMenu("form_{$form['formid']}", $lang->options);
-            $popup->add_item("Edit Form", "index.php?module=config-formcreator&amp;action=edit&amp;formid=" . $form['formid']);
-            $popup->add_item("Delete Form", "index.php?module=config-formcreator&amp;action=delete&amp;formid=" . $form['formid']);
-            $popup->add_item("View Fields", $link_fields);
-            $popup->add_item("Change Output Template", "index.php?module=config-formcreator&amp;action=output&amp;formid=" . $form['formid']);
+            $popup->add_item($lang->fc_edit_form, "index.php?module=config-formcreator&amp;action=edit&amp;formid=" . $form['formid']);
+            $popup->add_item($lang->fc_delete_form, "index.php?module=config-formcreator&amp;action=delete&amp;formid=" . $form['formid']);
+            $popup->add_item($lang->fc_view_fields, $link_fields);
+            $popup->add_item($lang->fc_change_template, "index.php?module=config-formcreator&amp;action=output&amp;formid=" . $form['formid']);
 
             $table->construct_cell($popup->fetch(), array('class' => 'align_center'));
 
             $table->construct_row();
         }
-        $table->output("Forms");
+        $table->output($lang->fc_forms);
 
         echo draw_admin_pagination($pagenr, 10, $total, "index.php?module=config-formcreator");
     }
