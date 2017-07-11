@@ -162,8 +162,19 @@ $l['fc_export_perms'] = "Export Permissions";
 $l['fc_export_perms_desc'] = "Do you like to export the permissions? Set this to 'OFF' if you are going to import this on other forums.";
 $l['fc_export_process_options'] = "Export Process Options";
 $l['fc_export_process_options_desc'] = "Do you like to export the process options? Set this to 'OFF' if you are going to import this on other forums.";
+$l['fc_create_thread_in_forum'] = "Create Thread in Forum";
+$l['fc_forum_doesnt_exist'] = "Forum doesn't exist";
+$l['fc_no_forum_selected'] = "(No forum selected)";
+$l['fc_send_pm_to_usergroups'] = "Send PM to Usergroups";
+$l['fc_no_groups_selected'] = "(No groups selected)";
+$l['fc_send_pm_to_users'] = "Send PM to Users";
+$l['fc_no_users_selected'] = "(No users selected)";
 
 $l['fc_import_form'] = "Import Forms";
+$l['fc_import_code'] = "Import code";
+$l['fc_import_code_desc'] = "Enter the import code";
+$l['fc_no_forms_imported'] = "No forms found to import";
+$l['fc_forms_imported'] = "Forms imported ({1} forms and {2} fields)";
 
 $l['fc_url'] = "Link / URL";
 

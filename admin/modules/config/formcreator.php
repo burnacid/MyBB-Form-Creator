@@ -665,29 +665,29 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 $count_forms++;
             }
 
-            flash_message("Forms imported (" . $count_forms . " forms and " . $count_fields . " fields)", 'success');
+            flash_message($lang->sprintf($lang->fc_forms_imported, $count_forms, $count_fields), 'success');
             admin_redirect("index.php?module=config-formcreator");
         } else {
-            flash_message("No forms found to import", 'error');
+            flash_message($lang->fc_no_forms_imported, 'error');
             admin_redirect("index.php?module=config-formcreator&amp;action=import");
         }
     } else {
-        $form_container = new FormContainer("Import forms");
+        $form_container = new FormContainer($lang->fc_import_form);
         $form = new Form("index.php?module=config-formcreator&amp;action=import", "post");
 
-        $form_container->output_row("Import code <em>*</em>", "Enter the import code.", $form->generate_text_area("import", "", array("style" => "width:98%;",
+        $form_container->output_row($lang->fc_import_code." <em>*</em>", $lang->fc_import_code_desc, $form->generate_text_area("import", "", array("style" => "width:98%;",
                 "rows" => 25)));
 
         $form_container->end();
 
-        $buttons[] = $form->generate_submit_button("Import Forms");
+        $buttons[] = $form->generate_submit_button($lang->fc_import_form);
 
         $form->output_submit_wrapper($buttons);
         $form->end();
     }
 } elseif ($mybb->get_input('action') == 'fields') {
-    $page->add_breadcrumb_item("Form Fields", "");
-    $page->output_header("Form Fields");
+    $page->add_breadcrumb_item($lang->fc_form_fields, "");
+    $page->output_header($lang->fc_form_fields);
     $page->output_nav_tabs($sub_tabs, 'formcreator_fields');
 
     $formcreator = new formcreator();
@@ -696,8 +696,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $formcreator->get_fields();
 
         $table = new Table;
-        $table->construct_cell('<strong>Name</strong>: ' . $formcreator->name, array("width" => "50%"));
-        $table->construct_cell("<strong>URL</strong>: <a href='" . $mybb->settings['bburl'] . "/form.php?formid=" . $formcreator->formid . "'>" . $mybb->
+        $table->construct_cell('<strong>'.$lang->fc_name.'</strong>: ' . $formcreator->name, array("width" => "50%"));
+        $table->construct_cell("<strong>".$lang->fc_url."</strong>: <a href='" . $mybb->settings['bburl'] . "/form.php?formid=" . $formcreator->formid . "'>" . $mybb->
             settings['bburl'] . "/form.php?formid=" . $formcreator->formid . "</a>", array("width" => "50%"));
         $table->construct_row();
 
@@ -710,10 +710,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         }
 
         if ($usernames == "") {
-            $usernames = "<br />(No users selected)";
+            $usernames = "<br />". $lang->fc_no_users_selected;
         }
 
-        $table->construct_cell('<strong>Send PM to Users</strong>: ' . $usernames);
+        $table->construct_cell('<strong>'.$lang->fc_send_pm_to_users.'</strong>: ' . $usernames);
 
         $usergroups = "";
         foreach ($formcreator->pmgroups as $gid) {
@@ -723,21 +723,21 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         }
 
         if ($usergroups == "") {
-            $usergroups = "<br />(No groups selected)";
+            $usergroups = "<br />".$lang->fc_no_groups_selected;
         }
 
-        $table->construct_cell('<strong>Send PM to Usergroups</strong>: ' . $usergroups);
+        $table->construct_cell('<strong>'.$lang->fc_send_pm_to_usergroups.'</strong>: ' . $usergroups);
         $table->construct_row();
 
         if ($forum = get_forum($formcreator->fid)) {
             $forumlink = "<a href='" . $mybb->settings['bburl'] . "/" . get_forum_link($formcreator->fid) . "'>" . $forum['name'] . "</a>";
         } elseif ($formcreator->fid == -1) {
-            $forumlink = "(No forum selected)";
+            $forumlink = $lang->fc_no_forum_selected;
         } else {
-            $forumlink = "Forum doesn't exist";
+            $forumlink = $lang->fc_forum_doesnt_exist;
         }
 
-        $table->construct_cell('<strong>Create Thread in Forum</strong>: <br />' . $forumlink);
+        $table->construct_cell('<strong>'.$lang->fc_create_thread_in_forum.'</strong>: <br />' . $forumlink);
 
         if ($formcreator->mail == "") {
             $mail = "(".$lang->fc_no_mail_selected.")";
