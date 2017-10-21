@@ -50,7 +50,7 @@ function formcreator_activate()
 {\$footer}
 </body>
 </html>",
-        'container' => '<form action="" method="post" class="{$formclass}">
+        'container' => '<form action="" method="post" class="{$formclass}" enctype="multipart/form-data">
 {$errors}
 <table border="0" cellspacing="0" cellpadding="5" class="tborder {$styleclass}" style="{$stylewidth}">
 <tbody><tr>
