@@ -7,6 +7,7 @@ require_once "./inc/class_formcreator.php";
 require_once "./inc/class_captcha.php";
 require_once MYBB_ROOT . "inc/datahandlers/pm.php";
 require_once MYBB_ROOT . "inc/datahandlers/post.php";
+require_once MYBB_ROOT . "inc/functions_upload.php";
 
 $lang->load("formcreator");
 
@@ -38,19 +39,21 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             foreach ($formcreator->fields as $field) {
                 $field->default = $mybb->input["field_" . $field->fieldid];
 
-                if ($field->required && empty($mybb->input["field_" . $field->fieldid])) {
+                if ($field->required && empty($mybb->input["field_" . $field->fieldid]) && $field->type != 13 && $field->type != 14) {
                     $error_array[] = "'" . $field->name . "' ".$lang->fc_is_empty;
                 }
 
                 if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input["field_" . $field->fieldid])) {
                     if(!empty($field->regexerror)){
-                        $error_array[] = $field->regexerror;
+                        
                     }else{
-                        $error_array[] = "'" . $field->name . "' ". $lang->fc_no_match_regex;
+                        $error_array[] = $lang->fc_no_attachment;
                     }
                     
                 }
-
+                
+                $files = array();
+                
                 if ($field->type == 12) {
                     $captcha = new captcha();
                     if ($captcha->validate_captcha() == false) {
@@ -59,12 +62,38 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             $error_array[] = $error;
                         }
                     }
+                }elseif($field->type == 13 or $field->type == 14){
+                    if($field->required){
+                        if(!empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13){
+                            $files = $_FILES;
+                        }elseif(!empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14){
+                            $files = reArrayFiles($_FILES["field_" . $field->fieldid]);
+                        }else{
+                            $error_array[] = $lang->fc_no_attachment;
+                        }
+                    }
+                    
                 }
             }
-
+            
+            $posthash = "";
+            
+            if(count($files) != 0){
+                $posthash = sha1(time()+(rand(1,1000) / 1000));
+                $mybb->input['posthash'] = $posthash;
+                foreach($files as $file){
+                    $attach_result = upload_attachment($file);
+                    if(!empty($attach_result["error"])){
+                        $error_array[] = $attach_result["error"];
+                    }
+                }
+            }
+                
             if (count($error_array) != 0) {
                 $errors = inline_error($error_array);
-
+                if(count($files) != 0){
+                    remove_attachments(0,$posthash);
+                }
             } else {
                 $display = false;
 
@@ -204,7 +233,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             "username" => $username,
                             "message" => $message,
                             "ipaddress" => $session->packedip,
-                            "posthash" => "");
+                            "posthash" => $posthash);
 
                         // Set up the thread options
                         $new_post['options'] = array(
@@ -245,7 +274,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             "username" => $username,
                             "message" => $message,
                             "ipaddress" => $session->packedip,
-                            "posthash" => "");
+                            "posthash" => $posthash);
 
                         // Set up the thread options
                         $new_thread['options'] = array(

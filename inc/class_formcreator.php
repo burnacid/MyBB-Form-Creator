@@ -182,7 +182,9 @@ class formcreator
         9 => "Header",
         10 => "HTML block",
         11 => "Submit button",
-        12 => "Captcha");
+        12 => "Captcha",
+        13 => "Attachment",
+        14 => "Multiple Attachments");
     public function get_form($formid)
     {
         global $db;
@@ -270,6 +272,14 @@ class formcreator
                 case 12:
                     $fieldoutput = $field->output_captcha();
                     eval('$output .= "' . $templates->get("formcreator_field_captcha") . '";');
+                    break;
+                case 13:
+                    $fieldoutput = $field->output_attachment();
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
+                    break;
+                case 14:
+                    $fieldoutput = $field->output_attachments();
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
             }
         }
@@ -744,6 +754,18 @@ class formcreator_field
                 $show = array("name", "class");
             } elseif ($this->type == 12) {
                 $show = array("name");
+            } elseif ($this->type == 13) {
+                $show = array(
+                    "name",
+                    "description",
+                    "required",
+                    "class");
+            } elseif ($this->type == 14) {
+                $show = array(
+                    "name",
+                    "description",
+                    "required",
+                    "class");
             } else {
                 $show = array();
             }
@@ -1012,6 +1034,16 @@ class formcreator_field
         }
 
         return $captcha->html;
+    }
+    
+    public function output_attachment()
+    {
+        return "<input type='file' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='fileupload " . $this->class . "' />";
+    }
+    
+    public function output_attachments()
+    {
+        return "<input type='file' value='" . $this->default . "' name='field_" . $this->fieldid . "[]' class='fileupload " . $this->class . "' multiple='multiple' />";
     }
 }
 

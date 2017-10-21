@@ -786,7 +786,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             }
         }
 
-        $table->output($lang['fc_fields']);
+        $table->output($lang->fc_fields);
 
         $buttons[] = $form->generate_submit_button($lang->fc_save_order);
         $form->output_submit_wrapper($buttons);
