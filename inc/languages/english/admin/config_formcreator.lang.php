@@ -42,6 +42,7 @@ $l['fc_form_output_not_found'] = "The form output you are trying to edit doesn't
 $l['fc_form_does_not_exist.'] = "The form you are looking for doesn't exist!";
 $l['fc_subject_validation_failed'] = "Validation of the subject template failed!";
 $l['fc_message_validation_failed'] = "Validation of the message template failed!";
+$l['fc_output_template_success'] = "The output template has succesfully be changed";
 $l['fc_form_no_fields'] = "This form doesn't have any fields yet. Please add fields before you change the output template.";
 
 $l['fc_add_form'] = "Add Form";

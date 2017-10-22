@@ -256,6 +256,12 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $page->output_header($lang->fc_form_output_template);
     $page->output_nav_tabs($sub_tabs, 'formcreator_output');
 
+    // Load SCEditor scripts
+    echo '<link rel="stylesheet" href="'.$mybb->settings['bburl'].'/jscripts/sceditor/editor_themes/mybb.css" type="text/css" media="all">
+    <script type="text/javascript" src="'.$mybb->settings['bburl'].'/jscripts/sceditor/jquery.sceditor.bbcode.min.js?ver=1805"></script>
+    <script type="text/javascript" src="'.$mybb->settings['bburl'].'/jscripts/bbcodes_sceditor.js?ver=1808"></script>
+    <script type="text/javascript" src="'.$mybb->settings['bburl'].'/jscripts/sceditor/editor_plugins/undo.js?ver=1805"></script>';
+
     if (!$formcreator->get_form($mybb->input['formid'])) {
         flash_message($lang->fc_form_output_not_found, 'error');
         admin_redirect("index.php?module=config-formcreator");
@@ -279,7 +285,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         }
 
         if ($formcreator->update_template()) {
-            flash_message($lang->fc_message_validation_failed, 'success');
+            flash_message($lang->fc_output_template_success, 'success');
             admin_redirect("index.php?module=config-formcreator&action=output&formid=" . $formcreator->formid);
         } else {
             flash_message($lang->fc_error_oops, 'error');
@@ -294,13 +300,13 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         admin_redirect("index.php?module=config-formcreator");
     }
 
-    echo "<script src='jscripts/formcreator.js'></script>";
+    echo "<script>function insertToEditor(text) { $('textarea').sceditor('instance').insert(text); }</script>";
 
-    $legend = "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$formname}\");'>".$lang->fc_form_name."</a><br />";
-    $legend .= $lang->fc_user_info .": <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$username}\");'>".$lang->fc_username."</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$uid}\");'>".$lang->fc_id."</a><br /><br />";
+    $legend = "<a href='javascript:insertToEditor(\"{\$formname}\");'>".$lang->fc_form_name."</a><br />";
+    $legend .= $lang->fc_user_info .": <a href='javascript:insertToEditor(\"{\$username}\");'>".$lang->fc_username."</a> | <a href='javascript:insertToEditor(\"{\$uid}\");'>".$lang->fc_id."</a><br /><br />";
     foreach ($formcreator->fields as $field) {
         $legend .= "(ID:" . $field->fieldid . ") " . $field->name . ": ";
-        $legend .= "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldname[" . $field->fieldid . "]}\");'>".$lang->fc_fieldname."</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldvalue[" .
+        $legend .= "<a href='javascript:insertToEditor(\"{\$fieldname[" . $field->fieldid . "]}\");'>".$lang->fc_fieldname."</a> | <a href='javascript:insertToEditor(\"{\$fieldvalue[" .
             $field->fieldid . "]}\");'>".$lang->fc_fieldvalue."</a><br />";
     }
 
@@ -308,12 +314,15 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container = new FormContainer($lang->fc_edit_output_template);
     $form_container->output_row($lang->fc_subject_template, $lang->fc_subject_template_desc, $form->
         generate_text_box("subjecttemplate", $formcreator->subjecttemplate));
+    
+    $code = build_mycode_inserter("msgtemplate", false);
+    
     $form_container->output_row($lang->fc_message_template,
         $lang->fc_message_template_desc, $form->generate_text_area("messagetemplate",
         $formcreator->messagetemplate, array(
         "style" => "width: 98%;",
         "rows" => 20,
-        "id" => "msgtemplate")) . "<br /><br /><strong>".$lang->fc_add_variables.":<br /></strong><small>" . $legend . "</small>");
+        "id" => "msgtemplate")) . $code . "<br /><br /><strong>".$lang->fc_add_variables.":<br /></strong><small>" . $legend . "</small>");
 
     $form_container->end();
 
