@@ -22,7 +22,7 @@ function formcreator_info()
         'website' => 'https://community.mybb.com/mods.php?action=view&pid=975',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '2.0.1',
+        'version' => '2.1.0',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
@@ -50,7 +50,7 @@ function formcreator_activate()
 {\$footer}
 </body>
 </html>",
-        'container' => '<form action="" method="post" class="{$formclass}">
+        'container' => '<form action="" method="post" class="{$formclass}" enctype="multipart/form-data">
 {$errors}
 <table border="0" cellspacing="0" cellpadding="5" class="tborder {$styleclass}" style="{$stylewidth}">
 <tbody><tr>
@@ -440,6 +440,14 @@ function formcreator_admin_config_action_handler(&$actions)
         );
 }
 
+$plugins->add_hook('admin_tools_get_admin_log_action', 'formcreator_admin_tools_get_admin_log_action');
+function formcreator_admin_tools_get_admin_log_action()
+{
+    global $lang;
+    
+    $lang->load('config_formcreator');
+}
+
 $plugins->add_hook("build_friendly_wol_location_end", "formcreator_location_end");
 function formcreator_location_end(&$plugin_array)
 {
@@ -562,6 +570,21 @@ function get_usergroup_users($gid)
     } else {
         return false;
     }
+}
+
+function reArrayFiles(&$file_post) {
+
+    $file_ary = array();
+    $file_count = count($file_post['name']);
+    $file_keys = array_keys($file_post);
+
+    for ($i=0; $i<$file_count; $i++) {
+        foreach ($file_keys as $key) {
+            $file_ary[$i][$key] = $file_post[$key][$i];
+        }
+    }
+
+    return $file_ary;
 }
 
 ?>

@@ -142,7 +142,7 @@ class formcreator
                 "NULL" => 1),
             array(
                 "Field" => "regex",
-                "Type" => "varchar(500)",
+                "Type" => "text",
                 "NULL" => 1),
             array(
                 "Field" => "regexerror",
@@ -176,13 +176,16 @@ class formcreator
         3 => "Select (single)",
         4 => "Select (multiple)",
         5 => "Radio Buttons",
-        6 => "Checkboxs",
+        6 => "Checkboxes",
         7 => "Date",
         8 => "Seperator",
         9 => "Header",
         10 => "HTML block",
         11 => "Submit button",
-        12 => "Captcha");
+        12 => "Captcha",
+        13 => "Attachment",
+        14 => "Multiple Attachments",
+        15 => "MyBB Editor");
     public function get_form($formid)
     {
         global $db;
@@ -270,6 +273,18 @@ class formcreator
                 case 12:
                     $fieldoutput = $field->output_captcha();
                     eval('$output .= "' . $templates->get("formcreator_field_captcha") . '";');
+                    break;
+                case 13:
+                    $fieldoutput = $field->output_attachment();
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
+                    break;
+                case 14:
+                    $fieldoutput = $field->output_attachments();
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
+                    break;
+                case 15:
+                    $fieldoutput = $field->output_editor();
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
             }
         }
@@ -564,7 +579,8 @@ class formcreator
                     1,
                     2,
                     5,
-                    7))) {
+                    7,
+                    15))) {
                     $output .= "[b]" . $field->name . "[/b]: " . $mybb->input["field_" . $field->fieldid] . "\n[hr]";
                 } elseif (in_array($field->type, array(
                     4,
@@ -744,6 +760,24 @@ class formcreator_field
                 $show = array("name", "class");
             } elseif ($this->type == 12) {
                 $show = array("name");
+            } elseif ($this->type == 13) {
+                $show = array(
+                    "name",
+                    "description",
+                    "required",
+                    "class");
+            } elseif ($this->type == 14) {
+                $show = array(
+                    "name",
+                    "description",
+                    "required",
+                    "class");
+            } elseif ($this->type == 15) {
+                $show = array(
+                    "name",
+                    "description",
+                    "required",
+                    "rows");
             } else {
                 $show = array();
             }
@@ -1012,6 +1046,29 @@ class formcreator_field
         }
 
         return $captcha->html;
+    }
+    
+    public function output_attachment()
+    {
+        return "<input type='file' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='fileupload " . $this->class . "' />";
+    }
+    
+    public function output_attachments()
+    {
+        return "<input type='file' value='" . $this->default . "' name='field_" . $this->fieldid . "[]' class='fileupload " . $this->class . "' multiple='multiple' />";
+    }
+    
+    public function output_editor()
+    {
+        if ($this->rows) {
+            $rows = "rows='" . $this->rows . "'";
+        }else{
+            $rows = "rows='20'";
+        }
+        
+        $code = build_mycode_inserter("field_" . $this->fieldid, true);
+        
+        return "<textarea ".$rows." name='field_" . $this->fieldid . "' id='field_" . $this->fieldid . "' />".$this->default."</textarea>\n".$code;
     }
 }
 
