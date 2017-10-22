@@ -419,7 +419,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             if ($field->show_admin_field("format")) {
                 $form_container->output_row($lang->fc_format,
                     $form->fc_field_format_desc ,
-                    generate_text_box("format", $field->format));
+                    $form->generate_text_box("format", $field->format));
             }
             if ($field->show_admin_field("default")) {
                 $form_container->output_row($lang->fc_default, $lang->fc_field_default_desc, $form->generate_text_box("default", $field->default));
@@ -455,7 +455,17 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         } else {
             $form_container = new FormContainer($lang->fc_add_field);
             echo $form->generate_hidden_field("fieldselect", 1);
-            $form_container->output_row($lang->fc_field_type, $lang->fc_field_type_desc, $form->generate_select_box("type", $formcreator->types));
+            
+            $radio = "<table><tr><th>".$lang->fc_field_type."</th><th>".$lang->fc_field_example."</th></tr>";
+            
+            foreach($formcreator->types as $key => $value){
+                $radio .= "<tr><td>".$form->generate_radio_button("type",$key,$value)."</td><td><img src='".$mybb->settings['bburl']."/images/formcreator/fields/".$key.".jpg' /></td></tr>";
+            }
+            
+            $radio .= "</table>"; 
+            
+            $form_container->output_row($lang->fc_field_type, $lang->fc_field_type_desc, $radio);
+            //$form_container->output_row($lang->fc_field_type, $lang->fc_field_type_desc, $form->generate_select_box("type", $formcreator->types));
         }
 
         $form_container->end();
