@@ -11,6 +11,9 @@ Able to create forms with the following types of fields
 * Multi select box
 * Radio buttons
 * Checkboxes
+* Attachments
+* MyBB Editor
+* Captcha
 
 Submitted forms actions
 * PM single users
