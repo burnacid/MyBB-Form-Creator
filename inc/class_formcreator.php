@@ -178,14 +178,18 @@ class formcreator
         5 => "Radio Buttons",
         6 => "Checkboxes",
         7 => "Date",
+        
+        13 => "Attachment",
+        14 => "Multiple Attachments",
+        15 => "MyBB Editor",
+        
         8 => "Seperator",
         9 => "Header",
         10 => "HTML block",
-        11 => "Submit button",
+        
         12 => "Captcha",
-        13 => "Attachment",
-        14 => "Multiple Attachments",
-        15 => "MyBB Editor");
+        
+        11 => "Submit button");
     public function get_form($formid)
     {
         global $db;

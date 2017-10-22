@@ -135,6 +135,7 @@ $l['fc_field_class_desc'] = "Enter a class for the field container";
 $l['fc_html_block'] = "HTML Block";
 $l['fc_field_html_block_desc'] = "Enter the HTML code you would like to display";
 $l['fc_field_type'] = "Field type";
+$l['fc_field_example'] = "Field example";
 $l['fc_field_type_desc'] = "Select what type of field you would like to add.";
 $l['fc_button_update_field'] = "Update Field";
 $l['fc_button_create_field'] = "Create Field";
