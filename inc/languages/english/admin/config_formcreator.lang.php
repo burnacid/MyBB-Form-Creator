@@ -55,6 +55,8 @@ $l['fc_allow_selected_groups'] = "Allow selected groups";
 $l['fc_allow_unselected_groups'] = "Allow all BUT selected groups";
 $l['fc_allowed_groups'] = "Allowed Groups";
 $l['fc_allowed_groups_desc'] = "Which groups are allowed to use this form";
+$l['fc_limitusage'] = "Usage limit";
+$l['fc_limitusage_desc'] = "Enter the maximun number of times a user can fill in the form (0 = unlimited).";
 $l['fc_status'] = "Status";
 $l['fc_status_desc'] = "Is this form active yes or no?";
 $l['fc_active'] = "Active";
@@ -89,6 +91,8 @@ $l['fc_create_form'] = "Create Form";
 
 $l['fc_user_info'] = "User Info";
 $l['fc_username'] = "Username";
+$l['fc_other'] = "Other";
+$l['fc_reference_number'] = "Reference Number";
 $l['fc_id'] = "ID";
 $l['fc_fieldname'] = "Field Name";
 $l['fc_fieldvalue'] = "Field Value";

@@ -166,6 +166,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     $form_container->output_row($lang->fc_allowed_groups." <em>*</em>", $lang->fc_allowed_groups_desc, $radioboxes . "<br /><br />" . $form->
         generate_group_select("allowedgid[]", $formcreator->allowedgid, array("multiple" => true)));
+    $form_container->output_row($lang->fc_limitusage, $lang->fc_limitusage_desc, $form->generate_numeric_field("limitusage", $formcreator->limitusage));
     $form_container->output_row($lang->fc_status." <em>*</em>", $lang->fc_status_desc, $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
 
@@ -308,6 +309,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     $legend = "<a href='javascript:insertToEditor(\"{\$formname}\");'>".$lang->fc_form_name."</a><br />";
     $legend .= $lang->fc_user_info .": <a href='javascript:insertToEditor(\"{\$username}\");'>".$lang->fc_username."</a> | <a href='javascript:insertToEditor(\"{\$uid}\");'>".$lang->fc_id."</a><br /><br />";
+    $legend .= $lang->fc_other .": <a href='javascript:insertToEditor(\"{\$ref}\");'>".$lang->fc_reference_number."</a><br /><br />";
+    
     foreach ($formcreator->fields as $field) {
         $legend .= "(ID:" . $field->fieldid . ") " . $field->name . ": ";
         $legend .= "<a href='javascript:insertToEditor(\"{\$fieldname[" . $field->fieldid . "]}\");'>".$lang->fc_fieldname."</a> | <a href='javascript:insertToEditor(\"{\$fieldvalue[" .

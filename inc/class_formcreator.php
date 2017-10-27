@@ -7,6 +7,7 @@ class formcreator
     public $allowedgidtype;
     public $allowedgid;
     public $allgroups;
+    public $limitusage;
     public $active;
     public $pmusers;
     public $pmgroups;
@@ -47,6 +48,10 @@ class formcreator
             array(
                 "Field" => "allowedgid",
                 "Type" => "text",
+                "NULL" => 1),
+            array(
+                "Field" => "limitusage",
+                "Type" => "int(11)",
                 "NULL" => 1),
             array(
                 "Field" => "active",
@@ -181,7 +186,26 @@ class formcreator
                 "Field" => "class",
                 "Type" => "varchar(50)",
                 "NULL" => 1),
-            array("Field" => "html", "Type" => "text")));
+            array("Field" => "html", "Type" => "text")), 
+            
+            "fc_formusage" => array(
+            array(
+                "Field" => "formid",
+                "Type" => "int(11)",
+                "NULL" => 0),
+            array(
+                "Field" => "uid",
+                "Type" => "int(11)",
+                "NULL" => 0),
+            array(
+                "Field" => "ref",
+                "Type" => "int(11)",
+                "NULL" => 0),
+            array(
+                "Field" => "datetime",
+                "Type" => "timestamp",
+                "NULL" => 0)
+            ));
             
     public $types = array(
         1 => "Textbox (single line)",
@@ -431,6 +455,7 @@ class formcreator
         $this->name = $db->escape_string($this->name);
         $this->allowedgidtype = intval($this->allowedgidtype);
         $this->allowedgid = $db->escape_string($this->allowedgid);
+        $this->limitusage = intval($this->limitusage);
         $this->active = intval($this->active);
         $this->pmusers = $db->escape_string($this->pmusers);
         $this->pmgroups = $db->escape_string($this->pmgroups);
@@ -454,6 +479,7 @@ class formcreator
         $this->name = $data['name'];
         $this->allowedgidtype = $data['allowedgidtype'];
         $this->allowedgid = $data['allowedgid'];
+        $this->limitusage = $data['limitusage'];
         $this->active = $data['active'];
         $this->pmusers = $data['pmusers'];
         $this->pmgroups = $data['pmgroups'];
@@ -480,6 +506,7 @@ class formcreator
         $data['name'] = $this->name;
         $data['allowedgidtype'] = $this->allowedgidtype;
         $data['allowedgid'] = $this->allowedgid;
+        $data['limitusage'] = $this->limitusage;
         $data['active'] = $this->active;
         $data['pmusers'] = $this->pmusers;
         $data['pmgroups'] = $this->pmgroups;
@@ -574,7 +601,7 @@ class formcreator
 
     public function parse_subject()
     {
-        global $templates, $mybb;
+        global $templates, $mybb, $ref;
         if (empty($this->subjecttemplate)) {
             return "Form submission: " . $this->name;
         } else {
@@ -591,7 +618,7 @@ class formcreator
 
     public function parse_output()
     {
-        global $db, $mybb;
+        global $db, $mybb, $ref;
         $output = "";
         if (empty($this->messagetemplate)) {
             foreach ($this->fields as $field) {
@@ -619,6 +646,45 @@ class formcreator
         }
 
         return $output;
+    }
+    
+    public function get_next_ref(){
+        global $db;
+        
+        $query = $db->simple_select("fc_formusage","*","formid = '".$this->formid."'",array("order_by" => "ref","order_dir" => "DESC", "LIMIT" => 1));
+        if($db->num_rows($query) != 0){
+            $lastrow = $db->fetch_array($query);
+        }else{
+            $lastrow = 0;
+        }
+        
+        return $lastrow['ref'] + 1;
+    }
+    
+    public function log_usage()
+    {
+        global $db, $mybb;
+        
+        $data = array("formid" => $this->formid, "uid" => $mybb->user['uid'], "ref" => $this->get_next_ref());
+        
+        $db->insert_query("fc_formusage",$data);
+    }
+    
+    public function check_usage_limit_reached(){
+        global $db, $mybb;
+        
+        if($this->limitusage == 0){
+            return false;
+        }
+        
+        $query = $db->simple_select("fc_formusage","*","formid = '".$this->formid."' AND uid = '".$mybb->user['uid']."'");
+        $timesused = $db->num_rows($query);
+        
+        if($timesused >= $this->limitusage){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
 

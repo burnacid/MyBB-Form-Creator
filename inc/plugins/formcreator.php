@@ -282,6 +282,14 @@ function formcreator_install()
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         ");
     }
+    
+    if (!$db->table_exists('fc_formusage')) {
+        $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_formusage` (
+          ".formcreator_generate_table_fields("fc_formusage")."
+          PRIMARY KEY (`formid`,`uid`,`ref`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+        ");
+    }
 }
 
 function formcreator_generate_table_fields($table)
@@ -326,7 +334,7 @@ function formcreator_check_database()
     
     $errors = 0;
     
-    if($db->table_exists('fc_fields') && $db->table_exists('fc_forms')){
+    if($db->table_exists('fc_fields') && $db->table_exists('fc_forms') && $db->table_exists('fc_formusage')){
         $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_forms");
         
         while($row = $db->fetch_array($query)){
@@ -347,6 +355,18 @@ function formcreator_check_database()
         }
         
         foreach($fields['fc_fields'] as $field){
+            if($cols_db[$field['Field']]['Type'] != $field['Type']){
+                $error++;
+            }
+        }
+        
+        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_formusage");
+        
+        while($row = $db->fetch_array($query)){
+            $cols_db[$row['Field']] = $row;
+        }
+        
+        foreach($fields['fc_formusage'] as $field){
             if($cols_db[$field['Field']]['Type'] != $field['Type']){
                 $error++;
             }
@@ -391,6 +411,7 @@ function formcreator_uninstall()
     if (!isset($mybb->input['no'])) {
         $db->drop_table('fc_forms');
         $db->drop_table('fc_fields');
+        $db->drop_table('fc_formusage');
 
         // Delete template groups.
         $db->delete_query('templategroups', "prefix='formcreator'");

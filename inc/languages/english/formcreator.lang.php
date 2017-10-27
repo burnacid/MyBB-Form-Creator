@@ -9,5 +9,9 @@ $l['fc_no_fields'] = "This form doesn't contain any fields yet!";
 $l['fc_form_disabled'] = "This form has been disabled for use!";
 $l['fc_form_no_permissions'] = "You are not allowed to use this form!";
 $l['fc_no_form_found'] = "The form you are looking for doesn't exist!";
+$l['fc_access_denied'] = "Access Denied";
+$l['fc_form_disabled_title'] = "Form Disabled";
+$l['fc_limit_reached_title'] = "Form Limit Reached";
+$l['fc_limit_reached'] = "You have reached the maximum form usage";
 
 ?>
