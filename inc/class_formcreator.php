@@ -438,6 +438,7 @@ class formcreator
         global $db;
         if ($db->delete_query("fc_fields", "formid = " . $this->formid)) {
             if ($db->delete_query("fc_forms", "formid = " . $this->formid)) {
+                $db->delete_query("fc_formusage", "formid = " . $this->formid);
                 return true;
             } else {
                 return false;

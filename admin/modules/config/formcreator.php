@@ -606,6 +606,20 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 } else {
                     $data['fields'] = array();
                 }
+                
+                if($mybb->input['usagelog'] == 1 && $db->table_exists("fc_formusage")){
+                    $query = $db->simple_select("fc_formusage","*", "formid = '".$form."'");
+                    $db->num_rows($query);
+                    
+                    $usagelog = array();
+                    
+                    while($log = $db->fetch_array($query)){
+                        unset($log['formid']);
+                        $usagelog[] = $log;
+                    }
+                    
+                    $data['usage'] = $usagelog;
+                }
 
                 $output_array[] = $data;
 
@@ -641,6 +655,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 $lang->fc_export_perms_desc, $form->generate_on_off_radio("permissions"));
             $form_container->output_row($lang->fc_export_process_options,
                 $lang->fc_export_process_options_desc, $form->generate_on_off_radio("process"));
+            $form_container->output_row($lang->fc_export_usagelog,
+                $lang->fc_export_usagelog_desc, $form->generate_on_off_radio("usagelog"));
 
             $form_container->end();
 
@@ -693,6 +709,13 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                     $formcreator->subjecttemplate = $form['subjecttemplate'];
                     $formcreator->messagetemplate = $form['messagetemplate'];
                     $formcreator->update_template();
+                    
+                    if($form['usage']){
+                        foreach ($form['usage'] as $log) {
+                            $log['formid'] = $formid;
+                            $db->insert_query("fc_formusage",$log);
+                        }
+                    }
                 }
                 $count_forms++;
             }
