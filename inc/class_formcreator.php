@@ -21,6 +21,7 @@ class formcreator
     public $labelwidth;
     public $subjecttemplate;
     public $messagetemplate;
+    public $customsuccess;
 
     public $fields;
 
@@ -78,6 +79,10 @@ class formcreator
             array(
                 "Field" => "overridebutton",
                 "Type" => "tinyint(1)",
+                "NULL" => 1),
+            array(
+                "Field" => "customsuccess",
+                "Type" => "varchar(255)",
                 "NULL" => 1),
             array(
                 "Field" => "mail",
@@ -426,6 +431,7 @@ class formcreator
         $this->uid = intval($this->uid);
         $this->prefix = intval($this->prefix);
         $this->overridebutton = intval($this->overridebutton);
+        $this->customsuccess = $db->escape_string($this->customsuccess);
         $this->mail = $db->escape_string($this->mail);
         $this->width = $db->escape_string($this->width);
         $this->labelwidth = $db->escape_string($this->labelwidth);
@@ -448,6 +454,7 @@ class formcreator
         $this->uid = $data['uid'];
         $this->prefix = $data['prefix'];
         $this->overridebutton = $data['overridebutton'];
+        $this->customsuccess = $data['customsuccess'];
         $this->mail = $data['mail'];
         $this->width = $data['width'];
         $this->labelwidth = $data['labelwidth'];
@@ -473,6 +480,7 @@ class formcreator
         $data['uid'] = $this->uid;
         $data['prefix'] = $this->prefix;
         $data['overridebutton'] = $this->overridebutton;
+        $data['customsuccess'] = $this->customsuccess;
         $data['mail'] = $this->mail;
         $data['width'] = $this->width;
         $data['labelwidth'] = $this->labelwidth;

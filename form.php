@@ -300,7 +300,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     }
                 }
 
-                if ($url) {
+                if(!empty($formcreator->customsuccess)){
+                    redirect($formcreator->customsuccess, $lang->fc_submitted, "", false);
+                }elseif ($url) {
                     redirect($url, $lang->fc_submitted, "", false);
                 } else {
                     redirect($mybb->settings['bburl'], $lang->fc_submitted, "", false);
