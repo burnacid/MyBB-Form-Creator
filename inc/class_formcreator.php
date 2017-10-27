@@ -126,6 +126,14 @@ class formcreator
                 "Type" => "varchar(2000)",
                 "NULL" => 1),
             array(
+                "Field" => "placeholder",
+                "Type" => "varchar(2000)",
+                "NULL" => 1),
+            array(
+                "Field" => "maxlength",
+                "Type" => "int(11)",
+                "NULL" => 1),
+            array(
                 "Field" => "type",
                 "Type" => "int(11)",
                 "NULL" => 0),
@@ -620,6 +628,8 @@ class formcreator_field
     public $formid;
     public $name;
     public $description;
+    public $placeholder;
+    public $maxlength;
     public $type;
     public $options;
     public $default;
@@ -632,6 +642,7 @@ class formcreator_field
     public $rows;
     public $class;
     public $format;
+    
     public function escape_data()
     {
         global $db;
@@ -639,6 +650,8 @@ class formcreator_field
         $this->formid = intval($this->formid);
         $this->name = $db->escape_string($this->name);
         $this->description = $db->escape_string($this->description);
+        $this->$placeholder = $db->escape_string($this->$placeholder);
+        $this->maxlength = intval($this->maxlength);
         $this->type = intval($this->type);
         $this->options = $db->escape_string($this->options);
         $this->default = $db->escape_string($this->default);
@@ -660,6 +673,8 @@ class formcreator_field
         $this->formid = $data['formid'];
         $this->name = $data['name'];
         $this->description = $data['description'];
+        $this->placeholder = $data['placeholder'];
+        $this->maxlength = $data['maxlength'];
         $this->type = $data['type'];
         $this->options = $data['options'];
         $this->default = $data['default'];
@@ -684,6 +699,8 @@ class formcreator_field
         $data['formid'] = $this->formid;
         $data['name'] = $this->name;
         $data['description'] = $this->description;
+        $data['placeholder'] = $this->placeholder;
+        $data['maxlength'] = $this->maxlength;
         $data['type'] = $this->type;
         $data['options'] = $this->options;
         $data['default'] = $this->default;
@@ -707,6 +724,8 @@ class formcreator_field
                 $show = array(
                     "name",
                     "description",
+                    "placeholder",
+                    "maxlength",
                     "default",
                     "required",
                     "regex",
@@ -716,6 +735,8 @@ class formcreator_field
                 $show = array(
                     "name",
                     "description",
+                    "placeholder",
+                    "maxlength",
                     "default",
                     "required",
                     "regex",
@@ -884,8 +905,16 @@ class formcreator_field
         if ($this->size) {
             $size = "size='" . $this->size . "'";
         }
+        
+        if ($this->placeholder) {
+            $placeholder = "placeholder ='".$this->placeholder."'";
+        }
+        
+        if ($this->maxlength != 0) {
+            $maxlength = "maxlength ='".$this->maxlength."'";
+        }
 
-        return "<input type='text' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='textbox " . $this->class . "' " . $size . " />";
+        return "<input type='text' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='textbox " . $this->class . "' " . $size . " " . $placeholder . " " . $maxlength . " />";
     }
 
     public function output_textarea()
@@ -901,8 +930,16 @@ class formcreator_field
         if ($this->cols) {
             $cols = "cols='" . $this->cols . "'";
         }
+        
+        if ($this->placeholder) {
+            $placeholder = "placeholder ='".$this->placeholder."'";
+        }
+        
+        if ($this->maxlength != 0) {
+            $maxlength = "maxlength ='".$this->maxlength."'";
+        }
 
-        return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows . " " . $cols . ">" . $this->default . "</textarea>";
+        return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows . " " . $cols . " " . $placeholder . " " . $maxlength . ">" . $this->default . "</textarea>";
     }
 
     public function output_select($multi = false)

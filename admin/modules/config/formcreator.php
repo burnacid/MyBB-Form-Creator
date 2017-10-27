@@ -425,6 +425,12 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             if ($field->show_admin_field("description")) {
                 $form_container->output_row($lang->fc_description, $lang->fc_field_description_desc, $form->generate_text_area("description", $field->description));
             }
+            if ($field->show_admin_field("placeholder")) {
+                $form_container->output_row($lang->fc_placeholder, $lang->fc_field_placeholder_desc, $form->generate_text_box("placeholder", $field->placeholder));
+            }
+            if ($field->show_admin_field("maxlength")) {
+                $form_container->output_row($lang->fc_maxlength, $lang->fc_field_maxlength_desc, $form->generate_numeric_field("maxlength", $field->maxlength));
+            }
             if ($field->show_admin_field("options")) {
                 $form_container->output_row($lang->fc_options." <em>*</em>", $lang->fc_field_options_desc, $form->generate_text_area("options",
                     $field->options));
