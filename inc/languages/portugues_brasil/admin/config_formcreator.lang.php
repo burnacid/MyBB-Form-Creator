@@ -1,8 +1,5 @@
 <?php
 
-// Author: Walter_Correa
-// Version: 2.1.0
-
 $l['formcreator'] = "Criador de Formulário";
 $l['fc_view_forms'] = "Ver Formulários";
 $l['fc_view_forms_desc'] = "Ver todos os Formulários criados para este website";
@@ -45,6 +42,7 @@ $l['fc_form_output_not_found'] = "A Saída do Formulário que você está tentan
 $l['fc_form_does_not_exist.'] = "O Formulário que você está buscando não existe!";
 $l['fc_subject_validation_failed'] = "A validação do modelo de assunto falhou!";
 $l['fc_message_validation_failed'] = "A validação do modelo de mensagem falhou!";
+$l['fc_output_template_success'] = "O Modelo de Saída foi modificado com sucesso";
 $l['fc_form_no_fields'] = "Este Formulário ainda não possui nenhum Campo. Adicione Campos antes de alterar o Modelo de Saída.";
 
 $l['fc_add_form'] = "Adicionar Formulário";
@@ -57,6 +55,8 @@ $l['fc_allow_selected_groups'] = "Permitir Grupos Selecionados";
 $l['fc_allow_unselected_groups'] = "Permitir todos, porém Selecionados";
 $l['fc_allowed_groups'] = "Grupos Permitidos";
 $l['fc_allowed_groups_desc'] = "Os Grupos Permitidos a acessar este Formulário";
+$l['fc_limitusage'] = "Limite de Uso";
+$l['fc_limitusage_desc'] = "Digite o máximo de vezes que um Usuário pode preencher no Formulário (0 = ilimitado).";
 $l['fc_status'] = "Status";
 $l['fc_status_desc'] = "Este Formulário está Ativo ou não?";
 $l['fc_active'] = "Ativo";
@@ -77,6 +77,8 @@ $l['fc_process_post_as'] = "Postar como Usuário";
 $l['fc_process_post_as_desc'] = "Usuário utilizado para criar o Tópico, Postagem ou Resposta. (Deixe vazio para usar o mesmo Usuário que enviar o Formulário ou coloque -1 para usar o Form Creator Bot como Usuário)";
 $l['fc_override_button'] = "Sobrepor o Botão de Postagem";
 $l['fc_override_button_desc'] = "Adicionar o link do Formulário nos botões de Criar Novo Tópico, Resposta ou Postagem. Só será usado quando for configurado para criar um Tópico, Postagem ou Resposta.";
+$l['fc_custom_success_page'] = "Página de Sucesso personalizada";
+$l['fc_custom_success_page_desc'] = "Defina uma URL para a qual o Usuário será redirecionado depois de preencher o Formulário.";
 $l['fc_form_layout'] = "Layout do Formulário";
 $l['fc_form_talbe_width'] = "Largura da Tabela do Formulário";
 $l['fc_form_table_width_desc'] = "Configure a largura da Tabela que conterá o Formulário (Em pixels ou porcentagen, ex: 100px ou 75%)";
@@ -89,6 +91,8 @@ $l['fc_create_form'] = "Criar Formulário";
 
 $l['fc_user_info'] = "Informação de usuário";
 $l['fc_username'] = "Nome de Usuário";
+$l['fc_other'] = "Outro";
+$l['fc_reference_number'] = "Número de Referência";
 $l['fc_id'] = "ID";
 $l['fc_fieldname'] = "Nome do Campo";
 $l['fc_fieldvalue'] = "Valor do Campo";
@@ -115,6 +119,10 @@ $l['fc_name'] = "Nome";
 $l['fc_field_name_desc'] = "Por favor, digite o Nome do Campo";
 $l['fc_description'] = "Descrição";
 $l['fc_field_description_desc'] = "Digite uma descrição para o Campo";
+$l['fc_placeholder'] = "Placeholder";
+$l['fc_field_placeholder_desc'] = "Escreva um texto útil e curto, como uma sugestão que será exibida no Campo de entrada antes de o Usuário preenchê-lo.";
+$l['fc_maxlength'] = "Max length";
+$l['fc_field_maxlength_desc'] = "Enter the maximum lenght of characters the user can enter. (0 = unlimited)";
 $l['fc_options'] = "Opções";
 $l['fc_field_options_desc'] = "Por favor, digite as opções para o Campo. Uma opção por linha.";
 $l['fc_format'] = "Formato";
@@ -138,6 +146,7 @@ $l['fc_field_class_desc'] = "Insira uma Classe para o contêiner de Campo";
 $l['fc_html_block'] = "Bloco HTML";
 $l['fc_field_html_block_desc'] = "Digite o código HTML que você gostaria de exibir";
 $l['fc_field_type'] = "Tipo de Campo";
+$l['fc_field_example'] = "Exemplo de Campo";
 $l['fc_field_type_desc'] = "Selecione o tipo de Campo que você gostaria de adicionar.";
 $l['fc_button_update_field'] = "Atualizar Campo";
 $l['fc_button_create_field'] = "Criar Campo";
@@ -162,9 +171,11 @@ $l['fc_forms'] = "Formulários";
 $l['fc_no_forms'] = "Sem Formulários";
 $l['fc_field_forms_desc'] = "Quais Formulários você deseja exportar?";
 $l['fc_export_perms'] = "Permissões de Exportação";
-$l['fc_export_perms_desc'] = "Você gostaria de exportar as permissões? Defina-o como 'OFF' se você for importar em outros fóruns.";
+$l['fc_export_perms_desc'] = "Você gostaria de exportar as permissões? Selecione 'OFF' se você for importar em outros fóruns.";
 $l['fc_export_process_options'] = "Opções do Processo de Exportação";
-$l['fc_export_process_options_desc'] = "Você gostaria de exportar as opções do processo? Defina-o como 'OFF' se você for importar em outros fóruns.";
+$l['fc_export_process_options_desc'] = "Você gostaria de exportar as opções do processo? Selecione 'OFF' se você for importar em outros fóruns.";
+$l['fc_export_usagelog'] = "Exportar Log de uso";
+$l['fc_export_usagelog_desc'] = "Você gostaria de exportar o histórico de uso? Selecione 'OFF' se você for importar em outros fóruns.";
 $l['fc_create_thread_in_forum'] = "Criar Tópico em um Fórum";
 $l['fc_forum_doesnt_exist'] = "Este Fórum não existe";
 $l['fc_no_forum_selected'] = "(Nenhum Fórum selecionado)";
@@ -187,4 +198,6 @@ $l['admin_log_config_formcreator_delete'] = 'Formulário Deletado #{1} ({2})';
 $l['admin_log_config_formcreator_addfield'] = 'Campo Adicionado #{2} ({3}) no Formulário #{1}';
 $l['admin_log_config_formcreator_editfield'] = 'Campo Editado #{2} ({3}) no Formulário #{1}';
 $l['admin_log_config_formcreator_deletefield'] = 'Campo Deletado #{2} ({3}) no Formulário #{1}';
+
+
 ?>
