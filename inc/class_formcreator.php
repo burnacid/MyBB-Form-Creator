@@ -717,7 +717,7 @@ class formcreator_field
         $this->formid = intval($this->formid);
         $this->name = $db->escape_string($this->name);
         $this->description = $db->escape_string($this->description);
-        $this->$placeholder = $db->escape_string($this->$placeholder);
+        $this->placeholder = $db->escape_string($this->placeholder);
         $this->maxlength = intval($this->maxlength);
         $this->type = intval($this->type);
         $this->options = $db->escape_string($this->options);
