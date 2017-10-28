@@ -7,6 +7,7 @@ class formcreator
     public $allowedgidtype;
     public $allowedgid;
     public $allgroups;
+    public $limitusage;
     public $active;
     public $pmusers;
     public $pmgroups;
@@ -21,6 +22,7 @@ class formcreator
     public $labelwidth;
     public $subjecttemplate;
     public $messagetemplate;
+    public $customsuccess;
 
     public $fields;
 
@@ -46,6 +48,10 @@ class formcreator
             array(
                 "Field" => "allowedgid",
                 "Type" => "text",
+                "NULL" => 1),
+            array(
+                "Field" => "limitusage",
+                "Type" => "int(11)",
                 "NULL" => 1),
             array(
                 "Field" => "active",
@@ -78,6 +84,10 @@ class formcreator
             array(
                 "Field" => "overridebutton",
                 "Type" => "tinyint(1)",
+                "NULL" => 1),
+            array(
+                "Field" => "customsuccess",
+                "Type" => "varchar(255)",
                 "NULL" => 1),
             array(
                 "Field" => "mail",
@@ -119,6 +129,14 @@ class formcreator
             array(
                 "Field" => "description",
                 "Type" => "varchar(2000)",
+                "NULL" => 1),
+            array(
+                "Field" => "placeholder",
+                "Type" => "varchar(2000)",
+                "NULL" => 1),
+            array(
+                "Field" => "maxlength",
+                "Type" => "int(11)",
                 "NULL" => 1),
             array(
                 "Field" => "type",
@@ -168,7 +186,26 @@ class formcreator
                 "Field" => "class",
                 "Type" => "varchar(50)",
                 "NULL" => 1),
-            array("Field" => "html", "Type" => "text")));
+            array("Field" => "html", "Type" => "text")), 
+            
+            "fc_formusage" => array(
+            array(
+                "Field" => "formid",
+                "Type" => "int(11)",
+                "NULL" => 0),
+            array(
+                "Field" => "uid",
+                "Type" => "int(11)",
+                "NULL" => 0),
+            array(
+                "Field" => "ref",
+                "Type" => "int(11)",
+                "NULL" => 0),
+            array(
+                "Field" => "datetime",
+                "Type" => "timestamp",
+                "NULL" => 0)
+            ));
             
     public $types = array(
         1 => "Textbox (single line)",
@@ -178,14 +215,18 @@ class formcreator
         5 => "Radio Buttons",
         6 => "Checkboxes",
         7 => "Date",
+        
+        13 => "Attachment",
+        14 => "Multiple Attachments",
+        15 => "MyBB Editor",
+        
         8 => "Seperator",
         9 => "Header",
         10 => "HTML block",
-        11 => "Submit button",
+        
         12 => "Captcha",
-        13 => "Attachment",
-        14 => "Multiple Attachments",
-        15 => "MyBB Editor");
+        
+        11 => "Submit button");
     public function get_form($formid)
     {
         global $db;
@@ -397,6 +438,7 @@ class formcreator
         global $db;
         if ($db->delete_query("fc_fields", "formid = " . $this->formid)) {
             if ($db->delete_query("fc_forms", "formid = " . $this->formid)) {
+                $db->delete_query("fc_formusage", "formid = " . $this->formid);
                 return true;
             } else {
                 return false;
@@ -414,6 +456,7 @@ class formcreator
         $this->name = $db->escape_string($this->name);
         $this->allowedgidtype = intval($this->allowedgidtype);
         $this->allowedgid = $db->escape_string($this->allowedgid);
+        $this->limitusage = intval($this->limitusage);
         $this->active = intval($this->active);
         $this->pmusers = $db->escape_string($this->pmusers);
         $this->pmgroups = $db->escape_string($this->pmgroups);
@@ -422,6 +465,7 @@ class formcreator
         $this->uid = intval($this->uid);
         $this->prefix = intval($this->prefix);
         $this->overridebutton = intval($this->overridebutton);
+        $this->customsuccess = $db->escape_string($this->customsuccess);
         $this->mail = $db->escape_string($this->mail);
         $this->width = $db->escape_string($this->width);
         $this->labelwidth = $db->escape_string($this->labelwidth);
@@ -436,6 +480,7 @@ class formcreator
         $this->name = $data['name'];
         $this->allowedgidtype = $data['allowedgidtype'];
         $this->allowedgid = $data['allowedgid'];
+        $this->limitusage = $data['limitusage'];
         $this->active = $data['active'];
         $this->pmusers = $data['pmusers'];
         $this->pmgroups = $data['pmgroups'];
@@ -444,6 +489,7 @@ class formcreator
         $this->uid = $data['uid'];
         $this->prefix = $data['prefix'];
         $this->overridebutton = $data['overridebutton'];
+        $this->customsuccess = $data['customsuccess'];
         $this->mail = $data['mail'];
         $this->width = $data['width'];
         $this->labelwidth = $data['labelwidth'];
@@ -461,6 +507,7 @@ class formcreator
         $data['name'] = $this->name;
         $data['allowedgidtype'] = $this->allowedgidtype;
         $data['allowedgid'] = $this->allowedgid;
+        $data['limitusage'] = $this->limitusage;
         $data['active'] = $this->active;
         $data['pmusers'] = $this->pmusers;
         $data['pmgroups'] = $this->pmgroups;
@@ -469,6 +516,7 @@ class formcreator
         $data['uid'] = $this->uid;
         $data['prefix'] = $this->prefix;
         $data['overridebutton'] = $this->overridebutton;
+        $data['customsuccess'] = $this->customsuccess;
         $data['mail'] = $this->mail;
         $data['width'] = $this->width;
         $data['labelwidth'] = $this->labelwidth;
@@ -554,7 +602,7 @@ class formcreator
 
     public function parse_subject()
     {
-        global $templates, $mybb;
+        global $templates, $mybb, $ref;
         if (empty($this->subjecttemplate)) {
             return "Form submission: " . $this->name;
         } else {
@@ -571,7 +619,7 @@ class formcreator
 
     public function parse_output()
     {
-        global $db, $mybb;
+        global $db, $mybb, $ref;
         $output = "";
         if (empty($this->messagetemplate)) {
             foreach ($this->fields as $field) {
@@ -600,6 +648,45 @@ class formcreator
 
         return $output;
     }
+    
+    public function get_next_ref(){
+        global $db;
+        
+        $query = $db->simple_select("fc_formusage","*","formid = '".$this->formid."'",array("order_by" => "ref","order_dir" => "DESC", "LIMIT" => 1));
+        if($db->num_rows($query) != 0){
+            $lastrow = $db->fetch_array($query);
+        }else{
+            $lastrow = 0;
+        }
+        
+        return $lastrow['ref'] + 1;
+    }
+    
+    public function log_usage()
+    {
+        global $db, $mybb;
+        
+        $data = array("formid" => $this->formid, "uid" => $mybb->user['uid'], "ref" => $this->get_next_ref());
+        
+        $db->insert_query("fc_formusage",$data);
+    }
+    
+    public function check_usage_limit_reached(){
+        global $db, $mybb;
+        
+        if($this->limitusage == 0){
+            return false;
+        }
+        
+        $query = $db->simple_select("fc_formusage","*","formid = '".$this->formid."' AND uid = '".$mybb->user['uid']."'");
+        $timesused = $db->num_rows($query);
+        
+        if($timesused >= $this->limitusage){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
 
 class formcreator_field
@@ -608,6 +695,8 @@ class formcreator_field
     public $formid;
     public $name;
     public $description;
+    public $placeholder;
+    public $maxlength;
     public $type;
     public $options;
     public $default;
@@ -620,6 +709,7 @@ class formcreator_field
     public $rows;
     public $class;
     public $format;
+    
     public function escape_data()
     {
         global $db;
@@ -627,6 +717,8 @@ class formcreator_field
         $this->formid = intval($this->formid);
         $this->name = $db->escape_string($this->name);
         $this->description = $db->escape_string($this->description);
+        $this->$placeholder = $db->escape_string($this->$placeholder);
+        $this->maxlength = intval($this->maxlength);
         $this->type = intval($this->type);
         $this->options = $db->escape_string($this->options);
         $this->default = $db->escape_string($this->default);
@@ -648,6 +740,8 @@ class formcreator_field
         $this->formid = $data['formid'];
         $this->name = $data['name'];
         $this->description = $data['description'];
+        $this->placeholder = $data['placeholder'];
+        $this->maxlength = $data['maxlength'];
         $this->type = $data['type'];
         $this->options = $data['options'];
         $this->default = $data['default'];
@@ -672,6 +766,8 @@ class formcreator_field
         $data['formid'] = $this->formid;
         $data['name'] = $this->name;
         $data['description'] = $this->description;
+        $data['placeholder'] = $this->placeholder;
+        $data['maxlength'] = $this->maxlength;
         $data['type'] = $this->type;
         $data['options'] = $this->options;
         $data['default'] = $this->default;
@@ -695,6 +791,8 @@ class formcreator_field
                 $show = array(
                     "name",
                     "description",
+                    "placeholder",
+                    "maxlength",
                     "default",
                     "required",
                     "regex",
@@ -704,6 +802,8 @@ class formcreator_field
                 $show = array(
                     "name",
                     "description",
+                    "placeholder",
+                    "maxlength",
                     "default",
                     "required",
                     "regex",
@@ -872,8 +972,16 @@ class formcreator_field
         if ($this->size) {
             $size = "size='" . $this->size . "'";
         }
+        
+        if ($this->placeholder) {
+            $placeholder = "placeholder ='".$this->placeholder."'";
+        }
+        
+        if ($this->maxlength != 0) {
+            $maxlength = "maxlength ='".$this->maxlength."'";
+        }
 
-        return "<input type='text' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='textbox " . $this->class . "' " . $size . " />";
+        return "<input type='text' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='textbox " . $this->class . "' " . $size . " " . $placeholder . " " . $maxlength . " />";
     }
 
     public function output_textarea()
@@ -889,8 +997,16 @@ class formcreator_field
         if ($this->cols) {
             $cols = "cols='" . $this->cols . "'";
         }
+        
+        if ($this->placeholder) {
+            $placeholder = "placeholder ='".$this->placeholder."'";
+        }
+        
+        if ($this->maxlength != 0) {
+            $maxlength = "maxlength ='".$this->maxlength."'";
+        }
 
-        return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows . " " . $cols . ">" . $this->default . "</textarea>";
+        return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows . " " . $cols . " " . $placeholder . " " . $maxlength . ">" . $this->default . "</textarea>";
     }
 
     public function output_select($multi = false)

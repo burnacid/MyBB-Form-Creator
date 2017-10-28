@@ -2,8 +2,8 @@
 !.gitignore
 !inc\class_formcreator.php
 !inc\plugins\formcreator.php
-!inc\languages\english\formcreator.lang.php
-!inc\languages\english\admin\config_formcreator.lang.php
+!inc\languages\*\formcreator.lang.php
+!inc\languages\*\admin\config_formcreator.lang.php
 !inc\plugins\formcreator\jquery-ui.css
 !admin\modules\config\formcreator.php
 !admin\jscripts\formcreator.js
@@ -13,4 +13,5 @@
 !images\ui-icons_777777_256x240.png
 !images\ui-icons_cc0000_256x240.png
 !images\ui-icons_ffffff_256x240.png
+!images\formcreator\*
 !form.php

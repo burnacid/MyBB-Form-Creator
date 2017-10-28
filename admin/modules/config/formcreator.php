@@ -166,6 +166,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     $form_container->output_row($lang->fc_allowed_groups." <em>*</em>", $lang->fc_allowed_groups_desc, $radioboxes . "<br /><br />" . $form->
         generate_group_select("allowedgid[]", $formcreator->allowedgid, array("multiple" => true)));
+    $form_container->output_row($lang->fc_limitusage, $lang->fc_limitusage_desc, $form->generate_numeric_field("limitusage", $formcreator->limitusage));
     $form_container->output_row($lang->fc_status." <em>*</em>", $lang->fc_status_desc, $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
 
@@ -196,6 +197,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row($lang->fc_override_button,
         $lang->fc_override_button_desc, $form->
         generate_on_off_radio("overridebutton", $formcreator->overridebutton));
+        
+    $form_container->output_row($lang->fc_custom_success_page,
+        $lang->fc_custom_success_page_desc, $form->
+        generate_text_box("customsuccess", $formcreator->customsuccess));
     /*
     $form_container->output_row("Send Mail to",
     "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>",
@@ -256,6 +261,12 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $page->output_header($lang->fc_form_output_template);
     $page->output_nav_tabs($sub_tabs, 'formcreator_output');
 
+    // Load SCEditor scripts
+    echo '<link rel="stylesheet" href="'.$mybb->settings['bburl'].'/jscripts/sceditor/editor_themes/mybb.css" type="text/css" media="all">
+    <script type="text/javascript" src="'.$mybb->settings['bburl'].'/jscripts/sceditor/jquery.sceditor.bbcode.min.js?ver=1805"></script>
+    <script type="text/javascript" src="'.$mybb->settings['bburl'].'/jscripts/bbcodes_sceditor.js?ver=1808"></script>
+    <script type="text/javascript" src="'.$mybb->settings['bburl'].'/jscripts/sceditor/editor_plugins/undo.js?ver=1805"></script>';
+
     if (!$formcreator->get_form($mybb->input['formid'])) {
         flash_message($lang->fc_form_output_not_found, 'error');
         admin_redirect("index.php?module=config-formcreator");
@@ -279,7 +290,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         }
 
         if ($formcreator->update_template()) {
-            flash_message($lang->fc_message_validation_failed, 'success');
+            flash_message($lang->fc_output_template_success, 'success');
             admin_redirect("index.php?module=config-formcreator&action=output&formid=" . $formcreator->formid);
         } else {
             flash_message($lang->fc_error_oops, 'error');
@@ -294,13 +305,15 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         admin_redirect("index.php?module=config-formcreator");
     }
 
-    echo "<script src='jscripts/formcreator.js'></script>";
+    echo "<script>function insertToEditor(text) { $('textarea').sceditor('instance').insert(text); }</script>";
 
-    $legend = "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$formname}\");'>".$lang->fc_form_name."</a><br />";
-    $legend .= $lang->fc_user_info .": <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$username}\");'>".$lang->fc_username."</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$uid}\");'>".$lang->fc_id."</a><br /><br />";
+    $legend = "<a href='javascript:insertToEditor(\"{\$formname}\");'>".$lang->fc_form_name."</a><br />";
+    $legend .= $lang->fc_user_info .": <a href='javascript:insertToEditor(\"{\$username}\");'>".$lang->fc_username."</a> | <a href='javascript:insertToEditor(\"{\$uid}\");'>".$lang->fc_id."</a><br /><br />";
+    $legend .= $lang->fc_other .": <a href='javascript:insertToEditor(\"{\$ref}\");'>".$lang->fc_reference_number."</a><br /><br />";
+    
     foreach ($formcreator->fields as $field) {
         $legend .= "(ID:" . $field->fieldid . ") " . $field->name . ": ";
-        $legend .= "<a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldname[" . $field->fieldid . "]}\");'>".$lang->fc_fieldname."</a> | <a href='javascript:insertAtCaret(\"msgtemplate\",\"{\$fieldvalue[" .
+        $legend .= "<a href='javascript:insertToEditor(\"{\$fieldname[" . $field->fieldid . "]}\");'>".$lang->fc_fieldname."</a> | <a href='javascript:insertToEditor(\"{\$fieldvalue[" .
             $field->fieldid . "]}\");'>".$lang->fc_fieldvalue."</a><br />";
     }
 
@@ -308,12 +321,15 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container = new FormContainer($lang->fc_edit_output_template);
     $form_container->output_row($lang->fc_subject_template, $lang->fc_subject_template_desc, $form->
         generate_text_box("subjecttemplate", $formcreator->subjecttemplate));
+    
+    $code = build_mycode_inserter("msgtemplate", false);
+    
     $form_container->output_row($lang->fc_message_template,
         $lang->fc_message_template_desc, $form->generate_text_area("messagetemplate",
         $formcreator->messagetemplate, array(
         "style" => "width: 98%;",
         "rows" => 20,
-        "id" => "msgtemplate")) . "<br /><br /><strong>".$lang->fc_add_variables.":<br /></strong><small>" . $legend . "</small>");
+        "id" => "msgtemplate")) . $code . "<br /><br /><strong>".$lang->fc_add_variables.":<br /></strong><small>" . $legend . "</small>");
 
     $form_container->end();
 
@@ -412,6 +428,12 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             if ($field->show_admin_field("description")) {
                 $form_container->output_row($lang->fc_description, $lang->fc_field_description_desc, $form->generate_text_area("description", $field->description));
             }
+            if ($field->show_admin_field("placeholder")) {
+                $form_container->output_row($lang->fc_placeholder, $lang->fc_field_placeholder_desc, $form->generate_text_box("placeholder", $field->placeholder));
+            }
+            if ($field->show_admin_field("maxlength")) {
+                $form_container->output_row($lang->fc_maxlength, $lang->fc_field_maxlength_desc, $form->generate_numeric_field("maxlength", $field->maxlength));
+            }
             if ($field->show_admin_field("options")) {
                 $form_container->output_row($lang->fc_options." <em>*</em>", $lang->fc_field_options_desc, $form->generate_text_area("options",
                     $field->options));
@@ -419,7 +441,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             if ($field->show_admin_field("format")) {
                 $form_container->output_row($lang->fc_format,
                     $form->fc_field_format_desc ,
-                    generate_text_box("format", $field->format));
+                    $form->generate_text_box("format", $field->format));
             }
             if ($field->show_admin_field("default")) {
                 $form_container->output_row($lang->fc_default, $lang->fc_field_default_desc, $form->generate_text_box("default", $field->default));
@@ -455,7 +477,17 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         } else {
             $form_container = new FormContainer($lang->fc_add_field);
             echo $form->generate_hidden_field("fieldselect", 1);
-            $form_container->output_row($lang->fc_field_type, $lang->fc_field_type_desc, $form->generate_select_box("type", $formcreator->types));
+            
+            $radio = "<table><tr><th>".$lang->fc_field_type."</th><th>".$lang->fc_field_example."</th></tr>";
+            
+            foreach($formcreator->types as $key => $value){
+                $radio .= "<tr><td>".$form->generate_radio_button("type",$key,$value)."</td><td><img src='".$mybb->settings['bburl']."/images/formcreator/fields/".$key.".jpg' /></td></tr>";
+            }
+            
+            $radio .= "</table>"; 
+            
+            $form_container->output_row($lang->fc_field_type, $lang->fc_field_type_desc, $radio);
+            //$form_container->output_row($lang->fc_field_type, $lang->fc_field_type_desc, $form->generate_select_box("type", $formcreator->types));
         }
 
         $form_container->end();
@@ -574,6 +606,20 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 } else {
                     $data['fields'] = array();
                 }
+                
+                if($mybb->input['usagelog'] == 1 && $db->table_exists("fc_formusage")){
+                    $query = $db->simple_select("fc_formusage","*", "formid = '".$form."'");
+                    $db->num_rows($query);
+                    
+                    $usagelog = array();
+                    
+                    while($log = $db->fetch_array($query)){
+                        unset($log['formid']);
+                        $usagelog[] = $log;
+                    }
+                    
+                    $data['usage'] = $usagelog;
+                }
 
                 $output_array[] = $data;
 
@@ -609,6 +655,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 $lang->fc_export_perms_desc, $form->generate_on_off_radio("permissions"));
             $form_container->output_row($lang->fc_export_process_options,
                 $lang->fc_export_process_options_desc, $form->generate_on_off_radio("process"));
+            $form_container->output_row($lang->fc_export_usagelog,
+                $lang->fc_export_usagelog_desc, $form->generate_on_off_radio("usagelog"));
 
             $form_container->end();
 
@@ -661,6 +709,13 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                     $formcreator->subjecttemplate = $form['subjecttemplate'];
                     $formcreator->messagetemplate = $form['messagetemplate'];
                     $formcreator->update_template();
+                    
+                    if($form['usage']){
+                        foreach ($form['usage'] as $log) {
+                            $log['formid'] = $formid;
+                            $db->insert_query("fc_formusage",$log);
+                        }
+                    }
                 }
                 $count_forms++;
             }

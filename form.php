@@ -16,6 +16,9 @@ $formcreator = new formcreator();
 if ($formcreator->get_form($mybb->input['formid'])) {
 
     if ($formcreator->check_allowed() && $formcreator->active == 1) {
+        
+        if(!$formcreator->check_usage_limit_reached()){
+        
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
         $display = true;
 
@@ -96,10 +99,12 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
             } else {
                 $display = false;
+                $ref = $formcreator->get_next_ref();
 
                 $subject = $formcreator->parse_subject();
                 $message = $formcreator->parse_output();
                 
+                $formcreator->log_usage();
                 $uid = $mybb->user['uid'];
                 $username = $mybb->user['username'];
                 
@@ -237,9 +242,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                         // Set up the thread options
                         $new_post['options'] = array(
-                            "signature" => 'yes',
-                            "emailnotify" => 'no',
-                            "disablesmilies" => 'no');
+                            "signature" => '1',
+                            "emailnotify" => '',
+                            "disablesmilies" => '0');
 
                         $posthandler->set_data($new_post);
 
@@ -278,9 +283,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                         // Set up the thread options
                         $new_thread['options'] = array(
-                            "signature" => 'yes',
-                            "emailnotify" => 'no',
-                            "disablesmilies" => 'no');
+                            "signature" => '1',
+                            "emailnotify" => '',
+                            "disablesmilies" => '0');
 
                         $posthandler->set_data($new_thread);
 
@@ -300,7 +305,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     }
                 }
 
-                if ($url) {
+                if(!empty($formcreator->customsuccess)){
+                    redirect($formcreator->customsuccess, $lang->fc_submitted, "", false);
+                }elseif ($url) {
                     redirect($url, $lang->fc_submitted, "", false);
                 } else {
                     redirect($mybb->settings['bburl'], $lang->fc_submitted, "", false);
@@ -318,17 +325,24 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
             $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_no_fields.'</td></tr>';
         }
+        
+        }else{
+            add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
+            $formtitle = $lang->fc_limit_reached_title;
+    
+            $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_limit_reached.'</td></tr>';
+        }
     } elseif ($formcreator->active == 0) {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
-        $formtitle = "Form disabled";
+        $formtitle = $lang->fc_form_disabled_title;
 
         $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_form_disabled.'</td></tr>';
     } else {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
-        $formtitle = "Access Denied";
+        $formtitle = $lang->fc_access_denied;
 
         $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_form_no_permissions.'</td></tr>';
     }
