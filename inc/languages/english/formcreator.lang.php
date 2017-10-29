@@ -13,5 +13,6 @@ $l['fc_access_denied'] = "Access Denied";
 $l['fc_form_disabled_title'] = "Form Disabled";
 $l['fc_limit_reached_title'] = "Form Limit Reached";
 $l['fc_limit_reached'] = "You have reached the maximum form usage";
+$l['fc_test'] = "Test";
 
 ?>
