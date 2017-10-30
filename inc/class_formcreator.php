@@ -1011,6 +1011,8 @@ class formcreator_field
 
     public function output_select($multi = false)
     {
+        global $lang;
+        
         $options = explode("\n", $this->options);
         if ($this->class) {
             $class = "class='" . $this->class . "'";
@@ -1026,7 +1028,7 @@ class formcreator_field
 
         $output = "<select name='field_" . $this->fieldid . "[]' " . $class . " " . $multi . " " . $size . ">";
         if (!$multi) {
-            $output .= "<option value=''>- Select option -</option>";
+            $output .= "<option value=''>- " . $lang->fc_select_option . " -</option>";
         }
 
         foreach ($options as $option) {

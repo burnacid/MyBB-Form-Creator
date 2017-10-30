@@ -44,6 +44,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 if ($field->required && empty($mybb->input["field_" . $field->fieldid]) && $field->type != 13 && $field->type != 14) {
                     $error_array[] = "'" . $field->name . "' ".$lang->fc_is_empty;
+                }elseif($field->required && $field->type == 3 && empty($mybb->input["field_" . $field->fieldid][0])) {
+                    $error_array[] = "'" . $field->name . "' ".$lang->fc_no_option_selected;
                 }
 
                 if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input["field_" . $field->fieldid])) {
