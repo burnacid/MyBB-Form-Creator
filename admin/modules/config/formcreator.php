@@ -345,16 +345,17 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $field->load_data($mybb->input);
 
         $field->clear_error();
+        print_r($mybb->input);
 
         if ($field->show_admin_field('name') && empty($field->name)) {
             $field->add_error($lang->fc_field_name_empty);
         }
 
-        if ($field->show_admin_field('options') && empty($field->options)) {
+        if ($field->show_admin_field('options') && empty($field->settings['options'])) {
             $field->add_error($lang->fc_options_empty);
         }
 
-        if ($field->show_admin_field('html') && empty($field->html)) {
+        if ($field->show_admin_field('html') && empty($field->settings['html'])) {
             $field->add_error($lang->fc_html_empty);
         }
 
@@ -429,19 +430,19 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 $form_container->output_row($lang->fc_description, $lang->fc_field_description_desc, $form->generate_text_area("description", $field->description));
             }
             if ($field->show_admin_field("placeholder")) {
-                $form_container->output_row($lang->fc_placeholder, $lang->fc_field_placeholder_desc, $form->generate_text_box("placeholder", $field->placeholder));
+                $form_container->output_row($lang->fc_placeholder, $lang->fc_field_placeholder_desc, $form->generate_text_box("settings[placeholder]", $field->settings['placeholder']));
             }
             if ($field->show_admin_field("maxlength")) {
-                $form_container->output_row($lang->fc_maxlength, $lang->fc_field_maxlength_desc, $form->generate_numeric_field("maxlength", $field->maxlength));
+                $form_container->output_row($lang->fc_maxlength, $lang->fc_field_maxlength_desc, $form->generate_numeric_field("settings[maxlength]", $field->settings['maxlength']));
             }
             if ($field->show_admin_field("options")) {
-                $form_container->output_row($lang->fc_options." <em>*</em>", $lang->fc_field_options_desc, $form->generate_text_area("options",
-                    $field->options));
+                $form_container->output_row($lang->fc_options." <em>*</em>", $lang->fc_field_options_desc, $form->generate_text_area("settings[options]",
+                    $field->settings['options']));
             }
             if ($field->show_admin_field("format")) {
                 $form_container->output_row($lang->fc_format,
                     $form->fc_field_format_desc ,
-                    $form->generate_text_box("format", $field->format));
+                    $form->generate_text_box("settings[format]", $field->settings['format']));
             }
             if ($field->show_admin_field("default")) {
                 $form_container->output_row($lang->fc_default, $lang->fc_field_default_desc, $form->generate_text_box("default", $field->default));
@@ -450,25 +451,25 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 $form_container->output_row($lang->fc_required, $lang->fc_field_required_desc, $form->generate_yes_no_radio("required", $field->required));
             }
             if ($field->show_admin_field("regex")) {
-                $form_container->output_row($lang->fc_regex, $lang->fc_field_regex_desc, "<strong>/ ".$form->generate_text_box("regex", $field->
+                $form_container->output_row($lang->fc_regex, $lang->fc_field_regex_desc, "<strong>/ ".$form->generate_text_box("settings[regex]", $field->
                     regex)." /</strong>");
-                $form_container->output_row($lang->fc_regex_error, $lang->fc_field_regex_error_desc, $form->generate_text_box("regexerror", $field->
+                $form_container->output_row($lang->fc_regex_error, $lang->fc_field_regex_error_desc, $form->generate_text_box("settings[regexerror]", $field->
                     regexerror));
             }
             if ($field->show_admin_field("size")) {
-                $form_container->output_row($lang->fc_size, $lang->fc_field_size_desc, $form->generate_numeric_field("size", $field->size));
+                $form_container->output_row($lang->fc_size, $lang->fc_field_size_desc, $form->generate_numeric_field("settings[size]", $field->settings['size']));
             }
             if ($field->show_admin_field("cols")) {
-                $form_container->output_row($lang->fc_cols, $lang->fc_field_cols_desc, $form->generate_numeric_field("cols", $field->cols));
+                $form_container->output_row($lang->fc_cols, $lang->fc_field_cols_desc, $form->generate_numeric_field("settings[cols]", $field->settings['cols']));
             }
             if ($field->show_admin_field("rows")) {
-                $form_container->output_row($lang->fc_rows, $lang->fc_field_rows_desc, $form->generate_numeric_field("rows", $field->rows));
+                $form_container->output_row($lang->fc_rows, $lang->fc_field_rows_desc, $form->generate_numeric_field("settings[rows]", $field->settings['rows']));
             }
             if ($field->show_admin_field("class")) {
                 $form_container->output_row($lang->fc_class, $lang->fc_field_class_desc, $form->generate_text_box("class", $field->class));
             }
             if ($field->show_admin_field("html")) {
-                $form_container->output_row($lang->fc_html_block." <em>*</em>", $lang->fc_field_html_block_desc, $form->generate_text_area("html", $field->html,
+                $form_container->output_row($lang->fc_html_block." <em>*</em>", $lang->fc_field_html_block_desc, $form->generate_text_area("settings[html]", $field->settings['html'],
                     array(
                     "rows" => "30",
                     "cols" => "300",
@@ -687,6 +688,22 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                     if (count($fields) != 0) {
                         foreach ($fields as $field_data) {
                             $field_data['formid'] = $formid;
+                            
+                            $settings = $field_data['settings'];
+                            
+                            //print_r($field_data);
+                            
+                            //Check if field exists in DB else move field to settings
+                            foreach($field_data as $key => $value){
+                                if(!$formcreator->field_in_table('fc_fields',$key)){
+                                    if($value != '' and $value != '0'){
+                                        $settings[$key] = $value;
+                                    }
+                                }else{
+                                }
+                            }
+                            
+                            $field_data['settings'] = $settings;
 
                             $field = new formcreator_field();
 

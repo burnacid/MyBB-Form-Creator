@@ -131,25 +131,9 @@ class formcreator
                 "Type" => "varchar(2000)",
                 "NULL" => 1),
             array(
-                "Field" => "placeholder",
-                "Type" => "varchar(2000)",
-                "NULL" => 1),
-            array(
-                "Field" => "maxlength",
-                "Type" => "int(11)",
-                "NULL" => 1),
-            array(
                 "Field" => "type",
                 "Type" => "int(11)",
                 "NULL" => 0),
-            array(
-                "Field" => "format",
-                "Type" => "varchar(255)",
-                "NULL" => 1),
-            array(
-                "Field" => "options",
-                "Type" => "varchar(2000)",
-                "NULL" => 1),
             array(
                 "Field" => "default",
                 "Type" => "varchar(2000)",
@@ -159,34 +143,14 @@ class formcreator
                 "Type" => "tinyint(1)",
                 "NULL" => 1),
             array(
-                "Field" => "regex",
-                "Type" => "text",
-                "NULL" => 1),
-            array(
-                "Field" => "regexerror",
-                "Type" => "varchar(500)",
-                "NULL" => 1),
-            array(
                 "Field" => "order",
-                "Type" => "int(11)",
-                "NULL" => 1),
-            array(
-                "Field" => "size",
-                "Type" => "int(11)",
-                "NULL" => 1),
-            array(
-                "Field" => "cols",
-                "Type" => "int(11)",
-                "NULL" => 1),
-            array(
-                "Field" => "rows",
                 "Type" => "int(11)",
                 "NULL" => 1),
             array(
                 "Field" => "class",
                 "Type" => "varchar(50)",
                 "NULL" => 1),
-            array("Field" => "html", "Type" => "text")), 
+            array("Field" => "settings", "Type" => "text")), 
             
             "fc_formusage" => array(
             array(
@@ -240,6 +204,18 @@ class formcreator
         } else {
             return false;
         }
+    }
+    
+    public function field_in_table($table, $fieldname){
+        $tabledata = $this->formcreator_fields[$table];
+        
+        foreach($tabledata as $field){
+            if($field['Field'] == $fieldname){
+                return true;   
+            }
+        }
+        
+        return false;
     }
 
     public function build_form()
@@ -304,7 +280,7 @@ class formcreator
                     eval('$output .= "' . $templates->get("formcreator_field_header") . '";');
                     break;
                 case 10:
-                    $fieldoutput = $field->html;
+                    $fieldoutput = $field->settings['html'];
                     eval('$output .= "' . $templates->get("formcreator_field_html") . '";');
                     break;
                 case 11:
@@ -709,6 +685,7 @@ class formcreator_field
     public $rows;
     public $class;
     public $format;
+    public $settings;
     
     public function escape_data()
     {
@@ -717,21 +694,12 @@ class formcreator_field
         $this->formid = intval($this->formid);
         $this->name = $db->escape_string($this->name);
         $this->description = $db->escape_string($this->description);
-        $this->placeholder = $db->escape_string($this->placeholder);
-        $this->maxlength = intval($this->maxlength);
         $this->type = intval($this->type);
-        $this->options = $db->escape_string($this->options);
         $this->default = $db->escape_string($this->default);
         $this->required = intval($this->required);
-        $this->regex = $db->escape_string($this->regex);
-        $this->regexerror = $db->escape_string($this->regexerror);
         $this->order = intval($this->order);
-        $this->size = intval($this->size);
-        $this->cols = intval($this->cols);
-        $this->rows = intval($this->rows);
         $this->class = $db->escape_string($this->class);
-        $this->html = $db->escape_string($this->html);
-        $this->format = $db->escape_string($this->format);
+        $this->settings = $db->escape_string(json_encode($this->settings));
     }
 
     public function load_data($data)
@@ -740,21 +708,17 @@ class formcreator_field
         $this->formid = $data['formid'];
         $this->name = $data['name'];
         $this->description = $data['description'];
-        $this->placeholder = $data['placeholder'];
-        $this->maxlength = $data['maxlength'];
         $this->type = $data['type'];
-        $this->options = $data['options'];
         $this->default = $data['default'];
         $this->required = $data['required'];
-        $this->regex = $data['regex'];
-        $this->regexerror = $data['regexerror'];
         $this->order = $data['order'];
-        $this->size = $data['size'];
-        $this->cols = $data['cols'];
-        $this->rows = $data['rows'];
         $this->class = $data['class'];
-        $this->html = $data['html'];
-        $this->format = $data['format'];
+        
+        if(!is_array($data['settings'])){
+            $this->settings = json_decode($data['settings'],true);
+        }else{
+            $this->settings = $data['settings'];
+        }
     }
 
     public function get_data()
@@ -766,21 +730,22 @@ class formcreator_field
         $data['formid'] = $this->formid;
         $data['name'] = $this->name;
         $data['description'] = $this->description;
-        $data['placeholder'] = $this->placeholder;
-        $data['maxlength'] = $this->maxlength;
+        //$data['placeholder'] = $this->settings['placeholder'];
+        //$data['maxlength'] = $this->settings['maxlength'];
         $data['type'] = $this->type;
-        $data['options'] = $this->options;
+        //$data['options'] = $this->settings['options'];
         $data['default'] = $this->default;
         $data['required'] = $this->required;
-        $data['regex'] = $this->regex;
-        $data['regexerror'] = $this->regexerror;
+        //$data['regex'] = $this->settings['regex'];
+        //$data['regexerror'] = $this->settings['regexerror'];
         $data['order'] = $this->order;
-        $data['size'] = $this->size;
-        $data['cols'] = $this->cols;
-        $data['rows'] = $this->rows;
+        //$data['size'] = $this->settings['size'];
+        //$data['cols'] = $this->settings['cols'];
+        //$data['rows'] = $this->settings['rows'];
         $data['class'] = $this->class;
-        $data['html'] = $this->html;
-        $data['format'] = $this->format;
+        //$data['html'] = $this->settings['html'];
+        //$data['format'] = $this->settings['format'];
+        $data['settings'] = $this->settings;
         return $data;
     }
 
@@ -969,16 +934,16 @@ class formcreator_field
 
     public function output_textbox()
     {
-        if ($this->size) {
-            $size = "size='" . $this->size . "'";
+        if ($this->settings['size']) {
+            $size = "size='" . $this->settings['size'] . "'";
         }
         
-        if ($this->placeholder) {
-            $placeholder = "placeholder ='".$this->placeholder."'";
+        if ($this->settings['placeholder']) {
+            $placeholder = "placeholder ='".$this->settings['placeholder']."'";
         }
         
-        if ($this->maxlength != 0) {
-            $maxlength = "maxlength ='".$this->maxlength."'";
+        if ($this->settings['maxlength'] != 0) {
+            $maxlength = "maxlength ='".$this->settings['maxlength']."'";
         }
 
         return "<input type='text' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='textbox " . $this->class . "' " . $size . " " . $placeholder . " " . $maxlength . " />";
@@ -990,20 +955,20 @@ class formcreator_field
             $class = "class='" . $this->class . "'";
         }
 
-        if ($this->rows) {
-            $rows = "rows='" . $this->rows . "'";
+        if ($this->settings['rows']) {
+            $rows = "rows='" . $this->settings['rows'] . "'";
         }
 
-        if ($this->cols) {
-            $cols = "cols='" . $this->cols . "'";
+        if ($this->settings['cols']) {
+            $cols = "cols='" . $this->settings['cols'] . "'";
         }
         
-        if ($this->placeholder) {
-            $placeholder = "placeholder ='".$this->placeholder."'";
+        if ($this->settings['placeholder']) {
+            $placeholder = "placeholder ='".$this->settings['placeholder']."'";
         }
         
-        if ($this->maxlength != 0) {
-            $maxlength = "maxlength ='".$this->maxlength."'";
+        if ($this->settings['maxlength'] != 0) {
+            $maxlength = "maxlength ='".$this->settings['maxlength']."'";
         }
 
         return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows . " " . $cols . " " . $placeholder . " " . $maxlength . ">" . $this->default . "</textarea>";
@@ -1013,7 +978,7 @@ class formcreator_field
     {
         global $lang;
         
-        $options = explode("\n", $this->options);
+        $options = explode("\n", $this->settings['options']);
         if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
@@ -1022,8 +987,8 @@ class formcreator_field
             $multi = "multiple='multiple'";
         }
 
-        if ($this->size != 0) {
-            $size = "size='" . $this->size . "'";
+        if ($this->settings['size'] != 0) {
+            $size = "size='" . $this->settings['size'] . "'";
         }
 
         $output = "<select name='field_" . $this->fieldid . "[]' " . $class . " " . $multi . " " . $size . ">";
@@ -1055,7 +1020,7 @@ class formcreator_field
 
         $output = "<input type='text' id='field_" . $this->fieldid . "' value='" . $this->default . "' name='field_" . $this->fieldid .
             "' class='textbox dateselect " . $this->class . "' />";
-        if (empty($this->format)) {
+        if (empty($this->settings['format'])) {
             $output .= "<script>
         	  $( function() {
         		$( \"#field_" . $this->fieldid . "\" ).datepicker();
@@ -1065,7 +1030,7 @@ class formcreator_field
             $output .= "<script>
         	  $( function() {
         		$( \"#field_" . $this->fieldid . "\" ).datepicker({
-          dateFormat: '" . $this->format . "'
+          dateFormat: '" . $this->settings['format'] . "'
         });
         	  } );
           </script>";
@@ -1086,7 +1051,7 @@ class formcreator_field
 
     public function output_radio()
     {
-        $options = explode("\n", $this->options);
+        $options = explode("\n", $this->settings['options']);
         if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
@@ -1108,7 +1073,7 @@ class formcreator_field
 
     public function output_checkbox()
     {
-        $options = explode("\n", $this->options);
+        $options = explode("\n", $this->settings['options']);
         if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
@@ -1163,7 +1128,7 @@ class formcreator_field
             echo "error";
         }
 
-        return $captcha->html;
+        return $captcha->settings['html'];
     }
     
     public function output_attachment()
@@ -1178,8 +1143,8 @@ class formcreator_field
     
     public function output_editor()
     {
-        if ($this->rows) {
-            $rows = "rows='" . $this->rows . "'";
+        if ($this->settings['rows']) {
+            $rows = "rows='" . $this->settings['rows'] . "'";
         }else{
             $rows = "rows='20'";
         }

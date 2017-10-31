@@ -48,8 +48,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     $error_array[] = "'" . $field->name . "' ".$lang->fc_no_option_selected;
                 }
 
-                if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input["field_" . $field->fieldid])) {
-                    if(!empty($field->regexerror)){
+                if ($field->settings['regex'] && !preg_match("/" . $field->settings['regex'] . "/", $mybb->input["field_" . $field->fieldid])) {
+                    if(!empty($field->settings['regexerror'])){
                         
                     }else{
                         $error_array[] = $lang->fc_no_attachment;
