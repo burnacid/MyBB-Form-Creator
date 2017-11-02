@@ -190,13 +190,13 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $lang->fc_process_prefix_desc, $form->generate_select_box("settings[prefix]",
         $prefixes, $formcreator->settings['prefix']));
 
-    $form_container->output_row($lang->fc_process_reply_post, $lang->fc_process_reply_post_desc, $form->generate_numeric_field("settings[tid]", $formcreator->settings['tid']));
+    $form_container->output_row($lang->fc_process_reply_post, $lang->fc_process_reply_post_desc, $form->generate_numeric_field("settings[tid]", $formcreator->tid));
     $form_container->output_row($lang->fc_process_post_as,
         $lang->fc_process_post_as_desc,
         $form->generate_numeric_field("settings[uid]", $formcreator->settings['uid']));
     $form_container->output_row($lang->fc_override_button,
         $lang->fc_override_button_desc, $form->
-        generate_on_off_radio("settings[overridebutton]", $formcreator->settings['overridebutton']));
+        generate_on_off_radio("settings[overridebutton]", $formcreator->overridebutton));
         
     $form_container->output_row($lang->fc_custom_success_page,
         $lang->fc_custom_success_page_desc, $form->
@@ -751,10 +751,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             }
 
             flash_message($lang->sprintf($lang->fc_forms_imported, $count_forms, $count_fields), 'success');
-            //admin_redirect("index.php?module=config-formcreator");
+            admin_redirect("index.php?module=config-formcreator");
         } else {
             flash_message($lang->fc_no_forms_imported, 'error');
-            //admin_redirect("index.php?module=config-formcreator&amp;action=import");
+            admin_redirect("index.php?module=config-formcreator&amp;action=import");
         }
     } else {
         $form_container = new FormContainer($lang->fc_import_form);
@@ -814,9 +814,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $table->construct_cell('<strong>'.$lang->fc_send_pm_to_usergroups.'</strong>: ' . $usergroups);
         $table->construct_row();
 
-        if ($forum = get_forum($formcreator->settings['fid'])) {
-            $forumlink = "<a href='" . $mybb->settings['bburl'] . "/" . get_forum_link($formcreator->settings['fid']) . "'>" . $forum['name'] . "</a>";
-        } elseif ($formcreator->settings['fid'] == -1) {
+        if ($forum = get_forum($formcreator->fid)) {
+            $forumlink = "<a href='" . $mybb->settings['bburl'] . "/" . get_forum_link($formcreator->fid) . "'>" . $forum['name'] . "</a>";
+        } elseif ($formcreator->fid == -1) {
             $forumlink = $lang->fc_no_forum_selected;
         } else {
             $forumlink = $lang->fc_forum_doesnt_exist;

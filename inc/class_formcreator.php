@@ -48,6 +48,18 @@ class formcreator
                 "Type" => "tinyint(1)",
                 "NULL" => 0),
             array(
+                "Field" => "fid",
+                "Type" => "int(11)",
+                "NULL" => 0),
+            array(
+                "Field" => "tid",
+                "Type" => "int(11)",
+                "NULL" => 0),
+            array(
+                "Field" => "overridebutton",
+                "Type" => "tinyint(1)",
+                "NULL" => 0),
+            array(
                 "Field" => "class",
                 "Type" => "varchar(255)",
                 "NULL" => 1),
@@ -428,6 +440,9 @@ class formcreator
         $this->formid = intval($this->formid);
         $this->name = $db->escape_string($this->name);
         $this->active = intval($this->active);
+        $this->fid = intval($this->fid);
+        $this->tid = intval($this->tid);
+        $this->overridebutton = intval($this->overridebutton);
         $this->class = $db->escape_string($this->class);
         $this->subjecttemplate = $db->escape_string($this->subjecttemplate);
         $this->messagetemplate = $db->escape_string($this->messagetemplate);
@@ -439,6 +454,9 @@ class formcreator
         $this->formid = $data['formid'];
         $this->name = $data['name'];
         $this->active = $data['active'];
+        $this->tid = $data['tid'];
+        $this->fid = $data['fid'];
+        $this->overridebutton = $data['overridebutton'];
         $this->class = $data['class'];
         $this->subjecttemplate = $data['subjecttemplate'];
         $this->messagetemplate = $data['messagetemplate'];
@@ -470,6 +488,9 @@ class formcreator
 
         $data['name'] = $this->name;
         $data['active'] = $this->active;
+        $data['fid'] = $this->fid;
+        $data['tid'] = $this->tid;
+        $data['overridebutton'] = $this->overridebutton;
         $data['class'] = $this->class;
         $data['settings'] = $this->settings;
         return $data;

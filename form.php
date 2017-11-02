@@ -226,8 +226,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 */
 
                 // Post in Thread
-                if ($formcreator->settings['tid']) {
-                    if ($thread = get_thread($formcreator->settings['tid'])) {
+                if ($formcreator->tid) {
+                    if ($thread = get_thread($formcreator->tid)) {
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "post";
                         $posthandler->admin_override = true;
@@ -266,8 +266,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
 
                 // Thread in Forum
-                if ($formcreator->settings['fid']) {
-                    if ($forum = get_forum($formcreator->settings['fid'])) {
+                if ($formcreator->fid) {
+                    if ($forum = get_forum($formcreator->fid)) {
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "thread";
                         $posthandler->admin_override = true;
