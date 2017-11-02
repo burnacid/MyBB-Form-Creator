@@ -85,11 +85,11 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             $formcreator->add_error($lang->fc_empty_formname);
         }
 
-        if (!isset($formcreator->allowedgidtype)) {
+        if (!isset($formcreator->settings['allowedgidtype'])) {
             $formcreator->add_error($lang->fc_empty_allowed_groups_type);
         }
 
-        if (empty($formcreator->allowedgid) && ($formcreator->allowedgidtype == 0 or $formcreator->allowedgidtype == 1)) {
+        if (empty($formcreator->settings['allowedgid']) && ($formcreator->settings['allowedgidtype'] == 0 or $formcreator->settings['allowedgidtype'] == 1)) {
             $formcreator->add_error($lang->fc_empty_allowed_groups);
         }
 
@@ -143,40 +143,40 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     $radioboxes = "";
 
-    if ($formcreator->allowedgidtype == -1) {
+    if ($formcreator->settings['allowedgidtype'] == -1) {
         $option = array("checked" => 1);
     } else {
         $option = array();
     }
-    $radioboxes .= $form->generate_radio_button("allowedgidtype", -1, $lang->fc_allow_all_groups, $option) . "<br />";
+    $radioboxes .= $form->generate_radio_button("settings[allowedgidtype]", -1, $lang->fc_allow_all_groups, $option) . "<br />";
 
-    if ($formcreator->allowedgidtype == 0) {
+    if ($formcreator->settings['allowedgidtype'] == 0) {
         $option = array("checked" => 1);
     } else {
         $option = array();
     }
-    $radioboxes .= $form->generate_radio_button("allowedgidtype", 0, $lang->fc_allow_selected_groups, $option) . "<br />";
+    $radioboxes .= $form->generate_radio_button("settings[allowedgidtype]", 0, $lang->fc_allow_selected_groups, $option) . "<br />";
 
-    if ($formcreator->allowedgidtype == 1) {
+    if ($formcreator->settings['allowedgidtype'] == 1) {
         $option = array("checked" => 1);
     } else {
         $option = array();
     }
-    $radioboxes .= $form->generate_radio_button("allowedgidtype", 1, $lang->fc_allow_unselected_groups, $option);
+    $radioboxes .= $form->generate_radio_button("settings[allowedgidtype]", 1, $lang->fc_allow_unselected_groups, $option);
 
     $form_container->output_row($lang->fc_allowed_groups." <em>*</em>", $lang->fc_allowed_groups_desc, $radioboxes . "<br /><br />" . $form->
-        generate_group_select("allowedgid[]", $formcreator->allowedgid, array("multiple" => true)));
-    $form_container->output_row($lang->fc_limitusage, $lang->fc_limitusage_desc, $form->generate_numeric_field("limitusage", $formcreator->limitusage));
+        generate_group_select("settings[allowedgid][]", $formcreator->settings['allowedgid'], array("multiple" => true)));
+    $form_container->output_row($lang->fc_limitusage, $lang->fc_limitusage_desc, $form->generate_numeric_field("settings[limitusage]", $formcreator->settings['limitusage']));
     $form_container->output_row($lang->fc_status." <em>*</em>", $lang->fc_status_desc, $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
 
     $form_container = new FormContainer($lang->fc_process_options);
     $form_container->output_row($lang->fc_process_send_pm,
         $lang->fc_process_send_pm_desc, $form->
-        generate_text_box("pmusers", $formcreator->pmusers));
+        generate_text_box("settings[pmusers]", $formcreator->settings['pmusers']));
     $form_container->output_row($lang->fc_process_send_pm_group,
-        $lang->fc_process_send_pm_group_desc, $form->generate_group_select("pmgroups[]",
-        $formcreator->pmgroups, array("multiple" => true)));
+        $lang->fc_process_send_pm_group_desc, $form->generate_group_select("settings[pmgroups][]",
+        $formcreator->settings['pmgroups'], array("multiple" => true)));
     $form_container->output_row($lang->fc_process_post_thread, $lang->fc_process_post_thread_desc, $form->generate_forum_select("fid", $formcreator->
         fid, array('main_option' => "- ".$lang->fc_disabled." -"), true));
 
@@ -187,33 +187,33 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     }
 
     $form_container->output_row($lang->fc_process_prefix,
-        $lang->fc_process_prefix_desc, $form->generate_select_box("prefix",
-        $prefixes, $formcreator->prefix));
+        $lang->fc_process_prefix_desc, $form->generate_select_box("settings[prefix]",
+        $prefixes, $formcreator->settings['prefix']));
 
-    $form_container->output_row($lang->fc_process_reply_post, $lang->fc_process_reply_post_desc, $form->generate_numeric_field("tid", $formcreator->tid));
+    $form_container->output_row($lang->fc_process_reply_post, $lang->fc_process_reply_post_desc, $form->generate_numeric_field("settings[tid]", $formcreator->settings['tid']));
     $form_container->output_row($lang->fc_process_post_as,
         $lang->fc_process_post_as_desc,
-        $form->generate_numeric_field("uid", $formcreator->uid));
+        $form->generate_numeric_field("settings[uid]", $formcreator->settings['uid']));
     $form_container->output_row($lang->fc_override_button,
         $lang->fc_override_button_desc, $form->
-        generate_on_off_radio("overridebutton", $formcreator->overridebutton));
+        generate_on_off_radio("settings[overridebutton]", $formcreator->settings['overridebutton']));
         
     $form_container->output_row($lang->fc_custom_success_page,
         $lang->fc_custom_success_page_desc, $form->
-        generate_text_box("customsuccess", $formcreator->customsuccess));
+        generate_text_box("settings[customsuccess]", $formcreator->settings['customsuccess']));
     /*
     $form_container->output_row("Send Mail to",
     "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>",
-    $form->generate_text_area("mail", $formcreator->mail));
+    $form->generate_text_area("mail", $formcreator->settings['mail']));
     */
     $form_container->end();
 
     $form_container = new FormContainer($lang->fc_form_layout);
     $form_container->output_row($lang->fc_form_talbe_width, $lang->fc_form_table_width_desc,
-        $form->generate_text_box("width", $formcreator->width));
+        $form->generate_text_box("settings[width]", $formcreator->settings['width']));
     $form_container->output_row($lang->fc_label_width,
-        $lang->fc_lang_width_desc, $form->generate_text_box("labelwidth",
-        $formcreator->labelwidth));
+        $lang->fc_lang_width_desc, $form->generate_text_box("settings[labelwidth]",
+        $formcreator->settings['labelwidth']));
     $form_container->output_row($lang->fc_class, $lang->fc_class_desc, $form->generate_text_box("class", $formcreator->class));
     $form_container->end();
 
@@ -681,6 +681,21 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         if (count($import)) {
             foreach ($import as $form) {
                 $fields = $form['fields'];
+                unset($form['fields']);
+                
+                $settings = $form['settings'];
+                
+                //Check if field exists in DB else move field to settings
+                foreach($form as $key => $value){
+                    if(!$formcreator->field_in_table('fc_forms',$key)){
+                        if($value != '' and $value != '0'){
+                            $settings[$key] = $value;
+                        }
+                    }else{
+                    }
+                }
+                
+                $form['settings'] = $settings;
 
                 $formcreator->load_data($form);
 
@@ -690,8 +705,6 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                             $field_data['formid'] = $formid;
                             
                             $settings = $field_data['settings'];
-                            
-                            //print_r($field_data);
                             
                             //Check if field exists in DB else move field to settings
                             foreach($field_data as $key => $value){
@@ -738,10 +751,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             }
 
             flash_message($lang->sprintf($lang->fc_forms_imported, $count_forms, $count_fields), 'success');
-            admin_redirect("index.php?module=config-formcreator");
+            //admin_redirect("index.php?module=config-formcreator");
         } else {
             flash_message($lang->fc_no_forms_imported, 'error');
-            admin_redirect("index.php?module=config-formcreator&amp;action=import");
+            //admin_redirect("index.php?module=config-formcreator&amp;action=import");
         }
     } else {
         $form_container = new FormContainer($lang->fc_import_form);
@@ -774,7 +787,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $table->construct_row();
 
         $usernames = "";
-        $users_array = explode(",", $formcreator->pmusers);
+        $users_array = explode(",", $formcreator->settings['pmusers']);
         foreach ($users_array as $uid) {
             if ($pmuser = get_user($uid)) {
                 $usernames .= "<br /><a href='" . $mybb->settings['bburl'] . "/members.php?uid=" . $pmuser['uid'] . "'>" . $pmuser['username'] . "</a>";
@@ -788,7 +801,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $table->construct_cell('<strong>'.$lang->fc_send_pm_to_users.'</strong>: ' . $usernames);
 
         $usergroups = "";
-        foreach ($formcreator->pmgroups as $gid) {
+        foreach ($formcreator->settings['pmgroups'] as $gid) {
             if ($pmgroup = get_usergroup($gid)) {
                 $usergroups .= "<br />" . $pmgroup['title'];
             }
@@ -801,9 +814,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $table->construct_cell('<strong>'.$lang->fc_send_pm_to_usergroups.'</strong>: ' . $usergroups);
         $table->construct_row();
 
-        if ($forum = get_forum($formcreator->fid)) {
-            $forumlink = "<a href='" . $mybb->settings['bburl'] . "/" . get_forum_link($formcreator->fid) . "'>" . $forum['name'] . "</a>";
-        } elseif ($formcreator->fid == -1) {
+        if ($forum = get_forum($formcreator->settings['fid'])) {
+            $forumlink = "<a href='" . $mybb->settings['bburl'] . "/" . get_forum_link($formcreator->settings['fid']) . "'>" . $forum['name'] . "</a>";
+        } elseif ($formcreator->settings['fid'] == -1) {
             $forumlink = $lang->fc_no_forum_selected;
         } else {
             $forumlink = $lang->fc_forum_doesnt_exist;
@@ -811,10 +824,10 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
         $table->construct_cell('<strong>'.$lang->fc_create_thread_in_forum.'</strong>: <br />' . $forumlink);
 
-        if ($formcreator->mail == "") {
+        if ($formcreator->settings['mail'] == "") {
             $mail = "(".$lang->fc_no_mail_selected.")";
         } else {
-            $mail = nl2br($formcreator->mail);
+            $mail = nl2br($formcreator->settings['mail']);
         }
 
         $table->construct_cell('<strong>'.$lang->fc_send_mail_to.'</strong>: <br />' . $mail);
