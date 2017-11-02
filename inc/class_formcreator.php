@@ -1256,7 +1256,7 @@ class formcreator_field
             echo "error";
         }
 
-        return $captcha->settings['html'];
+        return $captcha->html;
     }
 
     public function output_attachment()
