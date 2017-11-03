@@ -1,14 +1,14 @@
 <?php
-$l['formcreator'] = "Form Creator";
-$l['fc_is_empty'] = "is empty!";
-$l['fc_no_attachment'] = "No attachment was uploaded";
-$l['fc_no_match_regex'] = "did not match the expected input!";
-$l['fc_submitted'] = "Form is submitted";
-$l['fc_no_fields'] = "This form doesn't contain any fields yet!";
-$l['fc_form_disabled'] = "This form has been disabled for use!";
-$l['fc_form_no_permissions'] = "You are not allowed to use this form!";
-$l['fc_no_form_found'] = "The form you are looking for doesn't exist!";
-$l['fc_access_denied'] = "Access Denied";
-$l['fc_form_disabled_title'] = "Form Disabled";
-$l['fc_limit_reached_title'] = "Form Limit Reached";
-$l['fc_limit_reached'] = "You have reached the maximum form usage";
+$l['formcreator'] = "Formulier Generator";
+$l['fc_is_empty'] = "is leeg!";
+$l['fc_no_attachment'] = "Er is geen bijlage geupload";
+$l['fc_no_match_regex'] = "komt niet overeen met de verwachte input!";
+$l['fc_submitted'] = "Formulier is verstuurd";
+$l['fc_no_fields'] = "Dit formulier bevat nog geen velden!";
+$l['fc_form_disabled'] = "Dit formulier is uitgeschakeld voor gebruik!";
+$l['fc_form_no_permissions'] = "U heeft geen toestemming om dit formulier te gebruiken!";
+$l['fc_no_form_found'] = "Het formulier welke U zoekt bestaat niet!";
+$l['fc_access_denied'] = "Toegang Geweigerd";
+$l['fc_form_disabled_title'] = "Formulier Uitgeschakeld";
+$l['fc_limit_reached_title'] = "Formulier Limiet Bereikt";
+$l['fc_limit_reached'] = "U heeft het maximaal aantal gebruiken bereikt";
