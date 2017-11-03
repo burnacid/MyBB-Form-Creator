@@ -1,5 +1,5 @@
 <?php
-$l['formcreator'] = "Form Creator";
+$l['formcreator'] = "Formulier Generator";
 $l['fc_view_forms'] = "View Forms";
 $l['fc_view_forms_desc'] = "View all forms created for this website";
 $l['fc_create_form'] = "Create New Form";
