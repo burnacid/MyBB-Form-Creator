@@ -1,5 +1,5 @@
 <?php
-$l['formcreator'] = "Form Creator";
+$l['formcreator'] = "Formulier Generator";
 $l['fc_is_empty'] = "is leeg!";
 $l['fc_no_attachment'] = "Er is geen bijlage geupload";
 $l['fc_no_match_regex'] = "komt niet overeen met de verwachte input!";
