@@ -83,6 +83,7 @@ $l['fc_class'] = "Classe";
 $l['fc_class_desc'] = "Configure a Classe da Tabela contendo o Formulário";
 $l['fc_update_form'] = "Atualizar Formulário";
 $l['fc_create_form'] = "Criar Formulário";
+
 $l['fc_user_info'] = "Informação de usuário";
 $l['fc_username'] = "Nome de Usuário";
 $l['fc_other'] = "Outro";
