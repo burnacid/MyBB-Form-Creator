@@ -1,5 +1,4 @@
 <?php
-
 $l['formcreator'] = "Form Creator";
 $l['fc_view_forms'] = "View Forms";
 $l['fc_view_forms_desc'] = "View all forms created for this website";
@@ -19,14 +18,12 @@ $l['fc_output_template'] = "Form Output Template";
 $l['fc_output_template_desc'] = "Change the output template for this form. Leave fields empty to use the default outputs";
 $l['fc_yes'] = "Yes";
 $l['fc_no'] = "No";
-
 $l['fc_view_form_fields'] = "View Form Fields";
 $l['fc_view_form_fields_desc'] = "Change the form fields. Add/Edit or Delete";
 $l['fc_add_field'] = "Add Field";
 $l['fc_add_field_desc'] = "Add a field";
 $l['fc_edit_field'] = "Edit Field";
 $l['fc_edit_field_desc'] = "Edit a field";
-
 $l['fc_form_edit_not_found'] = "The form you tried to edit doesn't exist!";
 $l['fc_empty_formname'] = "Form Name is empty!";
 $l['fc_empty_allowed_groups_type'] = "The way allowed groups are handled wasn't set";
@@ -44,10 +41,8 @@ $l['fc_subject_validation_failed'] = "Validation of the subject template failed!
 $l['fc_message_validation_failed'] = "Validation of the message template failed!";
 $l['fc_output_template_success'] = "The output template has succesfully be changed";
 $l['fc_form_no_fields'] = "This form doesn't have any fields yet. Please add fields before you change the output template.";
-
 $l['fc_add_form'] = "Add Form";
 $l['fc_create_new_form'] = "Create a new Form";
-
 $l['fc_form_name'] = "Form Name";
 $l['fc_form_name_desc'] = "The title of the form";
 $l['fc_allow_all_groups'] = "Allow ALL groups";
@@ -88,7 +83,6 @@ $l['fc_class'] = "Class";
 $l['fc_class_desc'] = "Set the class of the table containing the form";
 $l['fc_update_form'] = "Update Form";
 $l['fc_create_form'] = "Create Form";
-
 $l['fc_user_info'] = "User Info";
 $l['fc_username'] = "Username";
 $l['fc_other'] = "Other";
@@ -105,7 +99,6 @@ $l['fc_add_variables'] = "Add Variables";
 $l['fc_delete_field'] = "Delete Field";
 $l['fc_edit_field'] = "Edit Field";
 $l['fc_form_has_no_fields'] = "This form has no fields yet!";
-
 $l['fc_field_name_empty'] = "Field name is empty";
 $l['fc_options_empty'] = "There were no options entered";
 $l['fc_html_empty'] = "HTML block can't be empty";
@@ -120,7 +113,7 @@ $l['fc_field_name_desc'] = "Please enter a field name";
 $l['fc_description'] = "Description";
 $l['fc_field_description_desc'] = "Write a description for the field";
 $l['fc_placeholder'] = "Placeholder";
-$l['fc_field_placeholder_desc'] = "Write a payload for the short hint that is displayed in the input field before the user enters a value.";
+$l['fc_field_placeholder_desc'] = "Write a placeholder for the short hint that is displayed in the input field before the user enters a value.";
 $l['fc_maxlength'] = "Max length";
 $l['fc_field_maxlength_desc'] = "Enter the maximum lenght of characters the user can enter. (0 = unlimited)";
 $l['fc_options'] = "Options";
@@ -151,7 +144,6 @@ $l['fc_field_type_desc'] = "Select what type of field you would like to add.";
 $l['fc_button_update_field'] = "Update Field";
 $l['fc_button_create_field'] = "Create Field";
 $l['fc_add_field_unknown_form'] = "You are trying to add a field to a form that doesn't exist!";
-
 $l['fc_delete_field_unknown'] = "The field you are trying to delete doesn't exist";
 $l['fc_delete_field_form_unknown'] = "The field's form you are trying to delete doesn't exist";
 $l['fc_delete_field_success'] = "The field was succesfully deleted";
@@ -163,7 +155,6 @@ $l['fc_type'] = "Type";
 $l['fc_form_info'] = "Form Info";
 $l['fc_send_mail_to'] = "Send Mail to";
 $l['fc_no_mail_selected'] = "No mail selected";
-
 $l['fc_export_form'] = "Export Forms";
 $l['fc_export_description'] = "Copy and save this to a file or use this to import it else where.";
 $l['fc_no_forms_to_export'] = "You have no forms that can be exported!";
@@ -183,19 +174,15 @@ $l['fc_send_pm_to_usergroups'] = "Send PM to Usergroups";
 $l['fc_no_groups_selected'] = "(No groups selected)";
 $l['fc_send_pm_to_users'] = "Send PM to Users";
 $l['fc_no_users_selected'] = "(No users selected)";
-
 $l['fc_import_form'] = "Import Forms";
 $l['fc_import_code'] = "Import code";
 $l['fc_import_code_desc'] = "Enter the import code";
 $l['fc_no_forms_imported'] = "No forms found to import";
 $l['fc_forms_imported'] = "Forms imported ({1} forms and {2} fields)";
-
 $l['fc_url'] = "Link / URL";
-
 $l['admin_log_config_formcreator_add'] = 'Created form #{1} ({2})';
 $l['admin_log_config_formcreator_edit'] = 'Edited form #{1} ({2})';
 $l['admin_log_config_formcreator_delete'] = 'Deleted form #{1} ({2})';
 $l['admin_log_config_formcreator_addfield'] = 'Added field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_editfield'] = 'Edited field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_deletefield'] = 'Deleted field #{2} ({3}) in form #{1}';
-?>
