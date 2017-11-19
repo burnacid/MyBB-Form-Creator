@@ -22,12 +22,12 @@ if ($formcreator->get_form($mybb->input['formid'])) {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
         $display = true;
 
-        if ($formcreator->width) {
-            $stylewidth = "width:" . $formcreator->width . ";";
+        if ($formcreator->settings['width']) {
+            $stylewidth = "width:" . $formcreator->settings['width'] . ";";
         }
 
-        if ($formcreator->labelwidth) {
-            $stylelabelwidth = "width:" . $formcreator->labelwidth . ";";
+        if ($formcreator->settings['labelwidth']) {
+            $stylelabelwidth = "width:" . $formcreator->settings['labelwidth'] . ";";
         }
 
         if ($formcreator->class) {
@@ -44,10 +44,12 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 if ($field->required && empty($mybb->input["field_" . $field->fieldid]) && $field->type != 13 && $field->type != 14) {
                     $error_array[] = "'" . $field->name . "' ".$lang->fc_is_empty;
+                }elseif($field->required && $field->type == 3 && empty($mybb->input["field_" . $field->fieldid][0])) {
+                    $error_array[] = "'" . $field->name . "' ".$lang->fc_no_option_selected;
                 }
 
-                if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input["field_" . $field->fieldid])) {
-                    if(!empty($field->regexerror)){
+                if ($field->settings['regex'] && !preg_match("/" . $field->settings['regex'] . "/", $mybb->input["field_" . $field->fieldid])) {
+                    if(!empty($field->settings['regexerror'])){
                         
                     }else{
                         $error_array[] = $lang->fc_no_attachment;
@@ -112,19 +114,19 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     $username = "Guest";
                 }
 
-                if (!empty($formcreator->uid)) {
-                    if ($user = get_user($formcreator->uid)) {
+                if (!empty($formcreator->settings['uid'])) {
+                    if ($user = get_user($formcreator->settings['uid'])) {
                         $uid = $user['uid'];
                         $username = $user['username'];
-                    } elseif ($formcreator->uid == -1) {
+                    } elseif ($formcreator->settings['uid'] == -1) {
                         $uid = -1;
                         $username = "Form Creator Bot";
                     }
                 }
 
                 // Send PM single user
-                if ($formcreator->pmusers) {
-                    $users = explode(",", $formcreator->pmusers);
+                if ($formcreator->settings['pmusers']) {
+                    $users = explode(",", $formcreator->settings['pmusers']);
 
                     foreach ($users as $user) {
                         if ($user_data = get_user($user)) {
@@ -155,8 +157,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
 
                 // Send PM groups
-                if (count($formcreator->pmgroups) != 0 and !empty($formcreator->pmgroups[0])) {
-                    $group_members = get_usergroup_users($formcreator->pmgroups);
+                if (count($formcreator->settings['pmgroups']) != 0 and !empty($formcreator->settings['pmgroups'][0])) {
+                    $group_members = get_usergroup_users($formcreator->settings['pmgroups']);
 
                     foreach ($group_members as $user) {
                         $pmhandler = new PMDataHandler();
@@ -186,7 +188,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 // Mail content
                 /*
-                if ($formcreator->mail) {
+                if ($formcreator->settings['mail']) {
                 if ($mybb->user['uid']) {
                 $mybb->input['fromemail'] = $mybb->user['email'];
                 $mybb->input['fromname'] = $mybb->user['username'];
@@ -273,7 +275,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $new_thread = array(
                             "fid" => $forum['fid'],
                             "subject" => $subject,
-                            "prefix" => $formcreator->prefix,
+                            "prefix" => $formcreator->settings['prefix'],
                             "icon" => -1,
                             "uid" => $uid,
                             "username" => $username,
@@ -305,8 +307,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     }
                 }
 
-                if(!empty($formcreator->customsuccess)){
-                    redirect($formcreator->customsuccess, $lang->fc_submitted, "", false);
+                if(!empty($formcreator->settings['customsuccess'])){
+                    redirect($formcreator->settings['customsuccess'], $lang->fc_submitted, "", false);
                 }elseif ($url) {
                     redirect($url, $lang->fc_submitted, "", false);
                 } else {
