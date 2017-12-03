@@ -190,7 +190,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $lang->fc_process_prefix_desc, $form->generate_select_box("settings[prefix]",
         $prefixes, $formcreator->settings['prefix']));
 
-    $form_container->output_row($lang->fc_process_reply_post, $lang->fc_process_reply_post_desc, $form->generate_numeric_field("settings[tid]", $formcreator->tid));
+    $form_container->output_row($lang->fc_process_reply_post, $lang->fc_process_reply_post_desc, $form->generate_numeric_field("tid", $formcreator->tid));
     $form_container->output_row($lang->fc_process_post_as,
         $lang->fc_process_post_as_desc,
         $form->generate_numeric_field("settings[uid]", $formcreator->settings['uid']));
@@ -205,6 +205,50 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row($lang->fc_process_signature,
         $lang->fc_process_signature_desc, $form->
         generate_on_off_radio("settings[signature]", $formcreator->settings['signature']));
+    
+    //Post Icons
+    if(isset($mybb->input['icon']))
+	{
+		$icon = $mybb->get_input('icon');
+	}
+
+    if($settings['posticon'] == 0 or !isset($settings['posticon'])){
+        $iconlist = $form->generate_radio_button("settings[posticon]",0,$lang->fc_none." ",array("checked" => 1));
+    }else{
+        $iconlist = $form->generate_radio_button("settings[posticon]",0,$lang->fc_none." ");
+    }
+	
+	$no_icons_checked = " checked=\"checked\"";
+	// read post icons from cache, and sort them accordingly
+	$posticons_cache = $cache->read("posticons");
+	$posticons = array();
+	foreach($posticons_cache as $posticon)
+	{
+		$posticons[$posticon['name']] = $posticon;
+	}
+	krsort($posticons);
+    
+    foreach($posticons as $dbicon)
+	{
+		$dbicon['path'] = str_replace("{theme}", $theme['imgdir'], $dbicon['path']);
+		$dbicon['path'] = htmlspecialchars_uni($mybb->get_asset_url($dbicon['path']));
+
+		if($formcreator->settings['posticon'] == $dbicon['iid'])
+		{
+			$checked = 1;
+			$no_icons_checked = '';
+		}
+		else
+		{
+			$checked = 0;
+		}
+        $iconlist .= $form->generate_radio_button("settings[posticon]",$dbicon['iid'],"<img style='vertical-align: middle;' src='".$dbicon['path']."' /> ",array("checked" => $checked));
+        
+        
+    }
+    
+    $form_container->output_row($lang->fc_process_posticon,$lang->fc_process_posticon_desc,$iconlist);
+    
     /*
     $form_container->output_row("Send Mail to",
     "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>",
