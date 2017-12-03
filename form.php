@@ -142,7 +142,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "do" => '',
                                 "pmid" => '');
                             $pm['options'] = array(
-                                "signature" => "0",
+                                "signature" => $formcreator->settings['signature'],
                                 "disablesmilies" => "0",
                                 "savecopy" => "0",
                                 "readreceipt" => "0",
@@ -244,7 +244,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                         // Set up the thread options
                         $new_post['options'] = array(
-                            "signature" => '1',
+                            "signature" => $formcreator->settings['signature'],
                             "emailnotify" => '',
                             "disablesmilies" => '0');
 
@@ -285,7 +285,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                         // Set up the thread options
                         $new_thread['options'] = array(
-                            "signature" => '1',
+                            "signature" => $formcreator->settings['signature'],
                             "emailnotify" => '',
                             "disablesmilies" => '0');
 
