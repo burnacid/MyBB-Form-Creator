@@ -196,11 +196,15 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $form->generate_numeric_field("settings[uid]", $formcreator->settings['uid']));
     $form_container->output_row($lang->fc_override_button,
         $lang->fc_override_button_desc, $form->
-        generate_on_off_radio("settings[overridebutton]", $formcreator->overridebutton));
+        generate_on_off_radio("settings[overridebutton]", $formcreator->settings['overridebutton']));
         
     $form_container->output_row($lang->fc_custom_success_page,
         $lang->fc_custom_success_page_desc, $form->
         generate_text_box("settings[customsuccess]", $formcreator->settings['customsuccess']));
+        
+    $form_container->output_row($lang->fc_process_signature,
+        $lang->fc_process_signature_desc, $form->
+        generate_on_off_radio("settings[signature]", $formcreator->settings['signature']));
     /*
     $form_container->output_row("Send Mail to",
     "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>",
