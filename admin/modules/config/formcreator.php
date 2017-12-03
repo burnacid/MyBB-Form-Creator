@@ -513,6 +513,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             if ($field->show_admin_field("rows")) {
                 $form_container->output_row($lang->fc_rows, $lang->fc_field_rows_desc, $form->generate_numeric_field("settings[rows]", $field->settings['rows']));
             }
+            if ($field->show_admin_field("resize")) {
+                $form_container->output_row($lang->fc_resize, $lang->fc_field_resize_desc, $form->generate_yes_no_radio("settings[resize]", $field->settings['resize']));
+            }
             if ($field->show_admin_field("class")) {
                 $form_container->output_row($lang->fc_class, $lang->fc_field_class_desc, $form->generate_text_box("class", $field->class));
             }

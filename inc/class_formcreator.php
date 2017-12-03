@@ -807,6 +807,7 @@ class formcreator_field
                     "regex",
                     "cols",
                     "rows",
+                    "resize",
                     "class");
             }
             elseif ($this->type == 3)
@@ -1060,8 +1061,15 @@ class formcreator_field
         {
             $maxlength = "maxlength ='" . $this->settings['maxlength'] . "'";
         }
+        
+        
+        if($this->settings['resize'] == 1){
+            $resize = "style='resize: both;'";
+        }else{
+            $resize = "style='resize: none;'";
+        }
 
-        return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows . " " . $cols . " " . $placeholder . " " . $maxlength . ">" . $this->
+        return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows . " " . $cols . " " . $placeholder . " " . $maxlength . " " . $resize . ">" . $this->
             default . "</textarea>";
     }
 
@@ -1280,10 +1288,16 @@ class formcreator_field
         {
             $rows = "rows='20'";
         }
+        
+        if($this->settings['resiz'] == 1){
+            $resize = "style='resize: both;'";
+        }else{
+            $resize = "style='resize: none;'";
+        }
 
         $code = build_mycode_inserter("field_" . $this->fieldid, true);
 
-        return "<textarea " . $rows . " name='field_" . $this->fieldid . "' id='field_" . $this->fieldid . "' />" . $this->default . "</textarea>\n" . $code;
+        return "<textarea " . $rows . " ".$resize." name='field_" . $this->fieldid . "' id='field_" . $this->fieldid . "' />" . $this->default . "</textarea>\n" . $code;
     }
 }
 
