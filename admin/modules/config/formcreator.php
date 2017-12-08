@@ -196,7 +196,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $form->generate_numeric_field("settings[uid]", $formcreator->settings['uid']));
     $form_container->output_row($lang->fc_override_button,
         $lang->fc_override_button_desc, $form->
-        generate_on_off_radio("settings[overridebutton]", $formcreator->settings['overridebutton']));
+        generate_on_off_radio("overridebutton", $formcreator->overridebutton));
         
     $form_container->output_row($lang->fc_custom_success_page,
         $lang->fc_custom_success_page_desc, $form->
