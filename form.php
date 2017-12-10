@@ -136,13 +136,13 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             $pm = array(
                                 "subject" => $subject,
                                 "message" => $message,
-                                "icon" => "-1",
+                                "icon" => $formcreator->settings['posticon'],
                                 "toid" => $user_data['uid'],
                                 "fromid" => $uid,
                                 "do" => '',
                                 "pmid" => '');
                             $pm['options'] = array(
-                                "signature" => "0",
+                                "signature" => $formcreator->settings['signature'],
                                 "disablesmilies" => "0",
                                 "savecopy" => "0",
                                 "readreceipt" => "0",
@@ -167,13 +167,13 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $pm = array(
                             "subject" => $subject,
                             "message" => $message,
-                            "icon" => "-1",
+                            "icon" => $formcreator->settings['posticon'],
                             "toid" => $user['uid'],
                             "fromid" => $uid,
                             "do" => '',
                             "pmid" => '');
                         $pm['options'] = array(
-                            "signature" => "0",
+                            "signature" => $formcreator->settings['settings'],
                             "disablesmilies" => "0",
                             "savecopy" => "0",
                             "readreceipt" => "0",
@@ -226,7 +226,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 */
 
                 // Post in Thread
-                if ($formcreator->tid) {
+                if ($formcreator->settings) {
                     if ($thread = get_thread($formcreator->tid)) {
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "post";
@@ -236,6 +236,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             "fid" => $thread['fid'],
                             "tid" => $thread['tid'],
                             "subject" => $subject,
+                            "icon" => $formcreator->settings['posticon'],
                             "uid" => $uid,
                             "username" => $username,
                             "message" => $message,
@@ -244,7 +245,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                         // Set up the thread options
                         $new_post['options'] = array(
-                            "signature" => '1',
+                            "signature" => $formcreator->settings['signature'],
                             "emailnotify" => '',
                             "disablesmilies" => '0');
 
@@ -276,7 +277,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             "fid" => $forum['fid'],
                             "subject" => $subject,
                             "prefix" => $formcreator->settings['prefix'],
-                            "icon" => -1,
+                            "icon" => $formcreator->settings['posticon'],
                             "uid" => $uid,
                             "username" => $username,
                             "message" => $message,
@@ -285,7 +286,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                         // Set up the thread options
                         $new_thread['options'] = array(
-                            "signature" => '1',
+                            "signature" => $formcreator->settings['signature'],
                             "emailnotify" => '',
                             "disablesmilies" => '0');
 
