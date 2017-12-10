@@ -12,3 +12,6 @@ $l['fc_access_denied'] = "Toegang Geweigerd";
 $l['fc_form_disabled_title'] = "Formulier Uitgeschakeld";
 $l['fc_limit_reached_title'] = "Formulier Limiet Bereikt";
 $l['fc_limit_reached'] = "U heeft het maximaal aantal gebruiken bereikt";
+$l['fc_test'] = "Test";
+$l['fc_select_option'] = "Selecteer optie";
+$l['fc_no_option_selected'] = "Geen opties geselecteerd";
