@@ -83,7 +83,6 @@ $l['fc_class'] = "Classe";
 $l['fc_class_desc'] = "Configure a Classe da Tabela contendo o Formulário";
 $l['fc_update_form'] = "Atualizar Formulário";
 $l['fc_create_form'] = "Criar Formulário";
-
 $l['fc_user_info'] = "Informação de usuário";
 $l['fc_username'] = "Nome de Usuário";
 $l['fc_other'] = "Outro";
@@ -187,3 +186,9 @@ $l['admin_log_config_formcreator_delete'] = 'Formulário Deletado #{1} ({2})';
 $l['admin_log_config_formcreator_addfield'] = 'Campo Adicionado #{2} ({3}) no Formulário #{1}';
 $l['admin_log_config_formcreator_editfield'] = 'Campo Editado #{2} ({3}) no Formulário #{1}';
 $l['admin_log_config_formcreator_deletefield'] = 'Campo Deletado #{2} ({3}) no Formulário #{1}';
+$l['fc_process_signature'] = "Assinatura da Postagem";
+$l['fc_process_signature_desc'] = "Defina se a assinatura dos usuários aparecerá ou não no tópico ou postagem.";
+$l['fc_process_posticon'] = "Ícone de Postagem";
+$l['fc_process_posticon_desc'] = "Selecione qual ícone de postagem será usado para a postagem / tópico.";
+$l['fc_resize'] = "Permitir redimensionar";
+$l['fc_field_resize_desc'] = "Defina se o usuário pode ou não redimensionar o campo";
