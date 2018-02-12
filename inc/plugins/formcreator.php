@@ -22,7 +22,7 @@ function formcreator_info()
         'website' => 'https://community.mybb.com/mods.php?action=view&pid=975',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '2.4.0',
+        'version' => '2.4.1',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
@@ -593,7 +593,7 @@ function get_usergroup_users($gid)
     }
 }
 
-function reArrayFiles(&$file_post) {
+function reArrayFiles(&$file_post, $current = 0) {
 
     $file_ary = array();
     $file_count = count($file_post['name']);
@@ -601,7 +601,7 @@ function reArrayFiles(&$file_post) {
 
     for ($i=0; $i<$file_count; $i++) {
         foreach ($file_keys as $key) {
-            $file_ary[$i][$key] = $file_post[$key][$i];
+            $file_ary[$i + $current][$key] = $file_post[$key][$i];
         }
     }
 

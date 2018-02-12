@@ -37,8 +37,10 @@ if ($formcreator->get_form($mybb->input['formid'])) {
         $formcreator->get_fields();
 
         if ($mybb->request_method == "post") {
+            
             $error_array = array();
-
+            $files = array();
+            
             foreach ($formcreator->fields as $field) {
                 $field->default = $mybb->input["field_" . $field->fieldid];
 
@@ -57,8 +59,6 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     
                 }
                 
-                $files = array();
-                
                 if ($field->type == 12) {
                     $captcha = new captcha();
                     if ($captcha->validate_captcha() == false) {
@@ -68,16 +68,15 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         }
                     }
                 }elseif($field->type == 13 or $field->type == 14){
-                    if($field->required){
-                        if(!empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13){
-                            $files = $_FILES;
-                        }elseif(!empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14){
-                            $files = reArrayFiles($_FILES["field_" . $field->fieldid]);
-                        }else{
-                            $error_array[] = $lang->fc_no_attachment;
-                        }
+                    if(!empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13){
+                        $files[count($files)] = $_FILES["field_".$field->fieldid];
+                    }elseif(!empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14){
+                        $files = array_merge($files, reArrayFiles($_FILES["field_" . $field->fieldid], count($files)));
+                    }elseif($field->required){
+                        $error_array[] = $lang->fc_no_attachment;
+                    }else{
+                        $error_array[] = $lang->fc_oops;
                     }
-                    
                 }
             }
             
