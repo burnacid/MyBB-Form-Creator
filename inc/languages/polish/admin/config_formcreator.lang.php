@@ -75,3 +75,4 @@ $l['fc_form_layout'] = "Układ formularza";
 $l['fc_form_talbe_width'] = "Szerokość tabeli formularza";
 $l['fc_form_table_width_desc'] = "Ustaw szerokość tabeli zawierającej formularz (w pikselach lub procentach, np. 100px lub 75%)";
 $l['fc_label_width'] = "Szerokość etykiety kolumny";
+?>

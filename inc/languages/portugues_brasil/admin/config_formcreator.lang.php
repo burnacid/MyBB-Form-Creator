@@ -192,3 +192,4 @@ $l['fc_process_posticon'] = "Ícone de Postagem";
 $l['fc_process_posticon_desc'] = "Selecione qual ícone de postagem será usado para a postagem / tópico.";
 $l['fc_resize'] = "Permitir redimensionar";
 $l['fc_field_resize_desc'] = "Defina se o usuário pode ou não redimensionar o campo";
+?>
