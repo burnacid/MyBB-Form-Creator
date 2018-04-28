@@ -227,6 +227,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 // Post in Thread
                 if ($formcreator->settings) {
                     if ($thread = get_thread($formcreator->tid)) {
+                        
+                        $mybb->input['action'] = "do_newreply";
+                        
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "post";
                         $posthandler->admin_override = true;
@@ -268,6 +271,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 // Thread in Forum
                 if ($formcreator->fid) {
                     if ($forum = get_forum($formcreator->fid)) {
+                        
+                        $mybb->input['action'] = "do_newthread";
+                        
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "thread";
                         $posthandler->admin_override = true;
