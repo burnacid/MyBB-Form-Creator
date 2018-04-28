@@ -187,3 +187,5 @@ $l['fc_process_posticon'] = "Bericht Icoon";
 $l['fc_process_posticon_desc'] = "Selecteer welk bericht icon gebruikt wordt voor het bericht of discussie.";
 $l['fc_resize'] = "Vergroten/verkleinen toestaan";
 $l['fc_field_resize_desc'] = "Stel in of the gebruiker het veld kan vergroten / verkleinen";
+
+?>

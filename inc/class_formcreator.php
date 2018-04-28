@@ -591,7 +591,7 @@ class formcreator
         global $templates, $mybb, $ref;
         if (empty($this->subjecttemplate))
         {
-            return "Form submission: " . $this->name;
+            $output = "Form submission: " . $this->name;
         }
         else
         {
@@ -602,8 +602,9 @@ class formcreator
             $fieldname = $this->get_field_names();
             $fieldvalue = $this->get_field_values();
             eval("\$output = \"" . $this->subjecttemplate . "\";");
-            return $output;
         }
+        
+        return substr($output,0,80);
     }
 
     public function parse_output()

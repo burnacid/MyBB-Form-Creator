@@ -1,4 +1,5 @@
 <?php
+
 $l['formcreator'] = "Criador de Formulário";
 $l['fc_is_empty'] = "está vazio!";
 $l['fc_no_attachment'] = "Nenhum anexo foi enviado";
@@ -15,3 +16,5 @@ $l['fc_limit_reached'] = "Você atingiu o limite máximo de uso de Formulário";
 $l['fc_test'] = "Teste";
 $l['fc_select_option'] = "Selecione uma opção";
 $l['fc_no_option_selected'] = "nenhuma opção foi selecionada";
+
+?>

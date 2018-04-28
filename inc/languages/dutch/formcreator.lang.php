@@ -1,4 +1,5 @@
 <?php
+
 $l['formcreator'] = "Formulier Maker";
 $l['fc_is_empty'] = "is leeg!";
 $l['fc_no_attachment'] = "Er is geen bijlage geupload";
@@ -15,3 +16,5 @@ $l['fc_limit_reached'] = "U heeft het maximaal aantal gebruiken bereikt";
 $l['fc_test'] = "Test";
 $l['fc_select_option'] = "Selecteer optie";
 $l['fc_no_option_selected'] = "Geen opties geselecteerd";
+
+?>

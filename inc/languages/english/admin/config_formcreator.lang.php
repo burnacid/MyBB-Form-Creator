@@ -192,3 +192,5 @@ $l['admin_log_config_formcreator_delete'] = 'Deleted form #{1} ({2})';
 $l['admin_log_config_formcreator_addfield'] = 'Added field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_editfield'] = 'Edited field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_deletefield'] = 'Deleted field #{2} ({3}) in form #{1}';
+
+?>
