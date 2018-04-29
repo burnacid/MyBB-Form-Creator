@@ -273,6 +273,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     if ($forum = get_forum($formcreator->fid)) {
                         
                         $mybb->input['action'] = "do_newthread";
+                        $fid = $forum['fid'];
                         
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "thread";
