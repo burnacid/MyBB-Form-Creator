@@ -1186,7 +1186,7 @@ class formcreator_field
             }
 
             $output .= "<input type='radio' name='field_" . $this->fieldid . "' id='" . $this->name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
-                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "<label><br />";
+                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "</label><br />";
         }
 
         return $output;
@@ -1216,7 +1216,7 @@ class formcreator_field
             }
 
             $output .= "<input type='checkbox' name='field_" . $this->fieldid . "[]' id='" . $this->name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
-                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "<label><br />";
+                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "</label><br />";
         }
 
         return $output;
