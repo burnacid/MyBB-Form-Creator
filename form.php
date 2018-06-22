@@ -85,7 +85,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             if(count($files) != 0){
                 if($formcreator->fid != 0){
                     $fid = $formcreator->fid;
-                }elseif($formcreator->tid){
+                }elseif($formcreator->tid != 0){
                     $t = get_thread($formcreator->tid);
                     $fid = $t['fid'];
                     $tid = $formcreator->tid;
