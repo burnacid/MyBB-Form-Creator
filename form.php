@@ -83,6 +83,15 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             $posthash = "";
             
             if(count($files) != 0){
+                if($formcreator->fid != 0){
+                    $fid = $formcreator->fid;
+                }elseif($formcreator->tid){
+                    $t = get_thread($formcreator->tid);
+                    $fid = $t['fid'];
+                    $tid = $formcreator->tid;
+                }
+                $forum['fid'] = $fid;
+                
                 $posthash = sha1(time()+(rand(1,1000) / 1000));
                 $mybb->input['posthash'] = $posthash;
                 foreach($files as $file){
@@ -184,6 +193,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         }
                     }
                 }
+
 
                 // Mail content
                 /*
