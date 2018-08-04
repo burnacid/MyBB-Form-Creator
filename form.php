@@ -38,6 +38,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
         if ($mybb->request_method == "post") {
             
+            $errors = "";
             $error_array = array();
             $files = array();
             $prefix = ""; 
@@ -113,6 +114,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             } else {
                 $display = false;
                 $ref = $formcreator->get_next_ref();
+                $post_errors = array();
 
                 $subject = $formcreator->parse_subject();
                 $message = $formcreator->parse_output();
@@ -162,6 +164,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             $pmhandler->set_data($pm);
                             if ($pmhandler->validate_pm()) {
                                 $pmhandler->insert_pm();
+                            } else {
+                                $post_errors = array_merge($post_errors, $pmhandler->get_friendly_errors());
                             }
                         }
                     }
@@ -193,6 +197,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $pmhandler->set_data($pm);
                         if ($pmhandler->validate_pm()) {
                             $pmhandler->insert_pm();
+                        } else {
+                            $post_errors = array_merge($post_errors, $pmhandler->get_friendly_errors());
                         }
                     }
                 }
@@ -277,6 +283,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             if ($forumpermissions['canviewthreads'] == 1 && $post['visible'] == 1) {
                                 $url = get_post_link($pid, $thread['tid']);
                             }
+                        } else {
+                            $post_errors = array_merge($post_errors, $posthandler->get_friendly_errors());
                         }
                     }
                 }
@@ -327,13 +335,17 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             if ($forumpermissions['canviewthreads'] == 1 && $post['visible'] == 1) {
                                 $url = get_thread_link($tid);
                             }
+                        } else {
+                            $post_errors = array_merge($post_errors, $posthandler->get_friendly_errors());
                         }
                     }
                 }
-
-                if(!empty($formcreator->settings['customsuccess'])){
+                
+                if(count($post_errors) != 0){
+                    $errors .= inline_error($post_errors);
+                } elseif(!empty($formcreator->settings['customsuccess'])) {
                     redirect($formcreator->settings['customsuccess'], $lang->fc_submitted, "", false);
-                }elseif ($url) {
+                } elseif ($url) {
                     redirect($url, $lang->fc_submitted, "", false);
                 } else {
                     redirect($mybb->settings['bburl'], $lang->fc_submitted, "", false);
