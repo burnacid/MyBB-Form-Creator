@@ -40,6 +40,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             
             $error_array = array();
             $files = array();
+            $prefix = ""; 
             
             foreach ($formcreator->fields as $field) {
                 $field->default = $mybb->input["field_" . $field->fieldid];
@@ -77,6 +78,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     }else{
                         $error_array[] = $lang->fc_oops;
                     }
+                }elseif($field->type == 16){
+                    $prefix = intval($mybb->input["field_" . $field->fieldid]);
                 }
             }
             
@@ -288,11 +291,15 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "thread";
                         $posthandler->admin_override = true;
-
+                        
+                        if(empty($prefix)){
+                            $prefix = $formcreator->settings['prefix'];
+                        }
+                        
                         $new_thread = array(
                             "fid" => $forum['fid'],
                             "subject" => $subject,
-                            "prefix" => $formcreator->settings['prefix'],
+                            "prefix" => $prefix,
                             "icon" => $formcreator->settings['posticon'],
                             "uid" => $uid,
                             "username" => $username,
