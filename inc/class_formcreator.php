@@ -505,6 +505,9 @@ class formcreator
     {
         global $db;
         $query = $db->simple_select("fc_fields", "*", "formid = " . intval($this->formid), array("order_by" => "`order`"));
+        
+        $this->fields = array();
+        
         while ($field_data = $db->fetch_array($query))
         {
             $field = new formcreator_field();
