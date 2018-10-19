@@ -138,6 +138,7 @@ class formcreator
         5 => "Radio Buttons",
         6 => "Checkboxes",
         7 => "Date",
+        16 => "Prefix Selection",
 
         13 => "Attachment",
         14 => "Multiple Attachments",
@@ -274,6 +275,10 @@ class formcreator
                     break;
                 case 15:
                     $fieldoutput = $field->output_editor();
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
+                    break;
+                case 16:
+                    $fieldoutput = $field->output_prefix();
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
             }
@@ -500,6 +505,9 @@ class formcreator
     {
         global $db;
         $query = $db->simple_select("fc_fields", "*", "formid = " . intval($this->formid), array("order_by" => "`order`"));
+        
+        $this->fields = array();
+        
         while ($field_data = $db->fetch_array($query))
         {
             $field = new formcreator_field();
@@ -905,6 +913,15 @@ class formcreator_field
                     "required",
                     "rows");
             }
+            elseif ($this->type == 16)
+            {
+                $show = array(
+                    "name",
+                    "description",
+                    "selector",
+                    "required",
+                    "class");
+            }
             else
             {
                 $show = array();
@@ -1120,6 +1137,49 @@ class formcreator_field
         $output .= "</select>";
         return $output;
     }
+    
+    public function output_prefix()
+    {
+        global $lang;
+
+        if ($this->class)
+        {
+            $class = "class='" . $this->class . "'";
+        }
+
+        if ($this->settings['size'] != 0)
+        {
+            $size = "size='" . $this->settings['size'] . "'";
+        }
+
+        $output = "<select name='field_" . $this->fieldid . "' " . $class . " " . $multi . " " . $size . ">";
+        if (!$multi)
+        {
+            $output .= "<option value=''>- " . $lang->fc_select_option . " -</option>";
+        }
+        
+        $prefixes = build_prefixes();
+
+        foreach ($this->settings['selector'] as $option)
+        {
+            if (is_array($this->default))
+            {
+                if (in_array(trim($option), $this->default))
+                {
+                    $selected = "selected='selected'";
+                }
+                else
+                {
+                    $selected = "";
+                }
+            }
+
+            $output .= "<option value='" . trim($option) . "' " . $selected . ">" . $prefixes[$option]['prefix'] . "</option>";
+        }
+
+        $output .= "</select>";
+        return $output;
+    }
 
     public function output_dateselect()
     {
@@ -1186,7 +1246,7 @@ class formcreator_field
             }
 
             $output .= "<input type='radio' name='field_" . $this->fieldid . "' id='" . $this->name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
-                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "<label><br />";
+                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "</label><br />";
         }
 
         return $output;
@@ -1216,7 +1276,7 @@ class formcreator_field
             }
 
             $output .= "<input type='checkbox' name='field_" . $this->fieldid . "[]' id='" . $this->name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
-                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "<label><br />";
+                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "</label><br />";
         }
 
         return $output;

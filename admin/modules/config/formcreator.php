@@ -393,13 +393,16 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $field->load_data($mybb->input);
 
         $field->clear_error();
-        print_r($mybb->input);
 
         if ($field->show_admin_field('name') && empty($field->name)) {
             $field->add_error($lang->fc_field_name_empty);
         }
 
         if ($field->show_admin_field('options') && empty($field->settings['options'])) {
+            $field->add_error($lang->fc_options_empty);
+        }
+        
+        if ($field->show_admin_field('selector') && empty($field->settings['selector'])) {
             $field->add_error($lang->fc_options_empty);
         }
 
@@ -486,6 +489,24 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             if ($field->show_admin_field("options")) {
                 $form_container->output_row($lang->fc_options." <em>*</em>", $lang->fc_field_options_desc, $form->generate_text_area("settings[options]",
                     $field->settings['options']));
+            }
+            if ($field->show_admin_field("selector")) {
+                if($field->type==16){
+                    $field_name = $lang->fc_prefixes;
+                    $field_desc = $lang->fc_field_prefixes_desc;
+                    $prefixes = build_prefixes();
+                    if(is_array($prefixes)){
+                        $options = array();
+                        foreach(build_prefixes() as $prefix){
+                            $options[$prefix['pid']] = $prefix['prefix'];
+                        }
+                    }else{
+                        $options = array("" => $lang->fc_no_prefixes);
+                    }
+                }
+                
+                $form_container->output_row($field_name." <em>*</em>", $field_desc, $form->generate_select_box("settings[selector][]",$options,
+                    $field->settings['selector'], array("multiple"=>true)));
             }
             if ($field->show_admin_field("format")) {
                 $form_container->output_row($lang->fc_format,
