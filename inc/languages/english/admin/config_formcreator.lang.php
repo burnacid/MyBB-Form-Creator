@@ -50,6 +50,8 @@ $l['fc_allow_selected_groups'] = "Allow selected groups";
 $l['fc_allow_unselected_groups'] = "Allow all BUT selected groups";
 $l['fc_allowed_groups'] = "Allowed Groups";
 $l['fc_allowed_groups_desc'] = "Which groups are allowed to use this form";
+$l['fc_custom_denied_message'] = "Custom Denied Message";
+$l['fc_custom_denied_message_desc'] = "Enter in a custom message users will get when they are not allowed access the form. Leave empty to use the default (HTML enabled)";
 $l['fc_limitusage'] = "Usage limit";
 $l['fc_limitusage_desc'] = "Enter the maximun number of times a user can fill in the form (0 = unlimited).";
 $l['fc_status'] = "Status";

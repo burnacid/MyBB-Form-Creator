@@ -381,8 +381,15 @@ if ($formcreator->get_form($mybb->input['formid'])) {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
         $formtitle = $lang->fc_access_denied;
-
-        $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_form_no_permissions.'</td></tr>';
+        
+        $custommsg = trim($formcreator->settings['customdenied']);
+        if(empty($custommsg)){
+            $deniedtext = $lang->fc_form_no_permissions;
+        }else{
+            $deniedtext = $formcreator->settings['customdenied'];
+        }
+        
+        $formcontent = '<tr><td class="trow1" colspan="2">'.$deniedtext.'</td></tr>';
     }
 } else {
     add_breadcrumb($lang->formcreator, "form.php");

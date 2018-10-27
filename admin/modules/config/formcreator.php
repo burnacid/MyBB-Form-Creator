@@ -166,6 +166,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     $form_container->output_row($lang->fc_allowed_groups." <em>*</em>", $lang->fc_allowed_groups_desc, $radioboxes . "<br /><br />" . $form->
         generate_group_select("settings[allowedgid][]", $formcreator->settings['allowedgid'], array("multiple" => true)));
+    $form_container->output_row($lang->fc_custom_denied_message, $lang->fc_custom_denied_message_desc, $form->generate_text_area("settings[customdenied]", $formcreator->settings['customdenied']));
     $form_container->output_row($lang->fc_limitusage, $lang->fc_limitusage_desc, $form->generate_numeric_field("settings[limitusage]", $formcreator->settings['limitusage']));
     $form_container->output_row($lang->fc_status." <em>*</em>", $lang->fc_status_desc, $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
