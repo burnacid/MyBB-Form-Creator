@@ -187,5 +187,6 @@ $l['fc_process_posticon'] = "Bericht Icoon";
 $l['fc_process_posticon_desc'] = "Selecteer welk bericht icon gebruikt wordt voor het bericht of discussie.";
 $l['fc_resize'] = "Vergroten/verkleinen toestaan";
 $l['fc_field_resize_desc'] = "Stel in of the gebruiker het veld kan vergroten / verkleinen";
-
-?>
+$l['fc_prefixes'] = "Beschikbare voor voegingen";
+$l['fc_no_prefixes'] = "- Geen voorvoeging beschikbaar -";
+$l['fc_field_prefixes_desc'] = "Selecteer de voor voegingen die beschikbaar worden gemaakt voor de gebruiker. Zorg er voor dat de voor voegingen gebruikt mogen worden op het specifieke onderwerp of forum!";
