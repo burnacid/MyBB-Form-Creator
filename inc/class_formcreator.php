@@ -371,7 +371,9 @@ class formcreator
     {
         global $db;
         
-        $this->settings = json_decode($this->settings);
+        if(!is_array($this->settings)){
+            $this->settings = json_decode($this->settings);
+        }
         
         if ($this->settings['allowedgid'] && is_array($this->settings['allowedgid']))
         {
