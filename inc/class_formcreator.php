@@ -645,6 +645,11 @@ class formcreator
         }
         else
         {
+            $user = $mybb->user;
+            unset($user['password']);
+            unset($user['salt']);
+            unset($user['loginkey']);
+            
             $username = $mybb->user['username'];
             $uid = $mybb->user['uid'];
             $fieldname = $this->get_field_names();
