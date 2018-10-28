@@ -190,3 +190,5 @@ $l['fc_field_resize_desc'] = "Stel in of the gebruiker het veld kan vergroten / 
 $l['fc_prefixes'] = "Beschikbare voor voegingen";
 $l['fc_no_prefixes'] = "- Geen voorvoeging beschikbaar -";
 $l['fc_field_prefixes_desc'] = "Selecteer de voor voegingen die beschikbaar worden gemaakt voor de gebruiker. Zorg er voor dat de voor voegingen gebruikt mogen worden op het specifieke onderwerp of forum!";
+$l['fc_custom_denied_message'] = "Aangepaste toegang geweigerd bericht";
+$l['fc_custom_denied_message_desc'] = "Vul een aangepast bericht in voor gebruikers die geen toegang hebben om het formulier te openen. Laat dit leeg om het standaard bericht te gebruiken (HTML is ingeschakeld)";
