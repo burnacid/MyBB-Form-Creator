@@ -76,6 +76,10 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $files = array_merge($files, reArrayFiles($_FILES["field_" . $field->fieldid], count($files)));
                     }elseif($field->required){
                         $error_array[] = $lang->fc_no_attachment;
+                    }elseif(empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13 && !$field->required){
+                        # No action if no files are submitted
+                    }elseif(empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14 && !$field->required){
+                        # No action if no files are submitted
                     }else{
                         $error_array[] = $lang->fc_oops;
                     }
