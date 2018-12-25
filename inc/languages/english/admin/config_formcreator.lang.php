@@ -201,5 +201,7 @@ $l['admin_log_config_formcreator_delete'] = 'Deleted form #{1} ({2})';
 $l['admin_log_config_formcreator_addfield'] = 'Added field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_editfield'] = 'Edited field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_deletefield'] = 'Deleted field #{2} ({3}) in form #{1}';
+$l['fc_summary_parsed'] = "Used parsed output as summary (preview output)?";
+$l['fc_summary_parsed_desc'] = "Parse the data as the output used to create a thread, post or PM";
 
 ?>

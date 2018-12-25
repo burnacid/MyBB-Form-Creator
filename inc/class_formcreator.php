@@ -183,25 +183,45 @@ class formcreator
     {
         global $templates, $stylelabelwidth;
         $output = "";
-        foreach ($this->fields as $field) {
-            $fieldname = $field->name;
-            $fieldoutput = "";
-            if ($field->required) {
-                $fieldname .= "<em>*</em>";
-            }
+        
+        if($this->settings['summaryparsed']){
+            $parser = new postParser;
 
-            if ($field->description) {
-                $fielddescription = "<br /><small>" . $field->description . "</small>";
-            } else {
-                $fielddescription = "";
+            $parser_options = array(
+                'allow_html' => 'no',
+                'allow_mycode' => 'yes',
+                'allow_smilies' => 'yes',
+                'allow_imgcode' => 'yes',
+                'filter_badwords' => 'yes',
+                'nl2br' => 1);
+
+            $output = $parser->parse_message($this->parse_output(), $parser_options);;
+        }else{
+            foreach ($this->fields as $field) {
+                $fieldname = $field->name;
+                $fieldoutput = "";
+                if ($field->required) {
+                    $fieldname .= "<em>*</em>";
+                }
+    
+                if ($field->description) {
+                    $fielddescription = "<br /><small>" . $field->description . "</small>";
+                } else {
+                    $fielddescription = "";
+                }
+                
+                if(is_array($field->default)){
+                    $fieldoutput = implode(", ", $field->default);
+                }else{
+                    $fieldoutput = $field->default;
+                }
+                
+                
+                if(!in_array($field->type,array(8,9,10,11,12,13,14))){
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
+                }
+                
             }
-            
-            $fieldoutput = $field->default;
-            
-            if(!in_array($field->type,array(8,9,10,11,12,13,14))){
-                eval('$output .= "' . $templates->get("formcreator_field") . '";');
-            }
-            
         }
         
         return $output;
@@ -328,6 +348,27 @@ class formcreator
             } else {
                 return true;
             }
+        }
+    }
+    
+    public function check_summary()
+    {
+        global $mybb;
+        
+        if($mybb->request_method == "post"){
+            if($formcreator->settings['showsummary'] == 1 or (!empty($mybb->input['formdata']['data']) && !empty($mybb->input['formdata']['checksum']))){
+                if (hash("SHA256",$mybb->input['formdata']['data']) == $mybb->input['formdata']['checksum']){
+                    return true;
+                }else{
+                    return false;
+                }
+            }elseif($formcreator->settings['showsummary'] == 0){
+                return true;
+            }else{
+                return "show";
+            }
+        }else{
+            return false;
         }
     }
 

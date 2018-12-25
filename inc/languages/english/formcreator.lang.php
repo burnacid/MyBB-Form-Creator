@@ -18,5 +18,6 @@ $l['fc_select_option'] = "Select option";
 $l['fc_no_option_selected'] = "no option was selected";
 $l['fc_oops'] = "Oops something went wrong. Please try again later or contact your system administrator.";
 $l['fc_summary'] = "Summary Page";
+$l['fc_summary_error'] = "The submitted data seemed corrupt. Please try again later or contact your system administrator.";
 
 ?>
