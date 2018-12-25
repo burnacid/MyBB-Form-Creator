@@ -355,21 +355,27 @@ class formcreator
     {
         global $mybb;
         
-        if($mybb->request_method == "post"){
-            if($formcreator->settings['showsummary'] == 1 or (!empty($mybb->input['formdata']['data']) && !empty($mybb->input['formdata']['checksum']))){
-                if (hash("SHA256",$mybb->input['formdata']['data']) == $mybb->input['formdata']['checksum']){
-                    return true;
-                }else{
-                    return false;
-                }
-            }elseif($formcreator->settings['showsummary'] == 0){
-                return true;
+        if($this->settings['showsummary'] == 1){
+            if(empty($mybb->input['formdata']['data']) or empty($mybb->input['formdata']['checksum'])){
+                return 2;
             }else{
-                return "show";
+                if (hash("SHA256",$mybb->input['formdata']['data']) == $mybb->input['formdata']['checksum']){
+                    return 1;
+                }else{
+                    return 0;
+                }
             }
         }else{
-            return false;
+            return 1;
         }
+
+            if(!empty($mybb->input['formdata']['data']) && !empty($mybb->input['formdata']['checksum'])){
+                
+            }elseif($this->settings['showsummary'] == 0){
+                return 1;
+            }else{
+                return 2;
+            }
     }
 
     public function get_type_name($type)

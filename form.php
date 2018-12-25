@@ -44,6 +44,16 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             $files = array();
             $prefix = ""; 
             
+            if($formcreator->check_summary() == 0){
+                $error_array[] = $lang->fc_summary_error;
+            }elseif($formcreator->check_summary() == 1 && $formcreator->settings['showsummary'] == 1){
+                $forminput = json_decode($mybb->input['formdata']['data']);
+                
+                foreach($forminput as $key => $value){
+                    $mybb->input[$key] = $value;
+                }
+            }
+            
             foreach ($formcreator->fields as $field) {
                 $field->default = $mybb->input["field_" . $field->fieldid];
 
@@ -110,19 +120,23 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     }
                 }
             }
-            
-            if($formcreator->check_summary() == false){
-                $error_array[] = $lang->fc_summary_error;
-            }
                 
             if (count($error_array) != 0) {
                 $errors = inline_error($error_array);
                 if(count($files) != 0){
                     remove_attachments(0,$posthash);
                 }
-            } elseif ($formcreator->settings['showsummary'] == 1 && $formcreator->check_summary() == "show") {
+            } elseif ($formcreator->settings['showsummary'] == 1 && $formcreator->check_summary() == 2) {
                 $display = false;
                 $formtitle = $formcreator->name;
+                
+                $input = array();
+                foreach($formcreator->fields as $field){
+                    $input['field_' . $field->fieldid] = $field->default;
+                }
+                
+                $json_data = json_encode($input);
+                $checksum = hash("SHA256", $json_data);
                 
                 $formcontent = "";
                 
@@ -131,6 +145,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
                 
                 $formcontent .= '<tr><td class="trow1" colspan="2">'.$formcreator->build_summary().'</td></tr>';
+                $formcontent .= '<tr><td class="trow1" colspan="2"><form method="post" action=""><input value="'.$checksum.'" name="formdata[checksum]" type="hidden" /><input value=\''.$json_data.'\' name="formdata[data]" type="hidden" /><input type="button" value="Back"/><input type="submit" value="Confirm" /></form></td></tr>';
                 
                 
             } else {
