@@ -50,6 +50,8 @@ $l['fc_allow_selected_groups'] = "Allow selected groups";
 $l['fc_allow_unselected_groups'] = "Allow all BUT selected groups";
 $l['fc_allowed_groups'] = "Allowed Groups";
 $l['fc_allowed_groups_desc'] = "Which groups are allowed to use this form";
+$l['fc_custom_denied_message'] = "Custom Denied Message";
+$l['fc_custom_denied_message_desc'] = "Enter in a custom message users will get when they are not allowed access the form. Leave empty to use the default (HTML enabled)";
 $l['fc_limitusage'] = "Usage limit";
 $l['fc_limitusage_desc'] = "Enter the maximun number of times a user can fill in the form (0 = unlimited).";
 $l['fc_status'] = "Status";
@@ -72,6 +74,10 @@ $l['fc_process_post_as'] = "Post as user";
 $l['fc_process_post_as_desc'] = "Which user is used to post a thread, post or reply. (leave empty to use the user who submits the form, set to -1 to use the Form Creator Bot as user)";
 $l['fc_override_button'] = "Override post button";
 $l['fc_override_button_desc'] = "Change the create new thread or post reply button to link to the form. Only useful when set to post a new thread or reply.";
+$l['fc_show_summary'] = "Show Summary Page";
+$l['fc_show_summary_desc'] = "Shows a summary page of the input before finally submitting the data.";
+$l['fc_custom_summary_text'] = "Custom Summary Message";
+$l['fc_custom_summary_text_desc'] = "Enter in a custom summary page message that you like to display at the top of the summary page. Will only be used when the summary page is enabled. Leave empty uses a default message (HTML is enabled)";
 $l['fc_process_signature'] = "Post Signature";
 $l['fc_process_signature_desc'] = "Set whether or not the users signature is posted within the thread or post.";
 $l['fc_process_posticon'] = "Post Icon";
@@ -195,5 +201,8 @@ $l['admin_log_config_formcreator_delete'] = 'Deleted form #{1} ({2})';
 $l['admin_log_config_formcreator_addfield'] = 'Added field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_editfield'] = 'Edited field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_deletefield'] = 'Deleted field #{2} ({3}) in form #{1}';
+$l['fc_summary_parsed'] = "Used parsed output as summary (preview output)?";
+$l['fc_summary_parsed_desc'] = "Parse the data as the output used to create a thread, post or PM";
+$l['fc_error_missing_template'] = "You are missing a template. Please deactivate the Form Creator and reactivate it to update the templates.";
 
 ?>

@@ -155,16 +155,13 @@ class formcreator
     {
         global $db;
         $query = $db->simple_select("fc_forms", "*", "formid = " . intval($formid));
-        if ($db->num_rows($query) == 1)
-        {
+        if ($db->num_rows($query) == 1) {
             $formdata = $db->fetch_array($query);
             $formdata['allowedgid'] = explode(",", $formdata['allowedgid']);
             $formdata['pmgroups'] = explode(",", $formdata['pmgroups']);
             $this->load_data($formdata);
             return $formdata;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -173,10 +170,8 @@ class formcreator
     {
         $tabledata = $this->formcreator_fields[$table];
 
-        foreach ($tabledata as $field)
-        {
-            if ($field['Field'] == $fieldname)
-            {
+        foreach ($tabledata as $field) {
+            if ($field['Field'] == $fieldname) {
                 return true;
             }
         }
@@ -184,30 +179,72 @@ class formcreator
         return false;
     }
 
+    public function build_summary()
+    {
+        global $templates, $stylelabelwidth;
+        $output = "";
+        
+        if($this->settings['summaryparsed']){
+            $parser = new postParser;
+
+            $parser_options = array(
+                'allow_html' => 'no',
+                'allow_mycode' => 'yes',
+                'allow_smilies' => 'yes',
+                'allow_imgcode' => 'yes',
+                'filter_badwords' => 'yes',
+                'nl2br' => 1);
+
+            $output = $parser->parse_message($this->parse_output(), $parser_options);;
+        }else{
+            foreach ($this->fields as $field) {
+                $fieldname = $field->name;
+                $fieldoutput = "";
+                if ($field->required) {
+                    $fieldname .= "<em>*</em>";
+                }
+    
+                if ($field->description) {
+                    $fielddescription = "<br /><small>" . $field->description . "</small>";
+                } else {
+                    $fielddescription = "";
+                }
+                
+                if(is_array($field->default)){
+                    $fieldoutput = implode(", ", $field->default);
+                }else{
+                    $fieldoutput = $field->default;
+                }
+                
+                
+                if(!in_array($field->type,array(8,9,10,11,12,13,14))){
+                    eval('$output .= "' . $templates->get("formcreator_field") . '";');
+                }
+                
+            }
+        }
+        
+        return $output;
+    }
+
     public function build_form()
     {
         global $templates, $stylelabelwidth;
         $output = "";
-        foreach ($this->fields as $field)
-        {
+        foreach ($this->fields as $field) {
             $fieldname = $field->name;
             $fieldoutput = "";
-            if ($field->required)
-            {
+            if ($field->required) {
                 $fieldname .= "<em>*</em>";
             }
 
-            if ($field->description)
-            {
+            if ($field->description) {
                 $fielddescription = "<br /><small>" . $field->description . "</small>";
-            }
-            else
-            {
+            } else {
                 $fielddescription = "";
             }
 
-            switch ($field->type)
-            {
+            switch ($field->type) {
                 case 1:
                     $fieldoutput = $field->output_textbox();
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
@@ -237,13 +274,11 @@ class formcreator
                     eval('$output .= "' . $templates->get("formcreator_field") . '";');
                     break;
                 case 8:
-                    if ($this->settings['width'])
-                    {
+                    if ($this->settings['width']) {
                         $stylewidth = "width:" . $this->settings['width'] . ";";
                     }
 
-                    if ($this->class)
-                    {
+                    if ($this->class) {
                         $styleclass = $this->class;
                     }
 
@@ -290,53 +325,64 @@ class formcreator
     public function check_allowed()
     {
         global $mybb;
-        if ($this->settings['allowedgidtype'] == -1)
-        {
+        if ($this->settings['allowedgidtype'] == -1) {
             return true;
         }
 
-        if (!empty($mybb->user['additionalgroups']))
-        {
+        if (!empty($mybb->user['additionalgroups'])) {
             $current_groups = $mybb->user['additionalgroups'] . "," . $mybb->user['usergroup'];
-        }
-        else
-        {
+        } else {
             $current_groups = $mybb->user['usergroup'];
         }
 
         $current_groups = explode(",", $current_groups);
-        if (array_intersect($this->settings['allowedgid'], $current_groups))
-        {
-            if ($this->settings['allowedgidtype'] == 0)
-            {
+        if (array_intersect($this->settings['allowedgid'], $current_groups)) {
+            if ($this->settings['allowedgidtype'] == 0) {
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
-        }
-        else
-        {
-            if ($this->settings['allowedgidtype'] == 0)
-            {
+        } else {
+            if ($this->settings['allowedgidtype'] == 0) {
                 return false;
-            }
-            else
-            {
+            } else {
                 return true;
             }
         }
     }
+    
+    public function check_summary()
+    {
+        global $mybb;
+        
+        if($this->settings['showsummary'] == 1){
+            if(empty($mybb->input['formdata']['data']) or empty($mybb->input['formdata']['checksum'])){
+                return 2;
+            }else{
+                if (hash("SHA256",$mybb->input['formdata']['data']) == $mybb->input['formdata']['checksum']){
+                    return 1;
+                }else{
+                    return 0;
+                }
+            }
+        }else{
+            return 1;
+        }
+
+            if(!empty($mybb->input['formdata']['data']) && !empty($mybb->input['formdata']['checksum'])){
+                
+            }elseif($this->settings['showsummary'] == 0){
+                return 1;
+            }else{
+                return 2;
+            }
+    }
 
     public function get_type_name($type)
     {
-        if (key_exists(intval($type), $this->types))
-        {
+        if (key_exists(intval($type), $this->types)) {
             return $this->types[intval($type)];
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -344,25 +390,20 @@ class formcreator
     public function insert_form()
     {
         global $db;
-        if ($this->settings['allowedgid'] && is_array($this->settings['allowedgid']))
-        {
+        if ($this->settings['allowedgid'] && is_array($this->settings['allowedgid'])) {
             $this->settings['allowedgid'] = implode(",", $this->settings['allowedgid']);
         }
 
-        if ($this->settings['pmgroups'] && is_array($this->settings['pmgroups']))
-        {
+        if ($this->settings['pmgroups'] && is_array($this->settings['pmgroups'])) {
             $this->settings['pmgroups'] = implode(",", $this->settings['pmgroups']);
         }
 
         $this->escape_data();
         $result = $db->insert_query("fc_forms", $this->get_data());
-        if ($result)
-        {
+        if ($result) {
             $this->formid = $result;
             return $result;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -370,70 +411,63 @@ class formcreator
     public function update_template()
     {
         global $db;
-        
-        $this->settings = json_decode($this->settings);
-        
-        if ($this->settings['allowedgid'] && is_array($this->settings['allowedgid']))
-        {
+
+        if (!is_array($this->settings)) {
+            $this->settings = json_decode($this->settings);
+        }
+
+        if ($this->settings['allowedgid'] && is_array($this->settings['allowedgid'])) {
             $this->settings['allowedgid'] = implode(",", $this->settings['allowedgid']);
         }
 
-        if ($this->settings['pmgroups'] && is_array($this->settings['pmgroups']))
-        {
+        if ($this->settings['pmgroups'] && is_array($this->settings['pmgroups'])) {
             $this->settings['pmgroups'] = implode(",", $this->settings['pmgroups']);
         }
 
         $this->escape_data();
-        if (empty($this->subjecttemplate))
-        {
+        if (empty($this->subjecttemplate)) {
             $this->subjecttemplate = "";
         }
 
-        if (empty($this->messagetemplate))
-        {
+        if (empty($this->messagetemplate)) {
             $this->messagetemplate = "";
         }
 
-        $template_data = array("subjecttemplate" => $this->subjecttemplate, "messagetemplate" => $this->messagetemplate);
-        $result = $db->update_query("fc_forms", $template_data, "formid = " . $this->formid);
+        $template_data = array("subjecttemplate" => $this->subjecttemplate,
+                "messagetemplate" => $this->messagetemplate);
+        $result = $db->update_query("fc_forms", $template_data, "formid = " . $this->
+            formid);
         return $result;
     }
 
     public function update_form()
     {
         global $db;
-        if ($this->settings['allowedgid'])
-        {
+        if ($this->settings['allowedgid']) {
             $this->settings['allowedgid'] = implode(",", $this->settings['allowedgid']);
         }
 
-        if ($this->settings['pmgroups'])
-        {
+        if ($this->settings['pmgroups']) {
             $this->settings['pmgroups'] = implode(",", $this->settings['pmgroups']);
         }
 
         $this->escape_data();
-        $result = $db->update_query("fc_forms", $this->get_data(), "formid = " . $this->formid);
+        $result = $db->update_query("fc_forms", $this->get_data(), "formid = " . $this->
+            formid);
         return $result;
     }
 
     public function delete_form()
     {
         global $db;
-        if ($db->delete_query("fc_fields", "formid = " . $this->formid))
-        {
-            if ($db->delete_query("fc_forms", "formid = " . $this->formid))
-            {
+        if ($db->delete_query("fc_fields", "formid = " . $this->formid)) {
+            if ($db->delete_query("fc_forms", "formid = " . $this->formid)) {
                 $db->delete_query("fc_formusage", "formid = " . $this->formid);
                 return true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
-        }
-        else
-        {
+        } else {
             return false;
         }
 
@@ -465,29 +499,25 @@ class formcreator
         $this->class = $data['class'];
         $this->subjecttemplate = $data['subjecttemplate'];
         $this->messagetemplate = $data['messagetemplate'];
-        
-        if (!is_array($data['settings']))
-        {
+
+        if (!is_array($data['settings'])) {
             $this->settings = json_decode($data['settings'], true);
-        }
-        else
-        {
+        } else {
             $this->settings = $data['settings'];
         }
-        
-        if(!is_array($this->settings['allowedgid'])){
-            $this->settings['allowedgid'] = explode(',',$this->settings['allowedgid']);
+
+        if (!is_array($this->settings['allowedgid'])) {
+            $this->settings['allowedgid'] = explode(',', $this->settings['allowedgid']);
         }
-        
-        if(!is_array($this->settings['pmgroups'])){
-            $this->settings['pmgroups'] = explode(',',$this->settings['pmgroups']);
+
+        if (!is_array($this->settings['pmgroups'])) {
+            $this->settings['pmgroups'] = explode(',', $this->settings['pmgroups']);
         }
     }
 
     public function get_data()
     {
-        if ($this->formid)
-        {
+        if ($this->formid) {
             $data['formid'] = $this->formid;
         }
 
@@ -504,23 +534,20 @@ class formcreator
     public function get_fields()
     {
         global $db;
-        $query = $db->simple_select("fc_fields", "*", "formid = " . intval($this->formid), array("order_by" => "`order`"));
-        
+        $query = $db->simple_select("fc_fields", "*", "formid = " . intval($this->
+            formid), array("order_by" => "`order`"));
+
         $this->fields = array();
-        
-        while ($field_data = $db->fetch_array($query))
-        {
+
+        while ($field_data = $db->fetch_array($query)) {
             $field = new formcreator_field();
             $field->load_data($field_data);
             $this->fields[] = $field;
         }
 
-        if (count($this->fields) != 0)
-        {
+        if (count($this->fields) != 0) {
             return $this->fields;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -532,24 +559,18 @@ class formcreator
 
     public function is_error()
     {
-        if (empty($this->error))
-        {
+        if (empty($this->error)) {
             return false;
-        }
-        else
-        {
+        } else {
             return $this->error;
         }
     }
 
     public function add_error($string)
     {
-        if ($this->error == "")
-        {
+        if ($this->error == "") {
             $this->error = $string;
-        }
-        else
-        {
+        } else {
             $this->error .= "<br />" . $string;
         }
     }
@@ -557,14 +578,14 @@ class formcreator
     public function order_field($fieldid, $order)
     {
         global $db;
-        return $db->update_query("fc_fields", array("order" => intval($order)), "fieldid = " . intval($fieldid) . " and formid = " . $this->formid);
+        return $db->update_query("fc_fields", array("order" => intval($order)),
+            "fieldid = " . intval($fieldid) . " and formid = " . $this->formid);
     }
 
     public function get_field_names()
     {
         $result = array();
-        foreach ($this->fields as $field)
-        {
+        foreach ($this->fields as $field) {
             $result[$field->fieldid] = $field->name;
         }
 
@@ -575,16 +596,13 @@ class formcreator
     {
         global $mybb;
         $result = array();
-        foreach ($this->fields as $field)
-        {
+        foreach ($this->fields as $field) {
             $value = $mybb->input['field_' . $field->fieldid];
-            if (is_array($value))
-            {
+            if (is_array($value)) {
                 $value = implode(",", $value);
             }
 
-            if (empty($value))
-            {
+            if (empty($value)) {
                 $value = "Unknown";
             }
 
@@ -597,12 +615,9 @@ class formcreator
     public function parse_subject()
     {
         global $templates, $mybb, $ref;
-        if (empty($this->subjecttemplate))
-        {
+        if (empty($this->subjecttemplate)) {
             $output = "Form submission: " . $this->name;
-        }
-        else
-        {
+        } else {
             $this->subjecttemplate = str_replace('"', '\"', $this->subjecttemplate);
             $username = $mybb->user['username'];
             $uid = $mybb->user['uid'];
@@ -611,38 +626,38 @@ class formcreator
             $fieldvalue = $this->get_field_values();
             eval("\$output = \"" . $this->subjecttemplate . "\";");
         }
-        
-        return substr($output,0,80);
+
+        return substr($output, 0, 80);
     }
 
     public function parse_output()
     {
         global $db, $mybb, $ref;
         $output = "";
-        if (empty($this->messagetemplate))
-        {
-            foreach ($this->fields as $field)
-            {
+        if (empty($this->messagetemplate)) {
+            foreach ($this->fields as $field) {
                 if (in_array($field->type, array(
                     1,
                     2,
                     5,
                     7,
-                    15)))
-                {
-                    $output .= "[b]" . $field->name . "[/b]: " . $mybb->input["field_" . $field->fieldid] . "\n[hr]";
-                }
-                elseif (in_array($field->type, array(
+                    15))) {
+                    $output .= "[b]" . $field->name . "[/b]: " . $mybb->input["field_" . $field->
+                        fieldid] . "\n[hr]";
+                } elseif (in_array($field->type, array(
                     4,
                     6,
-                    3)))
-                {
-                    $output .= "[b]" . $field->name . "[/b]: " . implode(",", $mybb->input["field_" . $field->fieldid]) . "\n[hr]";
+                    3))) {
+                    $output .= "[b]" . $field->name . "[/b]: " . implode(",", $mybb->input["field_" .
+                        $field->fieldid]) . "\n[hr]";
                 }
             }
-        }
-        else
-        {
+        } else {
+            $user = $mybb->user;
+            unset($user['password']);
+            unset($user['salt']);
+            unset($user['loginkey']);
+
             $username = $mybb->user['username'];
             $uid = $mybb->user['uid'];
             $fieldname = $this->get_field_names();
@@ -658,16 +673,14 @@ class formcreator
     {
         global $db;
 
-        $query = $db->simple_select("fc_formusage", "*", "formid = '" . $this->formid . "'", array(
+        $query = $db->simple_select("fc_formusage", "*", "formid = '" . $this->formid .
+            "'", array(
             "order_by" => "ref",
             "order_dir" => "DESC",
             "LIMIT" => 1));
-        if ($db->num_rows($query) != 0)
-        {
+        if ($db->num_rows($query) != 0) {
             $lastrow = $db->fetch_array($query);
-        }
-        else
-        {
+        } else {
             $lastrow = 0;
         }
 
@@ -690,20 +703,17 @@ class formcreator
     {
         global $db, $mybb;
 
-        if ($this->settings['limitusage'] == 0)
-        {
+        if ($this->settings['limitusage'] == 0) {
             return false;
         }
 
-        $query = $db->simple_select("fc_formusage", "*", "formid = '" . $this->formid . "' AND uid = '" . $mybb->user['uid'] . "'");
+        $query = $db->simple_select("fc_formusage", "*", "formid = '" . $this->formid .
+            "' AND uid = '" . $mybb->user['uid'] . "'");
         $timesused = $db->num_rows($query);
 
-        if ($timesused >= $this->settings['limitusage'])
-        {
+        if ($timesused >= $this->settings['limitusage']) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -758,20 +768,16 @@ class formcreator_field
         $this->order = $data['order'];
         $this->class = $data['class'];
 
-        if (!is_array($data['settings']))
-        {
+        if (!is_array($data['settings'])) {
             $this->settings = json_decode($data['settings'], true);
-        }
-        else
-        {
+        } else {
             $this->settings = $data['settings'];
         }
     }
 
     public function get_data()
     {
-        if ($this->fieldid)
-        {
+        if ($this->fieldid) {
             $data['fieldid'] = $this->fieldid;
         }
 
@@ -789,10 +795,8 @@ class formcreator_field
 
     public function show_admin_field($name)
     {
-        if ($this->type)
-        {
-            if ($this->type == 1)
-            {
+        if ($this->type) {
+            if ($this->type == 1) {
                 $show = array(
                     "name",
                     "description",
@@ -803,9 +807,7 @@ class formcreator_field
                     "regex",
                     "size",
                     "class");
-            }
-            elseif ($this->type == 2)
-            {
+            } elseif ($this->type == 2) {
                 $show = array(
                     "name",
                     "description",
@@ -818,18 +820,14 @@ class formcreator_field
                     "rows",
                     "resize",
                     "class");
-            }
-            elseif ($this->type == 3)
-            {
+            } elseif ($this->type == 3) {
                 $show = array(
                     "name",
                     "description",
                     "options",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 4)
-            {
+            } elseif ($this->type == 4) {
                 $show = array(
                     "name",
                     "description",
@@ -837,27 +835,21 @@ class formcreator_field
                     "required",
                     "class",
                     "size");
-            }
-            elseif ($this->type == 5)
-            {
+            } elseif ($this->type == 5) {
                 $show = array(
                     "name",
                     "description",
                     "options",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 6)
-            {
+            } elseif ($this->type == 6) {
                 $show = array(
                     "name",
                     "description",
                     "options",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 7)
-            {
+            } elseif ($this->type == 7) {
                 $show = array(
                     "name",
                     "description",
@@ -865,72 +857,50 @@ class formcreator_field
                     "default",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 8)
-            {
+            } elseif ($this->type == 8) {
                 $show = array("name");
-            }
-            elseif ($this->type == 9)
-            {
+            } elseif ($this->type == 9) {
                 $show = array("name", "description");
-            }
-            elseif ($this->type == 10)
-            {
+            } elseif ($this->type == 10) {
                 $show = array(
                     "name",
                     "html",
                     "class");
-            }
-            elseif ($this->type == 11)
-            {
+            } elseif ($this->type == 11) {
                 $show = array("name", "class");
-            }
-            elseif ($this->type == 12)
-            {
+            } elseif ($this->type == 12) {
                 $show = array("name");
-            }
-            elseif ($this->type == 13)
-            {
+            } elseif ($this->type == 13) {
                 $show = array(
                     "name",
                     "description",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 14)
-            {
+            } elseif ($this->type == 14) {
                 $show = array(
                     "name",
                     "description",
                     "required",
                     "class");
-            }
-            elseif ($this->type == 15)
-            {
+            } elseif ($this->type == 15) {
                 $show = array(
                     "name",
                     "description",
                     "required",
                     "rows");
-            }
-            elseif ($this->type == 16)
-            {
+            } elseif ($this->type == 16) {
                 $show = array(
                     "name",
                     "description",
                     "selector",
                     "required",
                     "class");
-            }
-            else
-            {
+            } else {
                 $show = array();
             }
 
             return in_array($name, $show);
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -942,24 +912,18 @@ class formcreator_field
 
     public function is_error()
     {
-        if (empty($this->error))
-        {
+        if (empty($this->error)) {
             return false;
-        }
-        else
-        {
+        } else {
             return $this->error;
         }
     }
 
     public function add_error($string)
     {
-        if ($this->error == "")
-        {
+        if ($this->error == "") {
             $this->error = $string;
-        }
-        else
-        {
+        } else {
             $this->error .= "<br />" . $string;
         }
     }
@@ -968,25 +932,20 @@ class formcreator_field
     {
         global $db;
         $this->escape_data();
-        $query = $db->simple_select("fc_fields", "`order`", "formid = " . $this->formid, array("order_by" => "`order`", "order_dir" => "DESC"));
-        if ($db->num_rows($query) == 0)
-        {
+        $query = $db->simple_select("fc_fields", "`order`", "formid = " . $this->formid,
+            array("order_by" => "`order`", "order_dir" => "DESC"));
+        if ($db->num_rows($query) == 0) {
             $this->order = 0;
-        }
-        else
-        {
+        } else {
             $lastfield = $db->fetch_array($query);
             $this->order = $lastfield['order'] + 1;
         }
 
         $result = $db->insert_query("fc_fields", $this->get_data());
-        if ($result)
-        {
+        if ($result) {
             $this->fieldid = $result;
             return $result;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -998,19 +957,17 @@ class formcreator_field
         $old = new formcreator_field();
         $old_data = $old->get_field($this->fieldid);
         $this->order = $old_data['order'];
-        $result = $db->update_query("fc_fields", $this->get_data(), "fieldid = " . $this->fieldid);
+        $result = $db->update_query("fc_fields", $this->get_data(), "fieldid = " . $this->
+            fieldid);
         return $result;
     }
 
     public function delete_field()
     {
         global $db;
-        if ($db->delete_query("fc_fields", "fieldid = " . $this->fieldid))
-        {
+        if ($db->delete_query("fc_fields", "fieldid = " . $this->fieldid)) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
 
@@ -1020,74 +977,65 @@ class formcreator_field
     {
         global $db;
         $query = $db->simple_select("fc_fields", "*", "fieldid = " . intval($fieldid));
-        if ($db->num_rows($query) == 1)
-        {
+        if ($db->num_rows($query) == 1) {
             $fielddata = $db->fetch_array($query);
             $this->load_data($fielddata);
             return $fielddata;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
     public function output_textbox()
     {
-        if ($this->settings['size'])
-        {
+        if ($this->settings['size']) {
             $size = "size='" . $this->settings['size'] . "'";
         }
 
-        if ($this->settings['placeholder'])
-        {
+        if ($this->settings['placeholder']) {
             $placeholder = "placeholder ='" . $this->settings['placeholder'] . "'";
         }
 
-        if ($this->settings['maxlength'] != 0)
-        {
+        if ($this->settings['maxlength'] != 0) {
             $maxlength = "maxlength ='" . $this->settings['maxlength'] . "'";
         }
 
-        return "<input type='text' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='textbox " . $this->class . "' " . $size . " " . $placeholder .
+        return "<input type='text' value='" . $this->default . "' name='field_" . $this->
+            fieldid . "' class='textbox " . $this->class . "' " . $size . " " . $placeholder .
             " " . $maxlength . " />";
     }
 
     public function output_textarea()
     {
-        if ($this->class)
-        {
+        if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
 
-        if ($this->settings['rows'])
-        {
+        if ($this->settings['rows']) {
             $rows = "rows='" . $this->settings['rows'] . "'";
         }
 
-        if ($this->settings['cols'])
-        {
+        if ($this->settings['cols']) {
             $cols = "cols='" . $this->settings['cols'] . "'";
         }
 
-        if ($this->settings['placeholder'])
-        {
+        if ($this->settings['placeholder']) {
             $placeholder = "placeholder ='" . $this->settings['placeholder'] . "'";
         }
 
-        if ($this->settings['maxlength'] != 0)
-        {
+        if ($this->settings['maxlength'] != 0) {
             $maxlength = "maxlength ='" . $this->settings['maxlength'] . "'";
         }
-        
-        
-        if($this->settings['resize'] == 1){
+
+
+        if ($this->settings['resize'] == 1) {
             $resize = "style='resize: both;'";
-        }else{
+        } else {
             $resize = "style='resize: none;'";
         }
 
-        return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows . " " . $cols . " " . $placeholder . " " . $maxlength . " " . $resize . ">" . $this->
+        return "<textarea name='field_" . $this->fieldid . "' " . $class . " " . $rows .
+            " " . $cols . " " . $placeholder . " " . $maxlength . " " . $resize . ">" . $this->
             default . "</textarea>";
     }
 
@@ -1096,85 +1044,72 @@ class formcreator_field
         global $lang;
 
         $options = explode("\n", $this->settings['options']);
-        if ($this->class)
-        {
+        if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
 
-        if ($multi)
-        {
+        if ($multi) {
             $multi = "multiple='multiple'";
         }
 
-        if ($this->settings['size'] != 0)
-        {
+        if ($this->settings['size'] != 0) {
             $size = "size='" . $this->settings['size'] . "'";
         }
 
-        $output = "<select name='field_" . $this->fieldid . "[]' " . $class . " " . $multi . " " . $size . ">";
-        if (!$multi)
-        {
+        $output = "<select name='field_" . $this->fieldid . "[]' " . $class . " " . $multi .
+            " " . $size . ">";
+        if (!$multi) {
             $output .= "<option value=''>- " . $lang->fc_select_option . " -</option>";
         }
 
-        foreach ($options as $option)
-        {
-            if (is_array($this->default))
-            {
-                if (in_array(trim($option), $this->default))
-                {
+        foreach ($options as $option) {
+            if (is_array($this->default)) {
+                if (in_array(trim($option), $this->default)) {
                     $selected = "selected='selected'";
-                }
-                else
-                {
+                } else {
                     $selected = "";
                 }
             }
 
-            $output .= "<option value='" . trim($option) . "' " . $selected . ">" . $option . "</option>";
+            $output .= "<option value='" . trim($option) . "' " . $selected . ">" . $option .
+                "</option>";
         }
 
         $output .= "</select>";
         return $output;
     }
-    
+
     public function output_prefix()
     {
         global $lang;
 
-        if ($this->class)
-        {
+        if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
 
-        if ($this->settings['size'] != 0)
-        {
+        if ($this->settings['size'] != 0) {
             $size = "size='" . $this->settings['size'] . "'";
         }
 
-        $output = "<select name='field_" . $this->fieldid . "' " . $class . " " . $multi . " " . $size . ">";
-        if (!$multi)
-        {
+        $output = "<select name='field_" . $this->fieldid . "' " . $class . " " . $multi .
+            " " . $size . ">";
+        if (!$multi) {
             $output .= "<option value=''>- " . $lang->fc_select_option . " -</option>";
         }
-        
+
         $prefixes = build_prefixes();
 
-        foreach ($this->settings['selector'] as $option)
-        {
-            if (is_array($this->default))
-            {
-                if (in_array(trim($option), $this->default))
-                {
+        foreach ($this->settings['selector'] as $option) {
+            if (is_array($this->default)) {
+                if (in_array(trim($option), $this->default)) {
                     $selected = "selected='selected'";
-                }
-                else
-                {
+                } else {
                     $selected = "";
                 }
             }
 
-            $output .= "<option value='" . trim($option) . "' " . $selected . ">" . $prefixes[$option]['prefix'] . "</option>";
+            $output .= "<option value='" . trim($option) . "' " . $selected . ">" . $prefixes[$option]['prefix'] .
+                "</option>";
         }
 
         $output .= "</select>";
@@ -1183,23 +1118,20 @@ class formcreator_field
 
     public function output_dateselect()
     {
-        if ($this->class)
-        {
+        if ($this->class) {
             $class = $this->class;
         }
 
-        $output = "<input type='text' id='field_" . $this->fieldid . "' value='" . $this->default . "' name='field_" . $this->fieldid .
-            "' class='textbox dateselect " . $this->class . "' />";
-        if (empty($this->settings['format']))
-        {
+        $output = "<input type='text' id='field_" . $this->fieldid . "' value='" . $this->
+            default . "' name='field_" . $this->fieldid . "' class='textbox dateselect " . $this->
+            class . "' />";
+        if (empty($this->settings['format'])) {
             $output .= "<script>
         	  $( function() {
         		$( \"#field_" . $this->fieldid . "\" ).datepicker();
         	  } );
           </script>";
-        }
-        else
-        {
+        } else {
             $output .= "<script>
         	  $( function() {
         		$( \"#field_" . $this->fieldid . "\" ).datepicker({
@@ -1215,12 +1147,10 @@ class formcreator_field
 
     public function output_header()
     {
-        if ($this->description)
-        {
-            return "<strong>" . $this->name . "</strong><br /><small>" . $this->description . "</small>";
-        }
-        else
-        {
+        if ($this->description) {
+            return "<strong>" . $this->name . "</strong><br /><small>" . $this->description .
+                "</small>";
+        } else {
             return "<strong>" . $this->name . "</strong>";
         }
     }
@@ -1228,25 +1158,22 @@ class formcreator_field
     public function output_radio()
     {
         $options = explode("\n", $this->settings['options']);
-        if ($this->class)
-        {
+        if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
 
         $output = "";
-        foreach ($options as $option)
-        {
-            if ($this->default == trim($option))
-            {
+        foreach ($options as $option) {
+            if ($this->default == trim($option)) {
                 $checked = "checked='checked'";
-            }
-            else
-            {
+            } else {
                 $checked = "";
             }
 
-            $output .= "<input type='radio' name='field_" . $this->fieldid . "' id='" . $this->name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
-                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "</label><br />";
+            $output .= "<input type='radio' name='field_" . $this->fieldid . "' id='" . $this->
+                name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
+                " /><label for='" . $this->name . "_" . $option . "'>" . $option .
+                "</label><br />";
         }
 
         return $output;
@@ -1255,28 +1182,24 @@ class formcreator_field
     public function output_checkbox()
     {
         $options = explode("\n", $this->settings['options']);
-        if ($this->class)
-        {
+        if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
 
         $output = "";
-        foreach ($options as $option)
-        {
-            if (is_array($this->default))
-            {
-                if (in_array(trim($option), $this->default))
-                {
+        foreach ($options as $option) {
+            if (is_array($this->default)) {
+                if (in_array(trim($option), $this->default)) {
                     $checked = "checked='checked'";
-                }
-                else
-                {
+                } else {
                     $checked = "";
                 }
             }
 
-            $output .= "<input type='checkbox' name='field_" . $this->fieldid . "[]' id='" . $this->name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
-                " /><label for='" . $this->name . "_" . $option . "'>" . $option . "</label><br />";
+            $output .= "<input type='checkbox' name='field_" . $this->fieldid . "[]' id='" .
+                $this->name . "_" . $option . "' value='" . trim($option) . "' " . $checked .
+                " /><label for='" . $this->name . "_" . $option . "'>" . $option .
+                "</label><br />";
         }
 
         return $output;
@@ -1284,8 +1207,7 @@ class formcreator_field
 
     public function output_submit()
     {
-        if ($this->class)
-        {
+        if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
 
@@ -1295,33 +1217,24 @@ class formcreator_field
     public function output_captcha()
     {
         global $mybb;
-        if ($this->class)
-        {
+        if ($this->class) {
             $class = "class='" . $this->class . "'";
         }
 
         $captcha = new captcha();
         $captcha->type = $mybb->settings['captchaimage'];
-        if ($captcha->type == 1)
-        {
+        if ($captcha->type == 1) {
             $captcha->captcha_template = "formcreator_captcha";
             $captcha->build_captcha();
-        }
-        elseif ($captcha->type == 2 || $captcha->type == 4)
-        {
-            if ($captcha->type == 2)
-            {
+        } elseif ($captcha->type == 2 || $captcha->type == 4) {
+            if ($captcha->type == 2) {
                 $captcha->captcha_template = "formcreator_recaptcha";
-            }
-            elseif ($captcha->type == 4)
-            {
+            } elseif ($captcha->type == 4) {
                 $captcha->captcha_template = "formcreator_nocaptcha";
             }
 
             $captcha->build_recaptcha();
-        }
-        else
-        {
+        } else {
             echo "error";
         }
 
@@ -1330,35 +1243,34 @@ class formcreator_field
 
     public function output_attachment()
     {
-        return "<input type='file' value='" . $this->default . "' name='field_" . $this->fieldid . "' class='fileupload " . $this->class . "' />";
+        return "<input type='file' value='" . $this->default . "' name='field_" . $this->
+            fieldid . "' class='fileupload " . $this->class . "' />";
     }
 
     public function output_attachments()
     {
-        return "<input type='file' value='" . $this->default . "' name='field_" . $this->fieldid . "[]' class='fileupload " . $this->class .
-            "' multiple='multiple' />";
+        return "<input type='file' value='" . $this->default . "' name='field_" . $this->
+            fieldid . "[]' class='fileupload " . $this->class . "' multiple='multiple' />";
     }
 
     public function output_editor()
     {
-        if ($this->settings['rows'])
-        {
+        if ($this->settings['rows']) {
             $rows = "rows='" . $this->settings['rows'] . "'";
-        }
-        else
-        {
+        } else {
             $rows = "rows='20'";
         }
-        
-        if($this->settings['resiz'] == 1){
+
+        if ($this->settings['resiz'] == 1) {
             $resize = "style='resize: both;'";
-        }else{
+        } else {
             $resize = "style='resize: none;'";
         }
 
         $code = build_mycode_inserter("field_" . $this->fieldid, true);
 
-        return "<textarea " . $rows . " ".$resize." name='field_" . $this->fieldid . "' id='field_" . $this->fieldid . "' />" . $this->default . "</textarea>\n" . $code;
+        return "<textarea " . $rows . " " . $resize . " name='field_" . $this->fieldid .
+            "' id='field_" . $this->fieldid . "' />" . $this->default . "</textarea>\n" . $code;
     }
 }
 

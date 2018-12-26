@@ -166,6 +166,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
     $form_container->output_row($lang->fc_allowed_groups." <em>*</em>", $lang->fc_allowed_groups_desc, $radioboxes . "<br /><br />" . $form->
         generate_group_select("settings[allowedgid][]", $formcreator->settings['allowedgid'], array("multiple" => true)));
+    $form_container->output_row($lang->fc_custom_denied_message, $lang->fc_custom_denied_message_desc, $form->generate_text_area("settings[customdenied]", $formcreator->settings['customdenied']));
     $form_container->output_row($lang->fc_limitusage, $lang->fc_limitusage_desc, $form->generate_numeric_field("settings[limitusage]", $formcreator->settings['limitusage']));
     $form_container->output_row($lang->fc_status." <em>*</em>", $lang->fc_status_desc, $form->generate_yes_no_radio("active", $formcreator->active));
     $form_container->end();
@@ -248,6 +249,17 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     }
     
     $form_container->output_row($lang->fc_process_posticon,$lang->fc_process_posticon_desc,$iconlist);
+    
+    $form_container->output_row($lang->fc_show_summary,
+        $lang->fc_show_summary_desc, $form->
+        generate_on_off_radio("settings[showsummary]", $formcreator->settings['showsummary']));
+        
+    $form_container->output_row($lang->fc_summary_parsed,
+        $lang->fc_summary_parsed_desc, $form->
+        generate_on_off_radio("settings[summaryparsed]", $formcreator->settings['summaryparsed']));
+        
+    $form_container->output_row($lang->fc_custom_summary_text, $lang->fc_custom_summary_text_desc, $form->generate_text_area("settings[customsummary]", $formcreator->settings['customsummary']));
+    
     
     /*
     $form_container->output_row("Send Mail to",

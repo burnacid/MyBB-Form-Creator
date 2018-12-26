@@ -22,17 +22,12 @@ function formcreator_info()
         'website' => 'https://community.mybb.com/mods.php?action=view&pid=975',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '2.5.0',
+        'version' => '2.6.0',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
 
-function formcreator_activate()
-{
-    global $db, $mybb;
-
-    change_admin_permission('config', 'formcreator', 1);
-
+function formcreator_get_templates(){
     $templatearray = array(
         '' => "<html>
 <head>
@@ -142,7 +137,27 @@ function formcreator_activate()
 		<td><script type="text/javascript" src="{$server}/challenge?k={$public_key}"></script></td>
 	</tr>
 </table>
-</fieldset>');
+</fieldset>',
+"summary_buttons"=>'<tr>
+	<td class="trow1" colspan="2" style="text-align:center;">
+		<form method="post" action="">
+			<input value="{$checksum}" name="formdata[checksum]" type="hidden" /><input value=\'{$json_data}\' name="formdata[data]" type="hidden" />
+			<input type="button" value="{$lang->fc_back}" onclick="window.history.back()" />
+			<input type="submit" value="{$lang->fc_confirm}" />
+		</form>
+	</td>
+</tr>');
+
+    return $templatearray;
+}
+
+function formcreator_activate()
+{
+    global $db, $mybb;
+    
+    $templatearray = formcreator_get_templates();
+
+    change_admin_permission('config', 'formcreator', 1);
 
     $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
 
@@ -424,16 +439,23 @@ function formcreator_uninstall()
 $plugins->add_hook('admin_load', 'formcreator_admin_load');
 function formcreator_admin_load()
 {
-    global $page;
+    global $page,$lang,$templatearray;
+    
+    $lang->load('config_formcreator');
     
     require_once MYBB_ROOT . 'inc/class_formcreator.php';
     
     $formcreator = new formcreator();
-    
+
     $error = formcreator_check_database($formcreator);
-    
+        
     if($error[0] == false){
         $page->extra_messages[] = array("type" => "error", "message" => "Form Creator: ". $error[1]);
+    }
+    
+    $missing = check_missing_templates();
+    if($missing != 0){
+        $page->extra_messages[] = array("type" => "error", "message" => "Form Creator: ". $lang->fc_error_missing_template);
     }
 }
 
@@ -606,6 +628,34 @@ function reArrayFiles(&$file_post, $current = 0) {
     }
 
     return $file_ary;
+}
+
+function check_missing_templates(){
+    
+    global $db;
+    
+    $templatearray = formcreator_get_templates();
+    
+    $group = array('prefix' => $db->escape_string('formcreator'), 'title' => $db->escape_string('Form Creator'));
+    
+    // Query already existing templates.
+    $query = $db->simple_select('templates', 'tid,title,template', "sid=-2 AND (title='{$group['prefix']}' OR title LIKE '{$group['prefix']}=_%' ESCAPE '=')");
+
+    $templates = $duplicates = array();
+
+    while ($row = $db->fetch_array($query)) {
+        $existingtemplates[] = $row['title'];
+    }
+    
+    $missing = 0;
+    $templatetitles = array_keys($templatearray);
+    foreach($templatetitles as $key){
+        if(!(in_array($group['prefix']."_".$key,$existingtemplates) || (empty($key) && in_array($group['prefix'],$existingtemplates)))){
+            $missing++;
+        }
+    }
+    
+    return $missing;
 }
 
 ?>

@@ -8,6 +8,7 @@ require_once "./inc/class_captcha.php";
 require_once MYBB_ROOT . "inc/datahandlers/pm.php";
 require_once MYBB_ROOT . "inc/datahandlers/post.php";
 require_once MYBB_ROOT . "inc/functions_upload.php";
+require_once MYBB_ROOT . "inc/class_parser.php";
 
 $lang->load("formcreator");
 
@@ -43,6 +44,16 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             $files = array();
             $prefix = ""; 
             
+            if($formcreator->check_summary() == 0){
+                $error_array[] = $lang->fc_summary_error;
+            }elseif($formcreator->check_summary() == 1 && $formcreator->settings['showsummary'] == 1){
+                $forminput = json_decode($mybb->input['formdata']['data']);
+                
+                foreach($forminput as $key => $value){
+                    $mybb->input[$key] = $value;
+                }
+            }
+            
             foreach ($formcreator->fields as $field) {
                 $field->default = $mybb->input["field_" . $field->fieldid];
 
@@ -76,6 +87,10 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $files = array_merge($files, reArrayFiles($_FILES["field_" . $field->fieldid], count($files)));
                     }elseif($field->required){
                         $error_array[] = $lang->fc_no_attachment;
+                    }elseif(empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13 && !$field->required){
+                        # No action if no files are submitted
+                    }elseif(empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14 && !$field->required){
+                        # No action if no files are submitted
                     }else{
                         $error_array[] = $lang->fc_oops;
                     }
@@ -111,6 +126,28 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 if(count($files) != 0){
                     remove_attachments(0,$posthash);
                 }
+            } elseif ($formcreator->settings['showsummary'] == 1 && $formcreator->check_summary() == 2) {
+                $display = false;
+                $formtitle = $formcreator->name;
+                
+                $input = array();
+                foreach($formcreator->fields as $field){
+                    $input['field_' . $field->fieldid] = $field->default;
+                }
+                
+                $json_data = json_encode($input);
+                $checksum = hash("SHA256", $json_data);
+                
+                $formcontent = "";
+                
+                if(!empty($formcreator->settings['customsummary'])){
+                    $formcontent .= '<tr><td class="trow1" colspan="2">'.$formcreator->settings['customsummary'].'</td></tr>';
+                }
+                
+                $formcontent .= '<tr><td class="trow1" colspan="2">'.$formcreator->build_summary().'</td></tr>';
+                eval("\$formcontent .= \"" . $templates->get("formcreator_summary_buttons") . "\";");
+                
+                
             } else {
                 $display = false;
                 $ref = $formcreator->get_next_ref();
@@ -381,8 +418,15 @@ if ($formcreator->get_form($mybb->input['formid'])) {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
         $formtitle = $lang->fc_access_denied;
-
-        $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_form_no_permissions.'</td></tr>';
+        
+        $custommsg = trim($formcreator->settings['customdenied']);
+        if(empty($custommsg)){
+            $deniedtext = $lang->fc_form_no_permissions;
+        }else{
+            $deniedtext = $formcreator->settings['customdenied'];
+        }
+        
+        $formcontent = '<tr><td class="trow1" colspan="2">'.$deniedtext.'</td></tr>';
     }
 } else {
     add_breadcrumb($lang->formcreator, "form.php");
