@@ -203,5 +203,6 @@ $l['admin_log_config_formcreator_editfield'] = 'Edited field #{2} ({3}) in form 
 $l['admin_log_config_formcreator_deletefield'] = 'Deleted field #{2} ({3}) in form #{1}';
 $l['fc_summary_parsed'] = "Used parsed output as summary (preview output)?";
 $l['fc_summary_parsed_desc'] = "Parse the data as the output used to create a thread, post or PM";
+$l['fc_error_missing_template'] = "You are missing a template. Please deactivate the Form Creator and reactivate it to update the templates.";
 
 ?>

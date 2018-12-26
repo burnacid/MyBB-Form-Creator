@@ -145,7 +145,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
                 
                 $formcontent .= '<tr><td class="trow1" colspan="2">'.$formcreator->build_summary().'</td></tr>';
-                $formcontent .= '<tr><td class="trow1" colspan="2"><form method="post" action=""><input value="'.$checksum.'" name="formdata[checksum]" type="hidden" /><input value=\''.$json_data.'\' name="formdata[data]" type="hidden" /><input type="button" value="Back"/><input type="submit" value="Confirm" /></form></td></tr>';
+                eval("\$formcontent .= \"" . $templates->get("formcreator_summary_buttons") . "\";");
                 
                 
             } else {
