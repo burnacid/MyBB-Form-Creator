@@ -250,6 +250,17 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     
     $form_container->output_row($lang->fc_process_posticon,$lang->fc_process_posticon_desc,$iconlist);
     
+    $form_container->output_row($lang->fc_show_summary,
+        $lang->fc_show_summary_desc, $form->
+        generate_on_off_radio("settings[showsummary]", $formcreator->settings['showsummary']));
+        
+    $form_container->output_row($lang->fc_summary_parsed,
+        $lang->fc_summary_parsed_desc, $form->
+        generate_on_off_radio("settings[summaryparsed]", $formcreator->settings['summaryparsed']));
+        
+    $form_container->output_row($lang->fc_custom_summary_text, $lang->fc_custom_summary_text_desc, $form->generate_text_area("settings[customsummary]", $formcreator->settings['customsummary']));
+    
+    
     /*
     $form_container->output_row("Send Mail to",
     "Send a mail to the following E-mail address(es). Leave empty if you don't like to send a email. One address per line.<span style='color:red;font-weight: bold;'> (currently disabled)</span>",
