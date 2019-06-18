@@ -322,10 +322,17 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $page->output_nav_tabs($sub_tabs, 'formcreator_output');
 
     // Load SCEditor scripts
-    echo '<link rel="stylesheet" href="'.$mybb->settings['bburl'].'/jscripts/sceditor/editor_themes/mybb.css" type="text/css" media="all">
-    <script type="text/javascript" src="'.$mybb->settings['bburl'].'/jscripts/sceditor/jquery.sceditor.bbcode.min.js?ver=1805"></script>
-    <script type="text/javascript" src="'.$mybb->settings['bburl'].'/jscripts/bbcodes_sceditor.js?ver=1808"></script>
-    <script type="text/javascript" src="'.$mybb->settings['bburl'].'/jscripts/sceditor/editor_plugins/undo.js?ver=1805"></script>';
+    if($mybb->version_code < 1821) {
+        echo '<link rel="stylesheet" href="' . $mybb->settings['bburl'] . '/jscripts/sceditor/editor_themes/mybb.css" type="text/css" media="all">
+    <script type="text/javascript" src="' . $mybb->settings['bburl'] . '/jscripts/sceditor/jquery.sceditor.bbcode.min.js"></script>
+    <script type="text/javascript" src="' . $mybb->settings['bburl'] . '/jscripts/bbcodes_sceditor.js"></script>
+    <script type="text/javascript" src="' . $mybb->settings['bburl'] . '/jscripts/sceditor/editor_plugins/undo.js"></script>';
+    }else{
+        echo '<link rel="stylesheet" href="' . $mybb->settings['bburl'] . '/jscripts/sceditor/themes/mybb.css" type="text/css" media="all">
+    <script type="text/javascript" src="' . $mybb->settings['bburl'] . '/jscripts/sceditor/jquery.sceditor.bbcode.min.js"></script>
+    <script type="text/javascript" src="' . $mybb->settings['bburl'] . '/jscripts/bbcodes_sceditor.js"></script>
+    <script type="text/javascript" src="' . $mybb->settings['bburl'] . '/jscripts/sceditor/plugins/undo.js"></script>';
+    }
 
     if (!$formcreator->get_form($mybb->input['formid'])) {
         flash_message($lang->fc_form_output_not_found, 'error');
