@@ -372,7 +372,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         admin_redirect("index.php?module=config-formcreator");
     }
 
-    echo "<script>function insertToEditor(text) { $('textarea').sceditor('instance').insert(text); }</script>";
+    echo "<script>function insertToEditor(text) { $('#msgtemplate').sceditor('instance').insert(text); }</script>";
 
     $legend = "<a href='javascript:insertToEditor(\"{\$formname}\");'>".$lang->fc_form_name."</a><br />";
     $legend .= $lang->fc_user_info .": <a href='javascript:insertToEditor(\"{\$username}\");'>".$lang->fc_username."</a> | <a href='javascript:insertToEditor(\"{\$uid}\");'>".$lang->fc_id."</a><br /><br />";
