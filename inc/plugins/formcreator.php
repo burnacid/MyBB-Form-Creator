@@ -10,7 +10,7 @@ function formcreator_info()
     $donate = '<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="3A2B883GGPH2U">
-<input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal – The safer, easier way to pay online!">
+<input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal ï¿½ The safer, easier way to pay online!">
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>
 ';
@@ -22,7 +22,7 @@ function formcreator_info()
         'website' => 'https://community.mybb.com/mods.php?action=view&pid=975',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '2.6.0',
+        'version' => '2.6.2',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
