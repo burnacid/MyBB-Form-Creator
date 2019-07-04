@@ -22,7 +22,7 @@ function formcreator_info()
         'website' => 'https://community.mybb.com/mods.php?action=view&pid=975',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '2.6.2',
+        'version' => '2.6.3',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
