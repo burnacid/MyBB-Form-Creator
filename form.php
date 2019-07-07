@@ -48,9 +48,10 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 $error_array[] = $lang->fc_summary_error;
             }elseif($formcreator->check_summary() == 1 && $formcreator->settings['showsummary'] == 1){
                 $forminput = json_decode($mybb->input['formdata']['data']);
+
                 
                 foreach($forminput as $key => $value){
-                    $mybb->input[$key] = $value;
+                    $mybb->input[$key] = urldecode($value);
                 }
             }
             
@@ -132,10 +133,10 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 
                 $input = array();
                 foreach($formcreator->fields as $field){
-                    $input['field_' . $field->fieldid] = $field->default;
+                    $input['field_' . $field->fieldid] = urlencode($field->default);
                 }
                 
-                $json_data = json_encode($input);
+                $json_data =  json_encode($input);
                 $checksum = hash("SHA256", $json_data);
                 
                 $formcontent = "";
