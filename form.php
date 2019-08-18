@@ -17,9 +17,9 @@ $formcreator = new formcreator();
 if ($formcreator->get_form($mybb->input['formid'])) {
 
     if ($formcreator->check_allowed() && $formcreator->active == 1) {
-        
+
         if(!$formcreator->check_usage_limit_reached()){
-        
+
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
         $display = true;
 
@@ -38,30 +38,37 @@ if ($formcreator->get_form($mybb->input['formid'])) {
         $formcreator->get_fields();
 
         if ($mybb->request_method == "post") {
-            
+
             $errors = "";
             $error_array = array();
             $files = array();
-            $prefix = ""; 
-            
+            $prefix = "";
+            $posthash = "";
+
             if($formcreator->check_summary() == 0){
+                $forminput = json_decode($mybb->input['formdata']['data']);
+
+                if(isset($forminput['posthash'])){
+                    remove_attachments(0,$forminput['posthash']);
+                }
                 $error_array[] = $lang->fc_summary_error;
             }elseif($formcreator->check_summary() == 1 && $formcreator->settings['showsummary'] == 1){
                 $forminput = json_decode($mybb->input['formdata']['data']);
 
-                
                 foreach($forminput as $key => $value){
                     if(is_array($value)){
                         foreach($value as $ikey => $ivalue){
                             $value[$ikey] = urldecode($ivalue);
                         }
                         $mybb->input[$key] = $value;
-                    }else {
+                    } elseif($key == "posthash"){
+                        $posthash = $value;
+                    } else {
                         $mybb->input[$key] = urldecode($value);
                     }
                 }
             }
-            
+
             foreach ($formcreator->fields as $field) {
                 $field->default = $mybb->input["field_" . $field->fieldid];
 
@@ -73,13 +80,13 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 if ($field->settings['regex'] && !preg_match("/" . $field->settings['regex'] . "/", $mybb->input["field_" . $field->fieldid])) {
                     if(!empty($field->settings['regexerror'])){
-                        
+
                     }else{
                         $error_array[] = $lang->fc_no_attachment;
                     }
-                    
+
                 }
-                
+
                 if ($field->type == 12) {
                     $captcha = new captcha();
                     if ($captcha->validate_captcha() == false) {
@@ -88,7 +95,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             $error_array[] = $error;
                         }
                     }
-                }elseif($field->type == 13 or $field->type == 14){
+                }elseif(($field->type == 13 or $field->type == 14) and ($formcreator->check_summary() != 1 or $formcreator->settings['showsummary'] == 0)){
                     if(!empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13){
                         $files[count($files)] = $_FILES["field_".$field->fieldid];
                     }elseif(!empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14){
@@ -106,9 +113,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     $prefix = intval($mybb->input["field_" . $field->fieldid]);
                 }
             }
-            
-            $posthash = "";
-            
+
             if(count($files) != 0){
                 if($formcreator->fid != 0){
                     $fid = $formcreator->fid;
@@ -118,7 +123,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     $tid = $formcreator->tid;
                 }
                 $forum['fid'] = $fid;
-                
+
                 $posthash = sha1(time()+(rand(1,1000) / 1000));
                 $mybb->input['posthash'] = $posthash;
                 foreach($files as $file){
@@ -128,7 +133,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                     }
                 }
             }
-                
+
             if (count($error_array) != 0) {
                 $errors = inline_error($error_array);
                 if(count($files) != 0){
@@ -137,7 +142,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
             } elseif ($formcreator->settings['showsummary'] == 1 && $formcreator->check_summary() == 2) {
                 $display = false;
                 $formtitle = $formcreator->name;
-                
+
                 $input = array();
                 foreach($formcreator->fields as $field){
                     if(is_array($field->default)){
@@ -150,20 +155,25 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         $input['field_' . $field->fieldid] = urlencode($field->default);
                     }
                 }
-                
+
+                // Send post hash for attachments
+                if($posthash != "") {
+                    $input['posthash'] = $posthash;
+                }
+
                 $json_data =  json_encode($input);
                 $checksum = hash("SHA256", $json_data);
-                
+
                 $formcontent = "";
-                
+
                 if(!empty($formcreator->settings['customsummary'])){
                     $formcontent .= '<tr><td class="trow1" colspan="2">'.$formcreator->settings['customsummary'].'</td></tr>';
                 }
-                
+
                 $formcontent .= '<tr><td class="trow1" colspan="2">'.$formcreator->build_summary().'</td></tr>';
                 eval("\$formcontent .= \"" . $templates->get("formcreator_summary_buttons") . "\";");
-                
-                
+
+
             } else {
                 $display = false;
                 $ref = $formcreator->get_next_ref();
@@ -171,11 +181,11 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 $subject = $formcreator->parse_subject();
                 $message = $formcreator->parse_output();
-                
+
                 $formcreator->log_usage();
                 $uid = $mybb->user['uid'];
                 $username = $mybb->user['username'];
-                
+
                 if($mybb->user['usergroup'] == 1 || empty($username)){
                     $username = "Guest";
                 }
@@ -299,9 +309,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 // Post in Thread
                 if ($formcreator->settings) {
                     if ($thread = get_thread($formcreator->tid)) {
-                        
+
                         $mybb->input['action'] = "do_newreply";
-                        
+
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "post";
                         $posthandler->admin_override = true;
@@ -328,7 +338,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         if ($posthandler->validate_post()) {
                             $post_info = $posthandler->insert_post();
                             $pid = $post_info['pid'];
-                            
+
                             $post = get_post($pid);
 
                             $forumpermissions = forum_permissions($thread['fid']);
@@ -345,18 +355,18 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 // Thread in Forum
                 if ($formcreator->fid) {
                     if ($forum = get_forum($formcreator->fid)) {
-                        
+
                         $mybb->input['action'] = "do_newthread";
                         $fid = $forum['fid'];
-                        
+
                         $posthandler = new PostDataHandler();
                         $posthandler->action = "thread";
                         $posthandler->admin_override = true;
-                        
+
                         if(empty($prefix)){
                             $prefix = $formcreator->settings['prefix'];
                         }
-                        
+
                         $new_thread = array(
                             "fid" => $forum['fid'],
                             "subject" => $subject,
@@ -379,7 +389,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         if ($posthandler->validate_thread()) {
                             $thread_info = $posthandler->insert_thread();
                             $tid = $thread_info['tid'];
-                            
+
                             $thread = get_thread($tid);
                             $post = get_post($thread['firstpost']);
 
@@ -393,7 +403,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         }
                     }
                 }
-                
+
                 if(count($post_errors) != 0){
                     $errors .= inline_error($post_errors);
                 } elseif(!empty($formcreator->settings['customsuccess'])) {
@@ -416,12 +426,12 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
             $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_no_fields.'</td></tr>';
         }
-        
+
         }else{
             add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
             $formtitle = $lang->fc_limit_reached_title;
-    
+
             $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_limit_reached.'</td></tr>';
         }
     } elseif ($formcreator->active == 0) {
@@ -434,14 +444,14 @@ if ($formcreator->get_form($mybb->input['formid'])) {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
         $formtitle = $lang->fc_access_denied;
-        
+
         $custommsg = trim($formcreator->settings['customdenied']);
         if(empty($custommsg)){
             $deniedtext = $lang->fc_form_no_permissions;
         }else{
             $deniedtext = $formcreator->settings['customdenied'];
         }
-        
+
         $formcontent = '<tr><td class="trow1" colspan="2">'.$deniedtext.'</td></tr>';
     }
 } else {
