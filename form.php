@@ -51,7 +51,14 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                 
                 foreach($forminput as $key => $value){
-                    $mybb->input[$key] = urldecode($value);
+                    if(is_array($value)){
+                        foreach($value as $ikey => $ivalue){
+                            $value[$ikey] = urldecode($ivalue);
+                        }
+                        $mybb->input[$key] = $value;
+                    }else {
+                        $mybb->input[$key] = urldecode($value);
+                    }
                 }
             }
             
@@ -133,7 +140,15 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 
                 $input = array();
                 foreach($formcreator->fields as $field){
-                    $input['field_' . $field->fieldid] = urlencode($field->default);
+                    if(is_array($field->default)){
+                        foreach($field->default as $key => $value){
+                            $field->default[$key] = urlencode($value);
+                        }
+
+                        $input['field_' . $field->fieldid] = $field->default;
+                    }else {
+                        $input['field_' . $field->fieldid] = urlencode($field->default);
+                    }
                 }
                 
                 $json_data =  json_encode($input);
