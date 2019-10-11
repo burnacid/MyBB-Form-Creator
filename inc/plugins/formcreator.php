@@ -286,7 +286,7 @@ function formcreator_install()
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_forms` (
           ".formcreator_generate_table_fields("fc_forms")."
           PRIMARY KEY (`formid`)
-        ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+        ) ".$db->build_create_table_collation().";
         ");
     }
 
@@ -294,7 +294,7 @@ function formcreator_install()
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_fields` (
           ".formcreator_generate_table_fields("fc_fields")."
           PRIMARY KEY (`fieldid`)
-        ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+        ) ".$db->build_create_table_collation().";
         ");
     }
     
@@ -302,7 +302,7 @@ function formcreator_install()
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_formusage` (
           ".formcreator_generate_table_fields("fc_formusage")."
           PRIMARY KEY (`formid`,`uid`,`ref`)
-        ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+        ) ".$db->build_create_table_collation().";
         ");
     }
 }
@@ -311,7 +311,7 @@ function formcreator_generate_table_fields($table)
 {
     require_once MYBB_ROOT . 'inc/class_formcreator.php';
     
-    global $fields;
+    global $fields,$mybb;
     
     $formcreator = new formcreator();
     
@@ -320,7 +320,12 @@ function formcreator_generate_table_fields($table)
     $output = "";
     
     foreach($fields[$table] as $field){
-        $output .= "`".$field['Field']."` ".$field['Type'];
+
+        if($mybb->config['database']['type'] == 'sqlite'){
+            $output .= "`" . $field['Field'] . "` " . $field['Type'];
+        }else {
+            $output .= "`" . $field['Field'] . "` " . $field['Type'];
+        }
         
         if($field['NULL'] == 1){
             $output .= " DEFAULT NULL";
@@ -328,13 +333,17 @@ function formcreator_generate_table_fields($table)
             $output .= " NOT NULL";
         }
         
-        if($field['AI'] == 1){
+        if($field['AI'] == 1 && $mybb->config['database']['type'] == 'sqlite'){
+            #$output .= " PRIMARY KEY";
+        }elseif($field['AI'] == 1){
             $output .= " AUTO_INCREMENT";
         }
         
         $output .= ",\n";
     }
-    
+
+    echo $output;
+
     return $output;
 }
 
@@ -342,7 +351,11 @@ function formcreator_check_database()
 {
     require_once MYBB_ROOT . 'inc/class_formcreator.php';
     
-    global $db;
+    global $db,$mybb;
+
+    if($mybb->config['database']['type'] == 'sqlite'){
+        return array(true);
+    }
     
     $formcreator = new formcreator();
     $fields = $formcreator->formcreator_fields;
