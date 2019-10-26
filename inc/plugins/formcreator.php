@@ -296,7 +296,7 @@ function formcreator_install()
     
     if (!$db->table_exists('fc_formusage')) {
         $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_formusage` (
-          ".formcreator_generate_table_fields("fc_formusage").") ".$db->build_create_table_collation().";
+          ".formcreator_generate_table_fields("fc_formusage").", PRIMARY KEY (`formid`,`uid`,`ref`)) ".$db->build_create_table_collation().";
         ");
     }
 }
