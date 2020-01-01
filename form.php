@@ -240,7 +240,6 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                         foreach ($group_members as $user) {
                             $pmhandler = new PMDataHandler();
-                            $pmhandler->admin_override = true;
 
                             $pm = array(
                                 "subject" => $subject,
@@ -258,6 +257,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "allow_html" => 1);
 
                             $pmhandler->set_data($pm);
+                            $pmhandler->verify_pm_flooding();
+
                             if ($pmhandler->validate_pm()) {
                                 $pmhandler->insert_pm();
                             } else {
@@ -314,7 +315,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                             $posthandler = new PostDataHandler();
                             $posthandler->action = "post";
-                            $posthandler->admin_override = true;
+                            $posthandler->admin_override = false;
 
                             $new_post = array(
                                 "fid" => $thread['fid'],
@@ -334,6 +335,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "disablesmilies" => '0');
 
                             $posthandler->set_data($new_post);
+                            $posthandler->verify_post_flooding();
 
                             if ($posthandler->validate_post()) {
                                 $post_info = $posthandler->insert_post();
@@ -361,7 +363,6 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                             $posthandler = new PostDataHandler();
                             $posthandler->action = "thread";
-                            $posthandler->admin_override = true;
 
                             if (empty($prefix)) {
                                 $prefix = $formcreator->settings['prefix'];
@@ -385,6 +386,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "disablesmilies" => '0');
 
                             $posthandler->set_data($new_thread);
+                            $posthandler->verify_post_flooding();
 
                             if ($posthandler->validate_thread()) {
                                 $thread_info = $posthandler->insert_thread();
