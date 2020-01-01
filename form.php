@@ -80,9 +80,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                     if ($field->settings['regex'] && !preg_match("/" . $field->settings['regex'] . "/", $mybb->input["field_" . $field->fieldid])) {
                         if (!empty($field->settings['regexerror'])) {
-
+                            $error_array[] = $field->settings['regexerror'];
                         } else {
-                            $error_array[] = $lang->fc_no_attachment;
+                            $error_array[] = $lang->fc_no_match_regex;
                         }
 
                     }
