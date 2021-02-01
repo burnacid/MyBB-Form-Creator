@@ -1,5 +1,4 @@
 <?php
-
 $l['formcreator'] = "Form Creator";
 $l['fc_view_forms'] = "View Forms";
 $l['fc_view_forms_desc'] = "View all forms created for this website";
@@ -19,14 +18,12 @@ $l['fc_output_template'] = "Form Output Template";
 $l['fc_output_template_desc'] = "Change the output template for this form. Leave fields empty to use the default outputs";
 $l['fc_yes'] = "Yes";
 $l['fc_no'] = "No";
-
 $l['fc_view_form_fields'] = "View Form Fields";
 $l['fc_view_form_fields_desc'] = "Change the form fields. Add/Edit or Delete";
 $l['fc_add_field'] = "Add Field";
 $l['fc_add_field_desc'] = "Add a field";
 $l['fc_edit_field'] = "Edit Field";
 $l['fc_edit_field_desc'] = "Edit a field";
-
 $l['fc_form_edit_not_found'] = "The form you tried to edit doesn't exist!";
 $l['fc_empty_formname'] = "Form Name is empty!";
 $l['fc_empty_allowed_groups_type'] = "The way allowed groups are handled wasn't set";
@@ -44,10 +41,8 @@ $l['fc_subject_validation_failed'] = "Validation of the subject template failed!
 $l['fc_message_validation_failed'] = "Validation of the message template failed!";
 $l['fc_output_template_success'] = "The output template has succesfully be changed";
 $l['fc_form_no_fields'] = "This form doesn't have any fields yet. Please add fields before you change the output template.";
-
 $l['fc_add_form'] = "Add Form";
 $l['fc_create_new_form'] = "Create a new Form";
-
 $l['fc_form_name'] = "Form Name";
 $l['fc_form_name_desc'] = "The title of the form";
 $l['fc_allow_all_groups'] = "Allow ALL groups";
@@ -55,6 +50,8 @@ $l['fc_allow_selected_groups'] = "Allow selected groups";
 $l['fc_allow_unselected_groups'] = "Allow all BUT selected groups";
 $l['fc_allowed_groups'] = "Allowed Groups";
 $l['fc_allowed_groups_desc'] = "Which groups are allowed to use this form";
+$l['fc_custom_denied_message'] = "Custom Denied Message";
+$l['fc_custom_denied_message_desc'] = "Enter in a custom message users will get when they are not allowed access the form. Leave empty to use the default (HTML enabled)";
 $l['fc_limitusage'] = "Usage limit";
 $l['fc_limitusage_desc'] = "Enter the maximun number of times a user can fill in the form (0 = unlimited).";
 $l['fc_status'] = "Status";
@@ -77,6 +74,14 @@ $l['fc_process_post_as'] = "Post as user";
 $l['fc_process_post_as_desc'] = "Which user is used to post a thread, post or reply. (leave empty to use the user who submits the form, set to -1 to use the Form Creator Bot as user)";
 $l['fc_override_button'] = "Override post button";
 $l['fc_override_button_desc'] = "Change the create new thread or post reply button to link to the form. Only useful when set to post a new thread or reply.";
+$l['fc_show_summary'] = "Show Summary Page";
+$l['fc_show_summary_desc'] = "Shows a summary page of the input before finally submitting the data.";
+$l['fc_custom_summary_text'] = "Custom Summary Message";
+$l['fc_custom_summary_text_desc'] = "Enter in a custom summary page message that you like to display at the top of the summary page. Will only be used when the summary page is enabled. Leave empty uses a default message (HTML is enabled)";
+$l['fc_process_signature'] = "Post Signature";
+$l['fc_process_signature_desc'] = "Set whether or not the users signature is posted within the thread or post.";
+$l['fc_process_posticon'] = "Post Icon";
+$l['fc_process_posticon_desc'] = "Select which post icon is used for the post / thread.";
 $l['fc_custom_success_page'] = "Custom success page";
 $l['fc_custom_success_page_desc'] = "Set an URL the user will be redirected to after completing the form.";
 $l['fc_form_layout'] = "Form Layout";
@@ -88,7 +93,6 @@ $l['fc_class'] = "Class";
 $l['fc_class_desc'] = "Set the class of the table containing the form";
 $l['fc_update_form'] = "Update Form";
 $l['fc_create_form'] = "Create Form";
-
 $l['fc_user_info'] = "User Info";
 $l['fc_username'] = "Username";
 $l['fc_other'] = "Other";
@@ -105,7 +109,6 @@ $l['fc_add_variables'] = "Add Variables";
 $l['fc_delete_field'] = "Delete Field";
 $l['fc_edit_field'] = "Edit Field";
 $l['fc_form_has_no_fields'] = "This form has no fields yet!";
-
 $l['fc_field_name_empty'] = "Field name is empty";
 $l['fc_options_empty'] = "There were no options entered";
 $l['fc_html_empty'] = "HTML block can't be empty";
@@ -120,11 +123,14 @@ $l['fc_field_name_desc'] = "Please enter a field name";
 $l['fc_description'] = "Description";
 $l['fc_field_description_desc'] = "Write a description for the field";
 $l['fc_placeholder'] = "Placeholder";
-$l['fc_field_placeholder_desc'] = "Write a payload for the short hint that is displayed in the input field before the user enters a value.";
+$l['fc_field_placeholder_desc'] = "Write a placeholder for the short hint that is displayed in the input field before the user enters a value.";
 $l['fc_maxlength'] = "Max length";
 $l['fc_field_maxlength_desc'] = "Enter the maximum lenght of characters the user can enter. (0 = unlimited)";
 $l['fc_options'] = "Options";
 $l['fc_field_options_desc'] = "Please enter the options for the field. One option per line";
+$l['fc_prefixes'] = "Available Prefixes";
+$l['fc_no_prefixes'] = "- No prefixes availible -";
+$l['fc_field_prefixes_desc'] = "Please select the prefixes available for the user. Make sure the prefixes are allowed for the specific thread or forum!";
 $l['fc_format'] = "Format";
 $l['fc_field_format_desc'] = "Please enter the format for the field (e.g. for dates use jQuery <a href='http://api.jqueryui.com/datepicker/#utility-formatDate'>dateformat</a>)";
 $l['fc_default'] = "Default";
@@ -141,6 +147,8 @@ $l['fc_cols'] = "Cols";
 $l['fc_field_cols_desc'] = "Enter the size in cols of the field";
 $l['fc_rows'] = "Rows";
 $l['fc_field_rows_desc'] = "Enter the size in rows of the field";
+$l['fc_resize'] = "Allow resize";
+$l['fc_field_resize_desc'] = "Set whether or not the user can resize the field";
 $l['fc_class'] = "Class";
 $l['fc_field_class_desc'] = "Enter a class for the field container";
 $l['fc_html_block'] = "HTML Block";
@@ -151,7 +159,6 @@ $l['fc_field_type_desc'] = "Select what type of field you would like to add.";
 $l['fc_button_update_field'] = "Update Field";
 $l['fc_button_create_field'] = "Create Field";
 $l['fc_add_field_unknown_form'] = "You are trying to add a field to a form that doesn't exist!";
-
 $l['fc_delete_field_unknown'] = "The field you are trying to delete doesn't exist";
 $l['fc_delete_field_form_unknown'] = "The field's form you are trying to delete doesn't exist";
 $l['fc_delete_field_success'] = "The field was succesfully deleted";
@@ -163,7 +170,6 @@ $l['fc_type'] = "Type";
 $l['fc_form_info'] = "Form Info";
 $l['fc_send_mail_to'] = "Send Mail to";
 $l['fc_no_mail_selected'] = "No mail selected";
-
 $l['fc_export_form'] = "Export Forms";
 $l['fc_export_description'] = "Copy and save this to a file or use this to import it else where.";
 $l['fc_no_forms_to_export'] = "You have no forms that can be exported!";
@@ -183,19 +189,20 @@ $l['fc_send_pm_to_usergroups'] = "Send PM to Usergroups";
 $l['fc_no_groups_selected'] = "(No groups selected)";
 $l['fc_send_pm_to_users'] = "Send PM to Users";
 $l['fc_no_users_selected'] = "(No users selected)";
-
 $l['fc_import_form'] = "Import Forms";
 $l['fc_import_code'] = "Import code";
 $l['fc_import_code_desc'] = "Enter the import code";
 $l['fc_no_forms_imported'] = "No forms found to import";
 $l['fc_forms_imported'] = "Forms imported ({1} forms and {2} fields)";
-
 $l['fc_url'] = "Link / URL";
-
 $l['admin_log_config_formcreator_add'] = 'Created form #{1} ({2})';
 $l['admin_log_config_formcreator_edit'] = 'Edited form #{1} ({2})';
 $l['admin_log_config_formcreator_delete'] = 'Deleted form #{1} ({2})';
 $l['admin_log_config_formcreator_addfield'] = 'Added field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_editfield'] = 'Edited field #{2} ({3}) in form #{1}';
 $l['admin_log_config_formcreator_deletefield'] = 'Deleted field #{2} ({3}) in form #{1}';
+$l['fc_summary_parsed'] = "Used parsed output as summary (preview output)?";
+$l['fc_summary_parsed_desc'] = "Parse the data as the output used to create a thread, post or PM";
+$l['fc_error_missing_template'] = "You are missing a template. Please deactivate the Form Creator and reactivate it to update the templates.";
+
 ?>

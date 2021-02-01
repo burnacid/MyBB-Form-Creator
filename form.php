@@ -8,6 +8,7 @@ require_once "./inc/class_captcha.php";
 require_once MYBB_ROOT . "inc/datahandlers/pm.php";
 require_once MYBB_ROOT . "inc/datahandlers/post.php";
 require_once MYBB_ROOT . "inc/functions_upload.php";
+require_once MYBB_ROOT . "inc/class_parser.php";
 
 $lang->load("formcreator");
 
@@ -16,341 +17,450 @@ $formcreator = new formcreator();
 if ($formcreator->get_form($mybb->input['formid'])) {
 
     if ($formcreator->check_allowed() && $formcreator->active == 1) {
-        
-        if(!$formcreator->check_usage_limit_reached()){
-        
-        add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
-        $display = true;
 
-        if ($formcreator->width) {
-            $stylewidth = "width:" . $formcreator->width . ";";
-        }
+        if (!$formcreator->check_usage_limit_reached()) {
 
-        if ($formcreator->labelwidth) {
-            $stylelabelwidth = "width:" . $formcreator->labelwidth . ";";
-        }
+            add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
+            $display = true;
 
-        if ($formcreator->class) {
-            $styleclass = $formcreator->class;
-        }
+            if ($formcreator->settings['width']) {
+                $stylewidth = "width:" . $formcreator->settings['width'] . ";";
+            }
 
-        $formcreator->get_fields();
+            if ($formcreator->settings['labelwidth']) {
+                $stylelabelwidth = "width:" . $formcreator->settings['labelwidth'] . ";";
+            }
 
-        if ($mybb->request_method == "post") {
-            $error_array = array();
+            if ($formcreator->class) {
+                $styleclass = $formcreator->class;
+            }
 
-            foreach ($formcreator->fields as $field) {
-                $field->default = $mybb->input["field_" . $field->fieldid];
+            $formcreator->get_fields();
 
-                if ($field->required && empty($mybb->input["field_" . $field->fieldid]) && $field->type != 13 && $field->type != 14) {
-                    $error_array[] = "'" . $field->name . "' ".$lang->fc_is_empty;
-                }
+            if ($mybb->request_method == "post") {
 
-                if ($field->regex && !preg_match("/" . $field->regex . "/", $mybb->input["field_" . $field->fieldid])) {
-                    if(!empty($field->regexerror)){
-                        
-                    }else{
-                        $error_array[] = $lang->fc_no_attachment;
-                    }
-                    
-                }
-                
+                $errors = "";
+                $error_array = array();
                 $files = array();
-                
-                if ($field->type == 12) {
-                    $captcha = new captcha();
-                    if ($captcha->validate_captcha() == false) {
-                        // CAPTCHA validation failed
-                        foreach ($captcha->get_errors() as $error) {
-                            $error_array[] = $error;
+                $prefix = "";
+                $posthash = "";
+
+                if ($formcreator->check_summary() == 0) {
+                    $forminput = json_decode($mybb->input['formdata']['data']);
+
+                    if (isset($forminput['posthash'])) {
+                        remove_attachments(0, $forminput['posthash']);
+                    }
+                    $error_array[] = $lang->fc_summary_error;
+                } elseif ($formcreator->check_summary() == 1 && $formcreator->settings['showsummary'] == 1) {
+                    $forminput = json_decode($mybb->input['formdata']['data']);
+
+                    foreach ($forminput as $key => $value) {
+                        if (is_array($value)) {
+                            foreach ($value as $ikey => $ivalue) {
+                                $value[$ikey] = urldecode($ivalue);
+                            }
+                            $mybb->input[$key] = $value;
+                        } elseif ($key == "posthash") {
+                            $posthash = $value;
+                        } else {
+                            $mybb->input[$key] = urldecode($value);
                         }
                     }
-                }elseif($field->type == 13 or $field->type == 14){
-                    if($field->required){
-                        if(!empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13){
-                            $files = $_FILES;
-                        }elseif(!empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14){
-                            $files = reArrayFiles($_FILES["field_" . $field->fieldid]);
-                        }else{
+                }
+
+                foreach ($formcreator->fields as $field) {
+                    $field->default = $mybb->input["field_" . $field->fieldid];
+
+                    if ($field->required && empty($mybb->input["field_" . $field->fieldid]) && $field->type != 13 && $field->type != 14) {
+                        $error_array[] = "'" . $field->name . "' " . $lang->fc_is_empty;
+                    } elseif ($field->required && $field->type == 3 && empty($mybb->input["field_" . $field->fieldid][0])) {
+                        $error_array[] = "'" . $field->name . "' " . $lang->fc_no_option_selected;
+                    }
+
+                    if ($field->settings['regex'] && !preg_match("/" . $field->settings['regex'] . "/", $mybb->input["field_" . $field->fieldid])) {
+                        if (!empty($field->settings['regexerror'])) {
+                            $error_array[] = $field->settings['regexerror'];
+                        } else {
+                            $error_array[] = $lang->fc_no_match_regex;
+                        }
+
+                    }
+
+                    if ($field->type == 12) {
+                        $captcha = new captcha();
+                        if ($captcha->validate_captcha() == false) {
+                            // CAPTCHA validation failed
+                            foreach ($captcha->get_errors() as $error) {
+                                $error_array[] = $error;
+                            }
+                        }
+                    } elseif (($field->type == 13 or $field->type == 14) and ($formcreator->check_summary() != 1 or $formcreator->settings['showsummary'] == 0)) {
+                        if (!empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13) {
+                            $files[count($files)] = $_FILES["field_" . $field->fieldid];
+                        } elseif (!empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14) {
+                            $files = array_merge($files, reArrayFiles($_FILES["field_" . $field->fieldid], count($files)));
+                        } elseif ($field->required) {
                             $error_array[] = $lang->fc_no_attachment;
+                        } elseif (empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13 && !$field->required) {
+                            # No action if no files are submitted
+                        } elseif (empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14 && !$field->required) {
+                            # No action if no files are submitted
+                        } else {
+                            $error_array[] = $lang->fc_oops;
+                        }
+                    } elseif ($field->type == 16) {
+                        $prefix = intval($mybb->input["field_" . $field->fieldid]);
+                    }
+                }
+
+                if (count($files) != 0) {
+                    if ($formcreator->fid != 0) {
+                        $fid = $formcreator->fid;
+                    } elseif ($formcreator->tid != 0) {
+                        $t = get_thread($formcreator->tid);
+                        $fid = $t['fid'];
+                        $tid = $formcreator->tid;
+                    }
+                    $forum['fid'] = $fid;
+
+                    $posthash = sha1(time() + (rand(1, 1000) / 1000));
+                    $mybb->input['posthash'] = $posthash;
+                    foreach ($files as $file) {
+                        $attach_result = upload_attachment($file);
+                        if (!empty($attach_result["error"])) {
+                            $error_array[] = $attach_result["error"];
                         }
                     }
-                    
                 }
-            }
-            
-            $posthash = "";
-            
-            if(count($files) != 0){
-                $posthash = sha1(time()+(rand(1,1000) / 1000));
-                $mybb->input['posthash'] = $posthash;
-                foreach($files as $file){
-                    $attach_result = upload_attachment($file);
-                    if(!empty($attach_result["error"])){
-                        $error_array[] = $attach_result["error"];
+
+                if (count($error_array) != 0) {
+                    $errors = inline_error($error_array);
+                    if (count($files) != 0) {
+                        remove_attachments(0, $posthash);
                     }
-                }
-            }
-                
-            if (count($error_array) != 0) {
-                $errors = inline_error($error_array);
-                if(count($files) != 0){
-                    remove_attachments(0,$posthash);
-                }
-            } else {
-                $display = false;
-                $ref = $formcreator->get_next_ref();
+                } elseif ($formcreator->settings['showsummary'] == 1 && $formcreator->check_summary() == 2) {
+                    $display = false;
+                    $formtitle = $formcreator->name;
 
-                $subject = $formcreator->parse_subject();
-                $message = $formcreator->parse_output();
-                
-                $formcreator->log_usage();
-                $uid = $mybb->user['uid'];
-                $username = $mybb->user['username'];
-                
-                if($mybb->user['usergroup'] == 1 || empty($username)){
-                    $username = "Guest";
-                }
+                    $input = array();
+                    foreach ($formcreator->fields as $field) {
+                        if (is_array($field->default)) {
+                            foreach ($field->default as $key => $value) {
+                                $field->default[$key] = urlencode($value);
+                            }
 
-                if (!empty($formcreator->uid)) {
-                    if ($user = get_user($formcreator->uid)) {
-                        $uid = $user['uid'];
-                        $username = $user['username'];
-                    } elseif ($formcreator->uid == -1) {
-                        $uid = -1;
-                        $username = "Form Creator Bot";
+                            $input['field_' . $field->fieldid] = $field->default;
+                        } else {
+                            $input['field_' . $field->fieldid] = urlencode($field->default);
+                        }
                     }
-                }
 
-                // Send PM single user
-                if ($formcreator->pmusers) {
-                    $users = explode(",", $formcreator->pmusers);
+                    // Send post hash for attachments
+                    if ($posthash != "") {
+                        $input['posthash'] = $posthash;
+                    }
 
-                    foreach ($users as $user) {
-                        if ($user_data = get_user($user)) {
+                    $json_data = json_encode($input);
+                    $checksum = hash("SHA256", $json_data);
+
+                    $formcontent = "";
+
+                    if (!empty($formcreator->settings['customsummary'])) {
+                        $formcontent .= '<tr><td class="trow1" colspan="2">' . $formcreator->settings['customsummary'] . '</td></tr>';
+                    }
+
+                    $formcontent .= '<tr><td class="trow1" colspan="2">' . $formcreator->build_summary() . '</td></tr>';
+                    eval("\$formcontent .= \"" . $templates->get("formcreator_summary_buttons") . "\";");
+
+
+                } else {
+                    $display = false;
+                    $ref = $formcreator->get_next_ref();
+                    $post_errors = array();
+
+                    $subject = $formcreator->parse_subject();
+                    $message = $formcreator->parse_output();
+
+                    $formcreator->log_usage();
+                    $uid = $mybb->user['uid'];
+                    $username = $mybb->user['username'];
+
+                    if ($mybb->user['usergroup'] == 1 || empty($username)) {
+                        $username = "Guest";
+                    }
+
+                    if (!empty($formcreator->settings['uid'])) {
+                        if ($user = get_user($formcreator->settings['uid'])) {
+                            $uid = $user['uid'];
+                            $username = $user['username'];
+                        } elseif ($formcreator->settings['uid'] == -1) {
+                            $uid = -1;
+                            $username = "Form Creator Bot";
+                        }
+                    }
+
+                    // Send PM single user
+                    if ($formcreator->settings['pmusers']) {
+                        $users = explode(",", $formcreator->settings['pmusers']);
+
+                        foreach ($users as $user) {
+                            if ($user_data = get_user($user)) {
+                                $pmhandler = new PMDataHandler();
+                                $pmhandler->admin_override = true;
+
+                                $pm = array(
+                                    "subject" => $subject,
+                                    "message" => $message,
+                                    "icon" => $formcreator->settings['posticon'],
+                                    "toid" => $user_data['uid'],
+                                    "fromid" => $uid,
+                                    "do" => '',
+                                    "pmid" => '');
+                                $pm['options'] = array(
+                                    "signature" => $formcreator->settings['signature'],
+                                    "disablesmilies" => "0",
+                                    "savecopy" => "0",
+                                    "readreceipt" => "0",
+                                    "allow_html" => 1);
+
+                                $pmhandler->set_data($pm);
+                                if ($pmhandler->validate_pm()) {
+                                    $pmhandler->insert_pm();
+                                } else {
+                                    $post_errors = array_merge($post_errors, $pmhandler->get_friendly_errors());
+                                }
+                            }
+                        }
+                    }
+
+                    // Send PM groups
+                    if (count($formcreator->settings['pmgroups']) != 0 and !empty($formcreator->settings['pmgroups'][0])) {
+                        $group_members = get_usergroup_users($formcreator->settings['pmgroups']);
+
+                        foreach ($group_members as $user) {
                             $pmhandler = new PMDataHandler();
-                            $pmhandler->admin_override = true;
 
                             $pm = array(
                                 "subject" => $subject,
                                 "message" => $message,
-                                "icon" => "-1",
-                                "toid" => $user_data['uid'],
+                                "icon" => $formcreator->settings['posticon'],
+                                "toid" => $user['uid'],
                                 "fromid" => $uid,
                                 "do" => '',
                                 "pmid" => '');
                             $pm['options'] = array(
-                                "signature" => "0",
+                                "signature" => $formcreator->settings['settings'],
                                 "disablesmilies" => "0",
                                 "savecopy" => "0",
                                 "readreceipt" => "0",
                                 "allow_html" => 1);
 
                             $pmhandler->set_data($pm);
+                            $pmhandler->verify_pm_flooding();
+
                             if ($pmhandler->validate_pm()) {
                                 $pmhandler->insert_pm();
+                            } else {
+                                $post_errors = array_merge($post_errors, $pmhandler->get_friendly_errors());
                             }
                         }
                     }
-                }
 
-                // Send PM groups
-                if (count($formcreator->pmgroups) != 0 and !empty($formcreator->pmgroups[0])) {
-                    $group_members = get_usergroup_users($formcreator->pmgroups);
 
-                    foreach ($group_members as $user) {
-                        $pmhandler = new PMDataHandler();
-                        $pmhandler->admin_override = true;
-
-                        $pm = array(
-                            "subject" => $subject,
-                            "message" => $message,
-                            "icon" => "-1",
-                            "toid" => $user['uid'],
-                            "fromid" => $uid,
-                            "do" => '',
-                            "pmid" => '');
-                        $pm['options'] = array(
-                            "signature" => "0",
-                            "disablesmilies" => "0",
-                            "savecopy" => "0",
-                            "readreceipt" => "0",
-                            "allow_html" => 1);
-
-                        $pmhandler->set_data($pm);
-                        if ($pmhandler->validate_pm()) {
-                            $pmhandler->insert_pm();
-                        }
+                    // Mail content
+                    /*
+                    if ($formcreator->settings['mail']) {
+                    if ($mybb->user['uid']) {
+                    $mybb->input['fromemail'] = $mybb->user['email'];
+                    $mybb->input['fromname'] = $mybb->user['username'];
+                    } else {
+                    $mybb->input['fromemail'] = $mybb->user['email'];
+                    //$mybb->input['fromname'] = $mybb->settings[''];
                     }
-                }
 
-                // Mail content
-                /*
-                if ($formcreator->mail) {
-                if ($mybb->user['uid']) {
-                $mybb->input['fromemail'] = $mybb->user['email'];
-                $mybb->input['fromname'] = $mybb->user['username'];
-                } else {
-                $mybb->input['fromemail'] = $mybb->user['email'];
-                //$mybb->input['fromname'] = $mybb->settings[''];
-                }
+                    if ($mybb->settings['mail_handler'] == 'smtp') {
+                    $from = $mybb->input['fromemail'];
+                    } else {
+                    $from = "{$mybb->input['fromname']} <{$mybb->input['fromemail']}>";
+                    }
 
-                if ($mybb->settings['mail_handler'] == 'smtp') {
-                $from = $mybb->input['fromemail'];
-                } else {
-                $from = "{$mybb->input['fromname']} <{$mybb->input['fromemail']}>";
-                }
+                    $message = $lang->sprintf($lang->email_emailuser, $to_user['username'], $mybb->input['fromname'], $mybb->settings['bbname'], $mybb->settings['bburl'],
+                    $mybb->get_input('message'));
+                    my_mail($to_user['email'], $mybb->get_input('subject'), $message, $from, "", "", false, "text", "", $mybb->input['fromemail']);
 
-                $message = $lang->sprintf($lang->email_emailuser, $to_user['username'], $mybb->input['fromname'], $mybb->settings['bbname'], $mybb->settings['bburl'],
-                $mybb->get_input('message'));
-                my_mail($to_user['email'], $mybb->get_input('subject'), $message, $from, "", "", false, "text", "", $mybb->input['fromemail']);
+                    if ($mybb->settings['mail_logging'] > 0) {
+                    // Log the message
+                    $log_entry = array(
+                    "subject" => $db->escape_string($mybb->get_input('subject')),
+                    "message" => $db->escape_string($mybb->get_input('message')),
+                    "dateline" => TIME_NOW,
+                    "fromuid" => $mybb->user['uid'],
+                    "fromemail" => $db->escape_string($mybb->input['fromemail']),
+                    "touid" => $to_user['uid'],
+                    "toemail" => $db->escape_string($to_user['email']),
+                    "tid" => 0,
+                    "ipaddress" => $db->escape_binary($session->packedip),
+                    "type" => 1);
+                    $db->insert_query("maillogs", $log_entry);
+                    }
+                    }
+                    */
 
-                if ($mybb->settings['mail_logging'] > 0) {
-                // Log the message
-                $log_entry = array(
-                "subject" => $db->escape_string($mybb->get_input('subject')),
-                "message" => $db->escape_string($mybb->get_input('message')),
-                "dateline" => TIME_NOW,
-                "fromuid" => $mybb->user['uid'],
-                "fromemail" => $db->escape_string($mybb->input['fromemail']),
-                "touid" => $to_user['uid'],
-                "toemail" => $db->escape_string($to_user['email']),
-                "tid" => 0,
-                "ipaddress" => $db->escape_binary($session->packedip),
-                "type" => 1);
-                $db->insert_query("maillogs", $log_entry);
-                }
-                }
-                */
+                    // Post in Thread
+                    if ($formcreator->settings) {
+                        if ($thread = get_thread($formcreator->tid)) {
 
-                // Post in Thread
-                if ($formcreator->tid) {
-                    if ($thread = get_thread($formcreator->tid)) {
-                        $posthandler = new PostDataHandler();
-                        $posthandler->action = "post";
-                        $posthandler->admin_override = true;
+                            $mybb->input['action'] = "do_newreply";
 
-                        $new_post = array(
-                            "fid" => $thread['fid'],
-                            "tid" => $thread['tid'],
-                            "subject" => $subject,
-                            "uid" => $uid,
-                            "username" => $username,
-                            "message" => $message,
-                            "ipaddress" => $session->packedip,
-                            "posthash" => $posthash);
+                            $posthandler = new PostDataHandler();
+                            $posthandler->action = "post";
+                            $posthandler->admin_override = false;
 
-                        // Set up the thread options
-                        $new_post['options'] = array(
-                            "signature" => '1',
-                            "emailnotify" => '',
-                            "disablesmilies" => '0');
+                            $new_post = array(
+                                "fid" => $thread['fid'],
+                                "tid" => $thread['tid'],
+                                "subject" => $subject,
+                                "icon" => $formcreator->settings['posticon'],
+                                "uid" => $uid,
+                                "username" => $username,
+                                "message" => $message,
+                                "ipaddress" => $session->packedip,
+                                "posthash" => $posthash);
 
-                        $posthandler->set_data($new_post);
+                            // Set up the thread options
+                            $new_post['options'] = array(
+                                "signature" => $formcreator->settings['signature'],
+                                "emailnotify" => '',
+                                "disablesmilies" => '0');
 
-                        if ($posthandler->validate_post()) {
-                            $post_info = $posthandler->insert_post();
-                            $pid = $post_info['pid'];
-                            
-                            $post = get_post($pid);
+                            $posthandler->set_data($new_post);
+                            $posthandler->verify_post_flooding();
 
-                            $forumpermissions = forum_permissions($thread['fid']);
+                            if ($posthandler->validate_post()) {
+                                $post_info = $posthandler->insert_post();
+                                $pid = $post_info['pid'];
 
-                            if ($forumpermissions['canviewthreads'] == 1 && $post['visible'] == 1) {
-                                $url = get_post_link($pid, $thread['tid']);
+                                $post = get_post($pid);
+
+                                $forumpermissions = forum_permissions($thread['fid']);
+
+                                if ($forumpermissions['canviewthreads'] == 1 && $post['visible'] == 1) {
+                                    $url = get_post_link($pid, $thread['tid']);
+                                }
+                            } else {
+                                $post_errors = array_merge($post_errors, $posthandler->get_friendly_errors());
                             }
                         }
                     }
-                }
 
-                // Thread in Forum
-                if ($formcreator->fid) {
-                    if ($forum = get_forum($formcreator->fid)) {
-                        $posthandler = new PostDataHandler();
-                        $posthandler->action = "thread";
-                        $posthandler->admin_override = true;
+                    // Thread in Forum
+                    if ($formcreator->fid) {
+                        if ($forum = get_forum($formcreator->fid)) {
 
-                        $new_thread = array(
-                            "fid" => $forum['fid'],
-                            "subject" => $subject,
-                            "prefix" => $formcreator->prefix,
-                            "icon" => -1,
-                            "uid" => $uid,
-                            "username" => $username,
-                            "message" => $message,
-                            "ipaddress" => $session->packedip,
-                            "posthash" => $posthash);
+                            $mybb->input['action'] = "do_newthread";
+                            $fid = $forum['fid'];
 
-                        // Set up the thread options
-                        $new_thread['options'] = array(
-                            "signature" => '1',
-                            "emailnotify" => '',
-                            "disablesmilies" => '0');
+                            $posthandler = new PostDataHandler();
+                            $posthandler->action = "thread";
 
-                        $posthandler->set_data($new_thread);
+                            if (empty($prefix)) {
+                                $prefix = $formcreator->settings['prefix'];
+                            }
 
-                        if ($posthandler->validate_thread()) {
-                            $thread_info = $posthandler->insert_thread();
-                            $tid = $thread_info['tid'];
-                            
-                            $thread = get_thread($tid);
-                            $post = get_post($thread['firstpost']);
+                            $new_thread = array(
+                                "fid" => $forum['fid'],
+                                "subject" => $subject,
+                                "prefix" => $prefix,
+                                "icon" => $formcreator->settings['posticon'],
+                                "uid" => $uid,
+                                "username" => $username,
+                                "message" => $message,
+                                "ipaddress" => $session->packedip,
+                                "posthash" => $posthash);
 
-                            $forumpermissions = forum_permissions($forum['fid']);
+                            // Set up the thread options
+                            $new_thread['options'] = array(
+                                "signature" => $formcreator->settings['signature'],
+                                "emailnotify" => '',
+                                "disablesmilies" => '0');
 
-                            if ($forumpermissions['canviewthreads'] == 1 && $post['visible'] == 1) {
-                                $url = get_thread_link($tid);
+                            $posthandler->set_data($new_thread);
+                            $posthandler->verify_post_flooding();
+
+                            if ($posthandler->validate_thread()) {
+                                $thread_info = $posthandler->insert_thread();
+                                $tid = $thread_info['tid'];
+
+                                $thread = get_thread($tid);
+                                $post = get_post($thread['firstpost']);
+
+                                $forumpermissions = forum_permissions($forum['fid']);
+
+                                if ($forumpermissions['canviewthreads'] == 1 && $post['visible'] == 1) {
+                                    $url = get_thread_link($tid);
+                                }
+                            } else {
+                                $post_errors = array_merge($post_errors, $posthandler->get_friendly_errors());
                             }
                         }
                     }
-                }
 
-                if(!empty($formcreator->customsuccess)){
-                    redirect($formcreator->customsuccess, $lang->fc_submitted, "", false);
-                }elseif ($url) {
-                    redirect($url, $lang->fc_submitted, "", false);
-                } else {
-                    redirect($mybb->settings['bburl'], $lang->fc_submitted, "", false);
-                }
+                    if (count($post_errors) != 0) {
+                        $errors .= inline_error($post_errors);
+                    } elseif (!empty($formcreator->settings['customsuccess'])) {
+                        redirect($formcreator->settings['customsuccess'], $lang->fc_submitted, "", false);
+                    } elseif ($url) {
+                        redirect($url, $lang->fc_submitted, "", false);
+                    } else {
+                        redirect($mybb->settings['bburl'], $lang->fc_submitted, "", false);
+                    }
 
+                }
             }
-        }
 
-        if ($display && count($formcreator->fields) != 0) {
-            $formtitle = $formcreator->name;
+            if ($display && count($formcreator->fields) != 0) {
+                $formtitle = $formcreator->name;
 
-            $formcontent = $formcreator->build_form();
-        } elseif (count($formcreator->fields) == 0) {
-            $formtitle = $formcreator->name;
+                $formcontent = $formcreator->build_form();
+            } elseif (count($formcreator->fields) == 0) {
+                $formtitle = $formcreator->name;
 
-            $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_no_fields.'</td></tr>';
-        }
-        
-        }else{
+                $formcontent = '<tr><td class="trow1" colspan="2">' . $lang->fc_no_fields . '</td></tr>';
+            }
+
+        } else {
             add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
             $formtitle = $lang->fc_limit_reached_title;
-    
-            $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_limit_reached.'</td></tr>';
+
+            $formcontent = '<tr><td class="trow1" colspan="2">' . $lang->fc_limit_reached . '</td></tr>';
         }
     } elseif ($formcreator->active == 0) {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
         $formtitle = $lang->fc_form_disabled_title;
 
-        $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_form_disabled.'</td></tr>';
+        $formcontent = '<tr><td class="trow1" colspan="2">' . $lang->fc_form_disabled . '</td></tr>';
     } else {
         add_breadcrumb($formcreator->name, "form.php?formid=" . $formcreator->formid);
 
         $formtitle = $lang->fc_access_denied;
 
-        $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_form_no_permissions.'</td></tr>';
+        $custommsg = trim($formcreator->settings['customdenied']);
+        if (empty($custommsg)) {
+            $deniedtext = $lang->fc_form_no_permissions;
+        } else {
+            $deniedtext = $formcreator->settings['customdenied'];
+        }
+
+        $formcontent = '<tr><td class="trow1" colspan="2">' . $deniedtext . '</td></tr>';
     }
 } else {
     add_breadcrumb($lang->formcreator, "form.php");
 
     $formtitle = $lang->formcreator;
-    $formcontent = '<tr><td class="trow1" colspan="2">'.$lang->fc_no_form_found.'</td></tr>';
+    $formcontent = '<tr><td class="trow1" colspan="2">' . $lang->fc_no_form_found . '</td></tr>';
 }
 
 eval("\$form = \"" . $templates->get("formcreator_container") . "\";");

@@ -13,5 +13,13 @@ $l['fc_access_denied'] = "Access Denied";
 $l['fc_form_disabled_title'] = "Form Disabled";
 $l['fc_limit_reached_title'] = "Form Limit Reached";
 $l['fc_limit_reached'] = "You have reached the maximum form usage";
+$l['fc_test'] = "Test";
+$l['fc_select_option'] = "Select option";
+$l['fc_no_option_selected'] = "no option was selected";
+$l['fc_oops'] = "Oops something went wrong. Please try again later or contact your system administrator.";
+$l['fc_summary'] = "Summary Page";
+$l['fc_summary_error'] = "The submitted data seemed corrupt. Please try again later or contact your system administrator.";
+$l['fc_back'] = "Back";
+$l['fc_confirm'] = "Confirm";
 
 ?>
