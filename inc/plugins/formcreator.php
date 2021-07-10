@@ -380,9 +380,17 @@ function formcreator_check_database()
         while($row = $db->fetch_array($query)){
             $cols_db[$row['Field']] = $row;
         }
-        
+
         foreach($fields['fc_formusage'] as $field){
-            if($cols_db[$field['Field']]['Type'] != $field['Type']){
+            # Catch mariaDB timestamp type
+            $typesplit = explode(" ",$cols_db[$field['Field']]['Type']);
+            if(count($typesplit) > 1){
+                $dbtype = $typesplit[0];
+            }else{
+                $dbtype = $cols_db[$field['Field']]['Type'];
+            }
+
+            if($dbtype != $field['Type']){
                 $error++;
             }
         }
