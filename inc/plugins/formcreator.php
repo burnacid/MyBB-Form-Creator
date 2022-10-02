@@ -357,8 +357,6 @@ function formcreator_check_database()
     if($db->table_exists('fc_fields') && $db->table_exists('fc_forms') && $db->table_exists('fc_formusage')){
         $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_forms");
 
-        print_r($db->read_link->server_info);
-
         while($row = $db->fetch_array($query)){
             $cols_db[$row['Field']] = $row;
         }
