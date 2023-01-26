@@ -773,6 +773,11 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 unset($form['fields']);
                 
                 $settings = $form['settings'];
+
+                if($form['usage']) {
+                    $usage = $form['usage'];
+                    unset($form['usage']);
+                }
                 
                 //Check if field exists in DB else move field to settings
                 foreach($form as $key => $value){
@@ -828,9 +833,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                     $formcreator->subjecttemplate = $form['subjecttemplate'];
                     $formcreator->messagetemplate = $form['messagetemplate'];
                     $formcreator->update_template();
-                    
-                    if($form['usage']){
-                        foreach ($form['usage'] as $log) {
+
+                    if($usage){
+                        foreach ($usage as $log) {
                             $log['formid'] = $formid;
                             $db->insert_query("fc_formusage",$log);
                         }

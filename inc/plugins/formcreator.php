@@ -22,7 +22,7 @@ function formcreator_info()
         'website' => 'https://community.mybb.com/mods.php?action=view&pid=975',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '2.6.5',
+        'version' => '2.6.6',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
@@ -346,18 +346,24 @@ function formcreator_check_database()
     
     $formcreator = new formcreator();
     $fields = $formcreator->formcreator_fields;
+
+    #check if MySQL instead of MariaDB. If so Temp Skip this check untill time to develop a real fix
+    if(!preg_match("/.*MariaDB.*/",$db->read_link->server_info)){
+        return array(true);
+    }
     
     $errors = 0;
     
     if($db->table_exists('fc_fields') && $db->table_exists('fc_forms') && $db->table_exists('fc_formusage')){
         $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_forms");
-        
+
         while($row = $db->fetch_array($query)){
             $cols_db[$row['Field']] = $row;
         }
         
         foreach($fields['fc_forms'] as $field){
             if($cols_db[$field['Field']]['Type'] != $field['Type']){
+                echo $field['Field'] ."-". $cols_db[$field['Field']]['Type'] ."<br />";
                 $error++;
             }
         }
@@ -371,6 +377,7 @@ function formcreator_check_database()
         
         foreach($fields['fc_fields'] as $field){
             if($cols_db[$field['Field']]['Type'] != $field['Type']){
+                echo $field['Field'] ."-". $field['Type'] ."<br />";
                 $error++;
             }
         }
@@ -383,6 +390,7 @@ function formcreator_check_database()
         
         foreach($fields['fc_formusage'] as $field){
             if($cols_db[$field['Field']]['Type'] != $field['Type']){
+                echo $field['Field'] ."-". $field['Type'] ."<br />";
                 $error++;
             }
         }
