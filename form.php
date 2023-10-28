@@ -236,35 +236,35 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                     // Send PM groups
                     if (count($formcreator->settings['pmgroups']) != 0 and !empty($formcreator->settings['pmgroups'][0])) {
-                        $group_members = get_usergroup_users($formcreator->settings['pmgroups']);
+                        $group_members = get_usergroup_users_uid($formcreator->settings['pmgroups']);
 
-                        foreach ($group_members as $user) {
-                            $pmhandler = new PMDataHandler();
+                        $pmhandler = new PMDataHandler();
 
-                            $pm = array(
-                                "subject" => $subject,
-                                "message" => $message,
-                                "icon" => $formcreator->settings['posticon'],
-                                "toid" => $user['uid'],
-                                "fromid" => $uid,
-                                "do" => '',
-                                "pmid" => '');
-                            $pm['options'] = array(
-                                "signature" => $formcreator->settings['settings'],
-                                "disablesmilies" => "0",
-                                "savecopy" => "0",
-                                "readreceipt" => "0",
-                                "allow_html" => 1);
+                        $pm = array(
+                            "subject" => $subject,
+                            "message" => $message,
+                            "icon" => $formcreator->settings['posticon'],
+                            "toid" => $group_members,
+                            "fromid" => $uid,
+                            "do" => '',
+                            "pmid" => ''
+                        );
+                        $pm['options'] = array(
+                            "signature" => $formcreator->settings['signature'],
+                            "disablesmilies" => "0",
+                            "savecopy" => "0",
+                            "readreceipt" => "0",
+                            "allow_html" => 1);
 
-                            $pmhandler->set_data($pm);
-                            $pmhandler->verify_pm_flooding();
+                        $pmhandler->set_data($pm);
+                        $pmhandler->verify_pm_flooding();
 
-                            if ($pmhandler->validate_pm()) {
-                                $pmhandler->insert_pm();
-                            } else {
-                                $post_errors = array_merge($post_errors, $pmhandler->get_friendly_errors());
-                            }
+                        if ($pmhandler->validate_pm()) {
+                            $pmhandler->insert_pm();
+                        } else {
+                            $post_errors = array_merge($post_errors, $pmhandler->get_friendly_errors());
                         }
+
                     }
 
 
