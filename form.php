@@ -257,7 +257,8 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             "allow_html" => 1);
 
                         $pmhandler->set_data($pm);
-                        $pmhandler->verify_pm_flooding();
+                        //verify_pm_flooding() is called in validate_pm
+                        //$pmhandler->verify_pm_flooding();
 
                         if ($pmhandler->validate_pm()) {
                             $pmhandler->insert_pm();
