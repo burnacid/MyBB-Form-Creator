@@ -597,7 +597,13 @@ function get_usergroup($gid)
     }
 }
 
-function get_usergroup_users($gid)
+/*
+ * @param $gid int|array
+ * @return array|bool
+ * @description Returns an array of uid's that are in the usergroup(s) specified by $gid
+ * Called by form.php when sending PM's to a group
+ */
+function get_usergroup_users_uid($gid)
 {
     global $db;
 
@@ -607,15 +613,16 @@ function get_usergroup_users($gid)
             $additionwhere .= " OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($groupid) . ",%'";
         }
 
-        $query = $db->simple_select("users", "*", "usergroup IN (" . implode(",", $gid) . ")" . $additionwhere);
+        $query = $db->simple_select("users", "uid", "usergroup IN (" . implode(",", $gid) . ")" . $additionwhere);
     } else {
-        $query = $db->simple_select("users", "*", "usergroup IN (" . intval($gid) . ") OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($gid) . ",%'");
+        $query = $db->simple_select("users", "uid", "usergroup IN (" . intval($gid) . ") OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($gid) . ",%'");
     }
 
     if ($db->num_rows($query)) {
-
+        $rownum = 0;
         while ($user = $db->fetch_array($query)) {
-            $userarray[$user['uid']] = $user;
+            $userarray[$rownum] = $user['uid'];
+            $rownum++;
         }
         return $userarray;
     } else {
