@@ -627,7 +627,7 @@ class formcreator
             eval("\$output = \"" . $this->subjecttemplate . "\";");
         }
 
-        return substr($output, 0, 80);
+        return substr($output, 0, 120);
     }
 
     public function parse_output()
