@@ -694,6 +694,7 @@ class formcreator
         $data = array(
             "formid" => $this->formid,
             "uid" => $mybb->user['uid'],
+            "datetime" => date('Y-m-d H:i:s'),
             "ref" => $this->get_next_ref());
 
         $db->insert_query("fc_formusage", $data);

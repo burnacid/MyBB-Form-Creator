@@ -195,7 +195,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             $uid = $user['uid'];
                             $username = $user['username'];
                         } elseif ($formcreator->settings['uid'] == -1) {
-                            $uid = -1;
+                            $uid = 0;
                             $username = "Form Creator Bot";
                         }
                     }
