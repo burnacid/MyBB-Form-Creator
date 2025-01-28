@@ -16,3 +16,7 @@ $l['fc_test'] = "Test";
 $l['fc_select_option'] = "Selecteer optie";
 $l['fc_no_option_selected'] = "Geen opties geselecteerd";
 $l['fc_oops'] = "Oops er is iets mis gegaan. Probeer het later nogmaals of neem contact op met je systeembeheerder.";
+$l['fc_summary'] = "Overzichtspagina";
+$l['fc_summary_error'] = "De verstuurde data lijkt niet correct. Probeer het later opnieuw of contacteer uw systeem administrator.";
+$l['fc_back'] = "Terug";
+$l['fc_confirm'] = "Bevestig";
