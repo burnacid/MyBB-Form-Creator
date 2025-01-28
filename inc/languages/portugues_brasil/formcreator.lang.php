@@ -16,5 +16,10 @@ $l['fc_limit_reached'] = "Você atingiu o limite máximo de uso de Formulário";
 $l['fc_test'] = "Teste";
 $l['fc_select_option'] = "Selecione uma opção";
 $l['fc_no_option_selected'] = "nenhuma opção foi selecionada";
+$l['fc_oops'] = "Ops, algo deu errado. Tente novamente mais tarde ou entre em contato com o administrador do sistema.";
+$l['fc_summary'] = "Página de Resumo";
+$l['fc_summary_error'] = "Os dados enviados pareciam corrompidos. Tente novamente mais tarde ou entre em contato com o administrador do sistema.";
+$l['fc_back'] = "Voltar";
+$l['fc_confirm'] = "Confirmar";
 
 ?>

@@ -80,9 +80,9 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                     if ($field->settings['regex'] && !preg_match("/" . $field->settings['regex'] . "/", $mybb->input["field_" . $field->fieldid])) {
                         if (!empty($field->settings['regexerror'])) {
-
+                            $error_array[] = $field->settings['regexerror'];
                         } else {
-                            $error_array[] = $lang->fc_no_attachment;
+                            $error_array[] = $lang->fc_no_match_regex;
                         }
 
                     }
@@ -236,34 +236,36 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                     // Send PM groups
                     if (count($formcreator->settings['pmgroups']) != 0 and !empty($formcreator->settings['pmgroups'][0])) {
-                        $group_members = get_usergroup_users($formcreator->settings['pmgroups']);
+                        $group_members = get_usergroup_users_uid($formcreator->settings['pmgroups']);
 
-                        foreach ($group_members as $user) {
-                            $pmhandler = new PMDataHandler();
-                            $pmhandler->admin_override = true;
+                        $pmhandler = new PMDataHandler();
 
-                            $pm = array(
-                                "subject" => $subject,
-                                "message" => $message,
-                                "icon" => $formcreator->settings['posticon'],
-                                "toid" => $user['uid'],
-                                "fromid" => $uid,
-                                "do" => '',
-                                "pmid" => '');
-                            $pm['options'] = array(
-                                "signature" => $formcreator->settings['settings'],
-                                "disablesmilies" => "0",
-                                "savecopy" => "0",
-                                "readreceipt" => "0",
-                                "allow_html" => 1);
+                        $pm = array(
+                            "subject" => $subject,
+                            "message" => $message,
+                            "icon" => $formcreator->settings['posticon'],
+                            "toid" => $group_members,
+                            "fromid" => $uid,
+                            "do" => '',
+                            "pmid" => ''
+                        );
+                        $pm['options'] = array(
+                            "signature" => $formcreator->settings['signature'],
+                            "disablesmilies" => "0",
+                            "savecopy" => "0",
+                            "readreceipt" => "0",
+                            "allow_html" => 1);
 
-                            $pmhandler->set_data($pm);
-                            if ($pmhandler->validate_pm()) {
-                                $pmhandler->insert_pm();
-                            } else {
-                                $post_errors = array_merge($post_errors, $pmhandler->get_friendly_errors());
-                            }
+                        $pmhandler->set_data($pm);
+                        //verify_pm_flooding() is called in validate_pm
+                        //$pmhandler->verify_pm_flooding();
+
+                        if ($pmhandler->validate_pm()) {
+                            $pmhandler->insert_pm();
+                        } else {
+                            $post_errors = array_merge($post_errors, $pmhandler->get_friendly_errors());
                         }
+
                     }
 
 
@@ -314,7 +316,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                             $posthandler = new PostDataHandler();
                             $posthandler->action = "post";
-                            $posthandler->admin_override = true;
+                            $posthandler->admin_override = false;
 
                             $new_post = array(
                                 "fid" => $thread['fid'],
@@ -334,6 +336,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "disablesmilies" => '0');
 
                             $posthandler->set_data($new_post);
+                            $posthandler->verify_post_flooding();
 
                             if ($posthandler->validate_post()) {
                                 $post_info = $posthandler->insert_post();
@@ -361,7 +364,6 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                             $posthandler = new PostDataHandler();
                             $posthandler->action = "thread";
-                            $posthandler->admin_override = true;
 
                             if (empty($prefix)) {
                                 $prefix = $formcreator->settings['prefix'];
@@ -385,6 +387,7 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "disablesmilies" => '0');
 
                             $posthandler->set_data($new_thread);
+                            $posthandler->verify_post_flooding();
 
                             if ($posthandler->validate_thread()) {
                                 $thread_info = $posthandler->insert_thread();

@@ -539,10 +539,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 $form_container->output_row($lang->fc_required, $lang->fc_field_required_desc, $form->generate_yes_no_radio("required", $field->required));
             }
             if ($field->show_admin_field("regex")) {
-                $form_container->output_row($lang->fc_regex, $lang->fc_field_regex_desc, "<strong>/ ".$form->generate_text_box("settings[regex]", $field->
-                    regex)." /</strong>");
-                $form_container->output_row($lang->fc_regex_error, $lang->fc_field_regex_error_desc, $form->generate_text_box("settings[regexerror]", $field->
-                    regexerror));
+                $form_container->output_row($lang->fc_regex, $lang->fc_field_regex_desc, "<strong>/ ".$form->generate_text_box("settings[regex]", $field->settings['regex'])." /</strong>");
+                $form_container->output_row($lang->fc_regex_error, $lang->fc_field_regex_error_desc, $form->generate_text_box("settings[regexerror]", $field->settings['regexerror']));
             }
             if ($field->show_admin_field("size")) {
                 $form_container->output_row($lang->fc_size, $lang->fc_field_size_desc, $form->generate_numeric_field("settings[size]", $field->settings['size']));
@@ -775,6 +773,11 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                 unset($form['fields']);
                 
                 $settings = $form['settings'];
+
+                if($form['usage']) {
+                    $usage = $form['usage'];
+                    unset($form['usage']);
+                }
                 
                 //Check if field exists in DB else move field to settings
                 foreach($form as $key => $value){
@@ -830,9 +833,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                     $formcreator->subjecttemplate = $form['subjecttemplate'];
                     $formcreator->messagetemplate = $form['messagetemplate'];
                     $formcreator->update_template();
-                    
-                    if($form['usage']){
-                        foreach ($form['usage'] as $log) {
+
+                    if($usage){
+                        foreach ($usage as $log) {
                             $log['formid'] = $formid;
                             $db->insert_query("fc_formusage",$log);
                         }

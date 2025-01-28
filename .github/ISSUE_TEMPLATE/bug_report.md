@@ -1,6 +1,9 @@
 ---
 name: Bug report
 about: Create a report to help us improve
+title: ''
+labels: bug
+assignees: ''
 
 ---
 
@@ -23,5 +26,4 @@ A clear and concise description of what you expected to happen.
  - PHP version:
  - MySQL version: 
 
-**Additional context**
-Add any other context about the problem here.
+**Please add an export of your form if the issue is within processing the form**
