@@ -44,16 +44,21 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 $files = array();
                 $prefix = "";
                 $posthash = "";
+                $url = "";
 
                 if ($formcreator->check_summary() == 0) {
-                    $forminput = json_decode($mybb->input['formdata']['data']);
+                    $forminput = json_decode($mybb->input['formdata']['data'], true);
 
-                    if (isset($forminput['posthash'])) {
+                    if (is_array($forminput) && isset($forminput['posthash'])) {
                         remove_attachments(0, $forminput['posthash']);
                     }
                     $error_array[] = $lang->fc_summary_error;
                 } elseif ($formcreator->check_summary() == 1 && $formcreator->settings['showsummary'] == 1) {
-                    $forminput = json_decode($mybb->input['formdata']['data']);
+                    $forminput = json_decode($mybb->input['formdata']['data'], true);
+
+                    if (!is_array($forminput)) {
+                        $forminput = array();
+                    }
 
                     foreach ($forminput as $key => $value) {
                         if (is_array($value)) {
@@ -70,15 +75,22 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                 }
 
                 foreach ($formcreator->fields as $field) {
-                    $field->default = $mybb->input["field_" . $field->fieldid];
+                    $field_input_name = "field_" . $field->fieldid;
+                    if (isset($mybb->input[$field_input_name])) {
+                        $field_value = $mybb->input[$field_input_name];
+                    } else {
+                        $field_value = "";
+                    }
 
-                    if ($field->required && empty($mybb->input["field_" . $field->fieldid]) && $field->type != 13 && $field->type != 14) {
+                    $field->default = $field_value;
+
+                    if ($field->required && empty($field_value) && $field->type != 13 && $field->type != 14) {
                         $error_array[] = "'" . $field->name . "' " . $lang->fc_is_empty;
-                    } elseif ($field->required && $field->type == 3 && empty($mybb->input["field_" . $field->fieldid][0])) {
+                    } elseif ($field->required && $field->type == 3 && (!is_array($field_value) || empty($field_value[0]))) {
                         $error_array[] = "'" . $field->name . "' " . $lang->fc_no_option_selected;
                     }
 
-                    if ($field->settings['regex'] && !preg_match("/" . $field->settings['regex'] . "/", $mybb->input["field_" . $field->fieldid])) {
+                    if ($field->settings['regex'] && !is_array($field_value) && !preg_match("/" . $field->settings['regex'] . "/", $field_value)) {
                         if (!empty($field->settings['regexerror'])) {
                             $error_array[] = $field->settings['regexerror'];
                         } else {
@@ -96,21 +108,27 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                             }
                         }
                     } elseif (($field->type == 13 or $field->type == 14) and ($formcreator->check_summary() != 1 or $formcreator->settings['showsummary'] == 0)) {
-                        if (!empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13) {
-                            $files[count($files)] = $_FILES["field_" . $field->fieldid];
-                        } elseif (!empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14) {
-                            $files = array_merge($files, reArrayFiles($_FILES["field_" . $field->fieldid], count($files)));
+                        if (isset($_FILES[$field_input_name]) && is_array($_FILES[$field_input_name])) {
+                            $upload_input = $_FILES[$field_input_name];
+                        } else {
+                            $upload_input = array();
+                        }
+
+                        if (!empty($upload_input["name"]) && $field->type == 13) {
+                            $files[count($files)] = $upload_input;
+                        } elseif ($field->type == 14 && isset($upload_input["name"]) && is_array($upload_input["name"]) && !empty($upload_input["name"][0])) {
+                            $files = array_merge($files, reArrayFiles($upload_input, count($files)));
                         } elseif ($field->required) {
                             $error_array[] = $lang->fc_no_attachment;
-                        } elseif (empty($_FILES["field_" . $field->fieldid]["name"]) && $field->type == 13 && !$field->required) {
+                        } elseif (empty($upload_input["name"]) && $field->type == 13 && !$field->required) {
                             # No action if no files are submitted
-                        } elseif (empty($_FILES["field_" . $field->fieldid]["name"][0]) && $field->type == 14 && !$field->required) {
+                        } elseif ($field->type == 14 && (empty($upload_input["name"]) || (is_array($upload_input["name"]) && empty($upload_input["name"][0]))) && !$field->required) {
                             # No action if no files are submitted
                         } else {
                             $error_array[] = $lang->fc_oops;
                         }
                     } elseif ($field->type == 16) {
-                        $prefix = intval($mybb->input["field_" . $field->fieldid]);
+                        $prefix = intval($field_value);
                     }
                 }
 

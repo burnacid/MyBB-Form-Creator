@@ -352,7 +352,7 @@ function formcreator_check_database()
         return array(true);
     }
     
-    $errors = 0;
+    $error = 0;
     
     if($db->table_exists('fc_fields') && $db->table_exists('fc_forms') && $db->table_exists('fc_formusage')){
         $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_forms");
@@ -607,6 +607,8 @@ function get_usergroup_users_uid($gid)
 {
     global $db;
 
+    $userarray = array();
+
     if (is_array($gid)) {
         $additionwhere = "";
         foreach ($gid as $groupid) {
@@ -657,6 +659,7 @@ function check_missing_templates(){
     $query = $db->simple_select('templates', 'tid,title,template', "sid=-2 AND (title='{$group['prefix']}' OR title LIKE '{$group['prefix']}=_%' ESCAPE '=')");
 
     $templates = $duplicates = array();
+    $existingtemplates = array();
 
     while ($row = $db->fetch_array($query)) {
         $existingtemplates[] = $row['title'];
