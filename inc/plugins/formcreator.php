@@ -22,7 +22,7 @@ function formcreator_info()
         'website' => 'https://community.mybb.com/mods.php?action=view&pid=975',
         'author' => 'S. Lenders (burnacid)',
         'authorsite' => 'http://lenders-it.nl',
-        'version' => '2.6.7',
+        'version' => '3.0.0',
         'compatibility' => '18*',
         'codename' => 'formcreator');
 }
@@ -278,64 +278,178 @@ function formcreator_deactivate()
     change_admin_permission('config', 'formcreator', -1);
 }
 
+function formcreator_get_db_type()
+{
+    global $db;
+
+    return strtolower((string)$db->type);
+}
+
+function formcreator_quote_identifier($identifier, $db_type = '')
+{
+    if (empty($db_type)) {
+        $db_type = formcreator_get_db_type();
+    }
+
+    if ($db_type == 'pgsql' || $db_type == 'sqlite') {
+        return '"' . str_replace('"', '""', $identifier) . '"';
+    }
+
+    return '`' . str_replace('`', '``', $identifier) . '`';
+}
+
+function formcreator_implode_identifiers($identifiers, $db_type = '')
+{
+    $quoted = array();
+    foreach ($identifiers as $identifier) {
+        $quoted[] = formcreator_quote_identifier($identifier, $db_type);
+    }
+
+    return implode(',', $quoted);
+}
+
+function formcreator_map_sql_type($type, $db_type, $is_auto_increment = false)
+{
+    $type = strtolower(trim($type));
+
+    if ($db_type == 'pgsql') {
+        if ($is_auto_increment) {
+            return 'SERIAL';
+        }
+
+        if (preg_match('/^int\([0-9]+\)$/', $type)) {
+            return 'INTEGER';
+        }
+
+        if (preg_match('/^tinyint\([0-9]+\)$/', $type)) {
+            return 'SMALLINT';
+        }
+
+        return strtoupper($type);
+    }
+
+    if ($db_type == 'sqlite') {
+        if ($is_auto_increment) {
+            return 'INTEGER';
+        }
+
+        if (preg_match('/^(int|tinyint)\([0-9]+\)$/', $type)) {
+            return 'INTEGER';
+        }
+
+        if ($type == 'timestamp') {
+            return 'TEXT';
+        }
+
+        return strtoupper($type);
+    }
+
+    return strtoupper($type);
+}
+
+function formcreator_get_table_options($db_type = '')
+{
+    if (empty($db_type)) {
+        $db_type = formcreator_get_db_type();
+    }
+
+    if ($db_type == 'mysql' || $db_type == 'mysqli') {
+        return ' ENGINE=MyISAM DEFAULT CHARSET=utf8';
+    }
+
+    return '';
+}
+
 function formcreator_install()
 {
-    global $db, $mybb;
+    global $db;
+
+    $db_type = formcreator_get_db_type();
 
     if (!$db->table_exists('fc_forms')) {
-        $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_forms` (
-          ".formcreator_generate_table_fields("fc_forms")."
-          PRIMARY KEY (`formid`)
-        ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ");
+        $primary_key = array('formid');
+        $inline_pk = ($db_type == 'sqlite') ? 'formid' : '';
+        $primary_sql = '';
+
+        if (empty($inline_pk)) {
+            $primary_sql = ",\n          PRIMARY KEY (" . formcreator_implode_identifiers($primary_key, $db_type) . ")";
+        }
+
+        $db->write_query("CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "fc_forms (\n"
+            . "          " . formcreator_generate_table_fields('fc_forms', $db_type, $inline_pk)
+            . $primary_sql
+            . "\n        )"
+            . formcreator_get_table_options($db_type)
+            . ";");
     }
 
     if (!$db->table_exists('fc_fields')) {
-        $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_fields` (
-          ".formcreator_generate_table_fields("fc_fields")."
-          PRIMARY KEY (`fieldid`)
-        ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ");
+        $primary_key = array('fieldid');
+        $inline_pk = ($db_type == 'sqlite') ? 'fieldid' : '';
+        $primary_sql = '';
+
+        if (empty($inline_pk)) {
+            $primary_sql = ",\n          PRIMARY KEY (" . formcreator_implode_identifiers($primary_key, $db_type) . ")";
+        }
+
+        $db->write_query("CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "fc_fields (\n"
+            . "          " . formcreator_generate_table_fields('fc_fields', $db_type, $inline_pk)
+            . $primary_sql
+            . "\n        )"
+            . formcreator_get_table_options($db_type)
+            . ";");
     }
-    
+
     if (!$db->table_exists('fc_formusage')) {
-        $db->write_query("CREATE TABLE IF NOT EXISTS `" . TABLE_PREFIX . "fc_formusage` (
-          ".formcreator_generate_table_fields("fc_formusage")."
-          PRIMARY KEY (`formid`,`uid`,`ref`)
-        ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-        ");
+        $primary_key = array('formid', 'uid', 'ref');
+
+        $db->write_query("CREATE TABLE IF NOT EXISTS " . TABLE_PREFIX . "fc_formusage (\n"
+            . "          " . formcreator_generate_table_fields('fc_formusage', $db_type)
+            . ",\n          PRIMARY KEY (" . formcreator_implode_identifiers($primary_key, $db_type) . ")"
+            . "\n        )"
+            . formcreator_get_table_options($db_type)
+            . ";");
     }
 }
 
-function formcreator_generate_table_fields($table)
+function formcreator_generate_table_fields($table, $db_type = '', $sqlite_inline_primary_key = '')
 {
     require_once MYBB_ROOT . 'inc/class_formcreator.php';
-    
-    global $fields;
-    
+
     $formcreator = new formcreator();
-    
-    $fields = $formcreator->formcreator_fields;
-    
-    $output = "";
-    
-    foreach($fields[$table] as $field){
-        $output .= "`".$field['Field']."` ".$field['Type'];
-        
-        if($field['NULL'] == 1){
-            $output .= " DEFAULT NULL";
-        }else{
-            $output .= " NOT NULL";
-        }
-        
-        if($field['AI'] == 1){
-            $output .= " AUTO_INCREMENT";
-        }
-        
-        $output .= ",\n";
+
+    if (empty($db_type)) {
+        $db_type = formcreator_get_db_type();
     }
-    
-    return $output;
+
+    $output = array();
+
+    foreach ($formcreator->formcreator_fields[$table] as $field) {
+        $field_name = $field['Field'];
+        $is_auto_increment = (!empty($field['AI']) && intval($field['AI']) === 1);
+        $quoted_name = formcreator_quote_identifier($field_name, $db_type);
+
+        if ($db_type == 'sqlite' && $is_auto_increment && $sqlite_inline_primary_key === $field_name) {
+            $output[] = $quoted_name . ' INTEGER PRIMARY KEY AUTOINCREMENT';
+            continue;
+        }
+
+        $field_sql = $quoted_name . ' ' . formcreator_map_sql_type($field['Type'], $db_type, $is_auto_increment);
+
+        if ($field['NULL'] == 1 && !$is_auto_increment) {
+            $field_sql .= ' DEFAULT NULL';
+        } elseif (!$is_auto_increment || $db_type == 'mysql' || $db_type == 'mysqli') {
+            $field_sql .= ' NOT NULL';
+        }
+
+        if ($is_auto_increment && ($db_type == 'mysql' || $db_type == 'mysqli')) {
+            $field_sql .= ' AUTO_INCREMENT';
+        }
+
+        $output[] = $field_sql;
+    }
+
+    return implode(",\n          ", $output);
 }
 
 function formcreator_check_database()
@@ -347,64 +461,21 @@ function formcreator_check_database()
     $formcreator = new formcreator();
     $fields = $formcreator->formcreator_fields;
 
-    #check if MySQL instead of MariaDB. If so Temp Skip this check untill time to develop a real fix
-    if(!preg_match("/.*MariaDB.*/",$db->read_link->server_info)){
-        return array(true);
-    }
-    
-    $error = 0;
-    
-    if($db->table_exists('fc_fields') && $db->table_exists('fc_forms') && $db->table_exists('fc_formusage')){
-        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_forms");
+    $required_tables = array('fc_forms', 'fc_fields', 'fc_formusage');
 
-        while($row = $db->fetch_array($query)){
-            $cols_db[$row['Field']] = $row;
+    foreach ($required_tables as $table) {
+        if (!$db->table_exists($table)) {
+            return array(false, "The database structure doesn't contain the needed tables. Please repair the plugin by reinstalling");
         }
-        
-        foreach($fields['fc_forms'] as $field){
-            if($cols_db[$field['Field']]['Type'] != $field['Type']){
-                echo $field['Field'] ."-". $cols_db[$field['Field']]['Type'] ."<br />";
-                $error++;
+
+        foreach ($fields[$table] as $field) {
+            if (!$db->field_exists($field['Field'], $table)) {
+                return array(false, "The table structures have changed. It is adviced to create an export of your forms and reinstall the plugin!");
             }
         }
-        
-        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_fields");
-        $cols_db = array();
-        
-        while($row = $db->fetch_array($query)){
-            $cols_db[$row['Field']] = $row;
-        }
-        
-        foreach($fields['fc_fields'] as $field){
-            if($cols_db[$field['Field']]['Type'] != $field['Type']){
-                echo $field['Field'] ."-". $field['Type'] ."<br />";
-                $error++;
-            }
-        }
-        
-        $query = $db->query("SHOW COLUMNS FROM ".TABLE_PREFIX."fc_formusage");
-        
-        while($row = $db->fetch_array($query)){
-            $cols_db[$row['Field']] = $row;
-        }
-        
-        foreach($fields['fc_formusage'] as $field){
-            if($cols_db[$field['Field']]['Type'] != $field['Type']){
-                echo $field['Field'] ."-". $field['Type'] ."<br />";
-                $error++;
-            }
-        }
-        
-        if($error == 0){
-            return array(true);
-        }else{
-            return array(false,"The table structures have changed. It is adviced to create an export of your forms and reinstall the plugin!");
-        }
-        
-        
-    }else{
-        return array(false,"The database structure doesn't contain the needed tables. Please repair the plugin by reinstalling");
     }
+
+    return array(true);
 }
 
 function formcreator_is_installed()
@@ -609,15 +680,42 @@ function get_usergroup_users_uid($gid)
 
     $userarray = array();
 
-    if (is_array($gid)) {
-        $additionwhere = "";
-        foreach ($gid as $groupid) {
-            $additionwhere .= " OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($groupid) . ",%'";
+    $build_additional_group_condition = function($groupid) use ($db) {
+        $groupid = intval($groupid);
+        $db_type = formcreator_get_db_type();
+
+        if ($db_type == 'pgsql') {
+            return "(',' || COALESCE(additionalgroups, '') || ',') LIKE '%," . $groupid . ",%'";
         }
 
-        $query = $db->simple_select("users", "uid", "usergroup IN (" . implode(",", $gid) . ")" . $additionwhere);
+        if ($db_type == 'sqlite') {
+            return "(',' || IFNULL(additionalgroups, '') || ',') LIKE '%," . $groupid . ",%'";
+        }
+
+        return "CONCAT(',',additionalgroups,',') LIKE '%," . $groupid . ",%'";
+    };
+
+    if (is_array($gid)) {
+        $gid = array_values(array_filter(array_map('intval', $gid)));
+
+        if (empty($gid)) {
+            return false;
+        }
+
+        $additionalwhere = array();
+        foreach ($gid as $groupid) {
+            $additionalwhere[] = $build_additional_group_condition($groupid);
+        }
+
+        $where = "usergroup IN (" . implode(",", $gid) . ")";
+        if (!empty($additionalwhere)) {
+            $where .= " OR " . implode(" OR ", $additionalwhere);
+        }
+
+        $query = $db->simple_select("users", "uid", $where);
     } else {
-        $query = $db->simple_select("users", "uid", "usergroup IN (" . intval($gid) . ") OR CONCAT(',',additionalgroups,',') LIKE '%," . intval($gid) . ",%'");
+        $gid = intval($gid);
+        $query = $db->simple_select("users", "uid", "usergroup IN (" . $gid . ") OR " . $build_additional_group_condition($gid));
     }
 
     if ($db->num_rows($query)) {

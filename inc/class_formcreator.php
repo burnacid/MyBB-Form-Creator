@@ -31,6 +31,18 @@ class formcreator
 
     private $error;
 
+    private function get_order_column_sql()
+    {
+        global $db;
+
+        $db_type = strtolower((string)$db->type);
+        if ($db_type == 'pgsql' || $db_type == 'sqlite') {
+            return '"order"';
+        }
+
+        return '`order`';
+    }
+
     // Table structures from Array
     public $formcreator_fields = array(
         "fc_forms" => array(
@@ -577,8 +589,10 @@ class formcreator
     public function get_fields()
     {
         global $db;
+
+        $order_column = $this->get_order_column_sql();
         $query = $db->simple_select("fc_fields", "*", "formid = " . intval($this->
-            formid), array("order_by" => "`order`"));
+            formid), array("order_by" => $order_column));
 
         $this->fields = array();
 
@@ -621,8 +635,10 @@ class formcreator
     public function order_field($fieldid, $order)
     {
         global $db;
-        return $db->update_query("fc_fields", array("order" => intval($order)),
-            "fieldid = " . intval($fieldid) . " and formid = " . $this->formid);
+
+        $order_column = $this->get_order_column_sql();
+        return $db->write_query("UPDATE " . TABLE_PREFIX . "fc_fields SET " . $order_column . " = " . intval($order) .
+            " WHERE fieldid = " . intval($fieldid) . " and formid = " . intval($this->formid));
     }
 
     public function get_field_names()
@@ -795,6 +811,48 @@ class formcreator_field
     public $format;
     public $settings;
     public $error;
+
+    private function get_order_column_sql()
+    {
+        global $db;
+
+        $db_type = strtolower((string)$db->type);
+        if ($db_type == 'pgsql' || $db_type == 'sqlite') {
+            return '"order"';
+        }
+
+        return '`order`';
+    }
+
+    private function get_identifier_sql($identifier)
+    {
+        global $db;
+
+        $db_type = strtolower((string)$db->type);
+        if ($db_type == 'pgsql' || $db_type == 'sqlite') {
+            return '"' . str_replace('"', '""', $identifier) . '"';
+        }
+
+        return '`' . str_replace('`', '``', $identifier) . '`';
+    }
+
+    private function build_field_sql_data()
+    {
+        $data = $this->get_data();
+
+        $numeric_fields = array('fieldid', 'formid', 'type', 'required', 'order');
+        $result = array();
+
+        foreach ($data as $column => $value) {
+            if (in_array($column, $numeric_fields)) {
+                $result[$column] = intval($value);
+            } else {
+                $result[$column] = "'" . $value . "'";
+            }
+        }
+
+        return $result;
+    }
 
     public function escape_data()
     {
@@ -1024,16 +1082,37 @@ class formcreator_field
     {
         global $db;
         $this->escape_data();
-        $query = $db->simple_select("fc_fields", "`order`", "formid = " . $this->formid,
-            array("order_by" => "`order`", "order_dir" => "DESC"));
+        $order_column = $this->get_order_column_sql();
+        $query = $db->simple_select("fc_fields", $order_column . " AS displayorder", "formid = " . $this->formid,
+            array("order_by" => $order_column, "order_dir" => "DESC"));
         if ($db->num_rows($query) == 0) {
             $this->order = 0;
         } else {
             $lastfield = $db->fetch_array($query);
-            $this->order = $lastfield['order'] + 1;
+            $this->order = $lastfield['displayorder'] + 1;
         }
 
-        $result = $db->insert_query("fc_fields", $this->get_data());
+        $sql_data = $this->build_field_sql_data();
+        $columns = array();
+        $values = array();
+
+        foreach ($sql_data as $column => $value) {
+            if ($column == 'fieldid') {
+                continue;
+            }
+
+            $columns[] = $this->get_identifier_sql($column);
+            $values[] = $value;
+        }
+
+        $db->write_query("INSERT INTO " . TABLE_PREFIX . "fc_fields (" . implode(",", $columns) . ") VALUES (" . implode(",", $values) . ")");
+        $result = intval($db->insert_id());
+
+        if ($result <= 0) {
+            $query = $db->simple_select("fc_fields", "MAX(" . $this->get_identifier_sql('fieldid') . ") AS lastid", "formid = " . intval($this->formid));
+            $result = intval($db->fetch_field($query, 'lastid'));
+        }
+
         if ($result) {
             $this->fieldid = $result;
             return $result;
@@ -1049,9 +1128,17 @@ class formcreator_field
         $old = new formcreator_field();
         $old_data = $old->get_field($this->fieldid);
         $this->order = $old_data['order'];
-        $result = $db->update_query("fc_fields", $this->get_data(), "fieldid = " . $this->
-            fieldid);
-        return $result;
+
+        $sql_data = $this->build_field_sql_data();
+        unset($sql_data['fieldid']);
+
+        $set_clauses = array();
+        foreach ($sql_data as $column => $value) {
+            $set_clauses[] = $this->get_identifier_sql($column) . " = " . $value;
+        }
+
+        return $db->write_query("UPDATE " . TABLE_PREFIX . "fc_fields SET " . implode(",", $set_clauses) .
+            " WHERE " . $this->get_identifier_sql('fieldid') . " = " . intval($this->fieldid));
     }
 
     public function delete_field()

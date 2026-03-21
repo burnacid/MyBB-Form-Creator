@@ -328,7 +328,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         admin_redirect("index.php?module=config-formcreator");
     }
 
-    if ($mybb->input['no']) {
+    if (!empty($mybb->input['no'])) {
         admin_redirect("index.php?module=config-formcreator");
     }
 
@@ -441,6 +441,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
 } elseif ($mybb->get_input('action') == 'addfield' || $mybb->get_input('action') == 'editfield') {
     $field = new formcreator_field();
+    // Ensure settings/default properties are initialized before any ACP rendering reads.
+    $field->load_data(array());
 
     if ($mybb->request_method == "post" && !isset($mybb->input['fieldselect'])) {
         $field->load_data($mybb->input);
@@ -523,7 +525,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $formcreator = new formcreator();
 
     if ($formcreator->get_form($mybb->input['formid'])) {
-        if ($fieldtype = $formcreator->get_type_name($field->type) or isset($field->fieldid)) {
+        if ($field->type != 0 && ($fieldtype = $formcreator->get_type_name($field->type) or isset($field->fieldid))) {
             $form_container = new FormContainer($lang->fc_add." " . $fieldtype);
             echo $form->generate_hidden_field("type", $field->type);
 
@@ -563,7 +565,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             }
             if ($field->show_admin_field("format")) {
                 $form_container->output_row($lang->fc_format,
-                    $form->fc_field_format_desc ,
+                    $lang->fc_field_format_desc,
                     $form->generate_text_box("settings[format]", $field->settings['format']));
             }
             if ($field->show_admin_field("default")) {
@@ -644,7 +646,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
     }
 
-    if ($mybb->input['no']) {
+    if (!empty($mybb->input['no'])) {
         admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
     }
 

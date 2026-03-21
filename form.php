@@ -331,6 +331,12 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                         if ($thread = get_thread($formcreator->tid)) {
 
                             $mybb->input['action'] = "do_newreply";
+                            if (!isset($mybb->input['savedraft'])) {
+                                $mybb->input['savedraft'] = 0;
+                            }
+                            if (!isset($mybb->input['subscriptionmethod'])) {
+                                $mybb->input['subscriptionmethod'] = '';
+                            }
 
                             $posthandler = new PostDataHandler();
                             $posthandler->action = "post";
@@ -345,11 +351,14 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "username" => $username,
                                 "message" => $message,
                                 "ipaddress" => $session->packedip,
+                                "savedraft" => 0,
+                                "subscriptionmethod" => '',
                                 "posthash" => $posthash);
 
                             // Set up the thread options
                             $new_post['options'] = array(
                                 "signature" => $formcreator->settings['signature'],
+                                "subscriptionmethod" => '',
                                 "emailnotify" => '',
                                 "disablesmilies" => '0');
 
@@ -379,6 +388,12 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
                             $mybb->input['action'] = "do_newthread";
                             $fid = $forum['fid'];
+                            if (!isset($mybb->input['savedraft'])) {
+                                $mybb->input['savedraft'] = 0;
+                            }
+                            if (!isset($mybb->input['subscriptionmethod'])) {
+                                $mybb->input['subscriptionmethod'] = '';
+                            }
 
                             $posthandler = new PostDataHandler();
                             $posthandler->action = "thread";
@@ -396,11 +411,14 @@ if ($formcreator->get_form($mybb->input['formid'])) {
                                 "username" => $username,
                                 "message" => $message,
                                 "ipaddress" => $session->packedip,
+                                "savedraft" => 0,
+                                "subscriptionmethod" => '',
                                 "posthash" => $posthash);
 
                             // Set up the thread options
                             $new_thread['options'] = array(
                                 "signature" => $formcreator->settings['signature'],
+                                "subscriptionmethod" => '',
                                 "emailnotify" => '',
                                 "disablesmilies" => '0');
 
@@ -480,6 +498,26 @@ if ($formcreator->get_form($mybb->input['formid'])) {
 
     $formtitle = $lang->formcreator;
     $formcontent = '<tr><td class="trow1" colspan="2">' . $lang->fc_no_form_found . '</td></tr>';
+}
+
+if (!isset($formclass)) {
+    $formclass = '';
+}
+
+if (!isset($errors)) {
+    $errors = '';
+}
+
+if (!isset($styleclass)) {
+    $styleclass = '';
+}
+
+if (!isset($stylewidth)) {
+    $stylewidth = '';
+}
+
+if (!isset($boardstats)) {
+    $boardstats = '';
 }
 
 eval("\$form = \"" . $templates->get("formcreator_container") . "\";");
