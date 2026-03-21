@@ -137,6 +137,30 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         $page->output_nav_tabs($sub_tabs, 'formcreator_edit');
     }
 
+    // Normalize settings for initial add screen and partially filled forms on PHP 8+.
+    if (!is_array($formcreator->settings)) {
+        $formcreator->settings = array();
+    }
+
+    $formcreator->settings = array_merge(array(
+        'allowedgidtype' => -1,
+        'allowedgid' => array(),
+        'customdenied' => '',
+        'limitusage' => 0,
+        'pmusers' => '',
+        'pmgroups' => array(),
+        'prefix' => 0,
+        'uid' => '',
+        'customsuccess' => '',
+        'signature' => 0,
+        'posticon' => 0,
+        'showsummary' => 0,
+        'summaryparsed' => 0,
+        'customsummary' => '',
+        'width' => '',
+        'labelwidth' => ''
+    ), $formcreator->settings);
+
     $form_container = new FormContainer($lang->fc_create_new_form);
     $form_container->output_row($lang->fc_form_name." <em>*</em>", $lang->fc_form_name_desc, $form->generate_text_box('name', $formcreator->name, array('id' => 'name')),
         'name');
@@ -213,7 +237,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 		$icon = $mybb->get_input('icon');
 	}
 
-    if($settings['posticon'] == 0 or !isset($settings['posticon'])){
+    if($formcreator->settings['posticon'] == 0){
         $iconlist = $form->generate_radio_button("settings[posticon]",0,$lang->fc_none." ",array("checked" => 1));
     }else{
         $iconlist = $form->generate_radio_button("settings[posticon]",0,$lang->fc_none." ");
@@ -221,17 +245,27 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 	
 	$no_icons_checked = " checked=\"checked\"";
 	// read post icons from cache, and sort them accordingly
-	$posticons_cache = $cache->read("posticons");
+  $posticons_cache = $cache->read("posticons");
+  if(!is_array($posticons_cache)){
+      $posticons_cache = array();
+  }
 	$posticons = array();
 	foreach($posticons_cache as $posticon)
 	{
 		$posticons[$posticon['name']] = $posticon;
 	}
 	krsort($posticons);
+
+    $theme_imgdir = 'images';
+    if (isset($theme) && is_array($theme) && !empty($theme['imgdir'])) {
+        $theme_imgdir = $theme['imgdir'];
+    } elseif (!empty($mybb->settings['imgdir'])) {
+        $theme_imgdir = $mybb->settings['imgdir'];
+    }
     
     foreach($posticons as $dbicon)
 	{
-		$dbicon['path'] = str_replace("{theme}", $theme['imgdir'], $dbicon['path']);
+    $dbicon['path'] = str_replace("{theme}", $theme_imgdir, $dbicon['path']);
 		$dbicon['path'] = htmlspecialchars_uni($mybb->get_asset_url($dbicon['path']));
 
 		if($formcreator->settings['posticon'] == $dbicon['iid'])
@@ -272,7 +306,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $form_container->output_row($lang->fc_form_talbe_width, $lang->fc_form_table_width_desc,
         $form->generate_text_box("settings[width]", $formcreator->settings['width']));
     $form_container->output_row($lang->fc_label_width,
-        $lang->fc_lang_width_desc, $form->generate_text_box("settings[labelwidth]",
+        $lang->fc_label_width_desc, $form->generate_text_box("settings[labelwidth]",
         $formcreator->settings['labelwidth']));
     $form_container->output_row($lang->fc_class, $lang->fc_class_desc, $form->generate_text_box("class", $formcreator->class));
     $form_container->end();
@@ -294,7 +328,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         admin_redirect("index.php?module=config-formcreator");
     }
 
-    if ($mybb->input['no']) {
+    if (!empty($mybb->input['no'])) {
         admin_redirect("index.php?module=config-formcreator");
     }
 
@@ -407,6 +441,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
 } elseif ($mybb->get_input('action') == 'addfield' || $mybb->get_input('action') == 'editfield') {
     $field = new formcreator_field();
+    // Ensure settings/default properties are initialized before any ACP rendering reads.
+    $field->load_data(array());
 
     if ($mybb->request_method == "post" && !isset($mybb->input['fieldselect'])) {
         $field->load_data($mybb->input);
@@ -489,7 +525,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $formcreator = new formcreator();
 
     if ($formcreator->get_form($mybb->input['formid'])) {
-        if ($fieldtype = $formcreator->get_type_name($field->type) or isset($field->fieldid)) {
+        if ($field->type != 0 && ($fieldtype = $formcreator->get_type_name($field->type) or isset($field->fieldid))) {
             $form_container = new FormContainer($lang->fc_add." " . $fieldtype);
             echo $form->generate_hidden_field("type", $field->type);
 
@@ -529,7 +565,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
             }
             if ($field->show_admin_field("format")) {
                 $form_container->output_row($lang->fc_format,
-                    $form->fc_field_format_desc ,
+                    $lang->fc_field_format_desc,
                     $form->generate_text_box("settings[format]", $field->settings['format']));
             }
             if ($field->show_admin_field("default")) {
@@ -610,7 +646,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
     }
 
-    if ($mybb->input['no']) {
+    if (!empty($mybb->input['no'])) {
         admin_redirect("index.php?module=config-formcreator&amp;action=fields&amp;formid=" . $formcreator->formid);
     }
 
@@ -633,7 +669,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 } elseif ($mybb->get_input('action') == 'orderfields') {
     $formcreator = new formcreator();
 
-    if ($mybb->request_method == "post" && $formcreator->get_form($mybb->input['formid'])) {
+    if ($mybb->request_method == "post" && $formcreator->get_form($mybb->input['formid']) && isset($mybb->input['fields']) && is_array($mybb->input['fields'])) {
         foreach ($mybb->input['fields'] as $key => $value) {
             $formcreator->order_field($key, $value);
         }
@@ -645,13 +681,18 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
         admin_redirect("index.php?module=config-formcreator");
     }
 } elseif ($mybb->get_input('action') == 'export') {
-    
+    $output_array = array();
+    $forms = "";
 
     $page->add_breadcrumb_item($lang->fc_export_form, "");
     $page->output_header($lang->fc_export_form);
     $page->output_nav_tabs($sub_tabs, 'formcreator_export');
 
-    if ($mybb->request_method == "post" && count($mybb->input['forms'])) {
+    if ($mybb->request_method == "post" && isset($mybb->input['forms']) && is_array($mybb->input['forms']) && count($mybb->input['forms'])) {
+        $export_permissions = $mybb->get_input('permissions', MyBB::INPUT_INT);
+        $export_process = $mybb->get_input('process', MyBB::INPUT_INT);
+        $export_usagelog = $mybb->get_input('usagelog', MyBB::INPUT_INT);
+
         foreach ($mybb->input['forms'] as $form) {
             $formcreator = new formcreator();
             if ($formcreator->get_form($form)) {
@@ -662,12 +703,12 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
                 unset($data['formid']);
 
-                if ($mybb->input['permissions'] == 0) {
+                if ($export_permissions == 0) {
                     unset($data['allowedgid']);
                     $data['allowedgidtype'] = -1;
                 }
 
-                if ($mybb->input['process'] == 0) {
+                if ($export_process == 0) {
                     unset($data['pmusers']);
                     unset($data['pmgroups']);
                     unset($data['fid']);
@@ -697,7 +738,7 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                     $data['fields'] = array();
                 }
                 
-                if($mybb->input['usagelog'] == 1 && $db->table_exists("fc_formusage")){
+                if($export_usagelog == 1 && $db->table_exists("fc_formusage")){
                     $query = $db->simple_select("fc_formusage","*", "formid = '".$form."'");
                     $db->num_rows($query);
                     
@@ -758,6 +799,8 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     }
 } elseif ($mybb->get_input('action') == 'import') {
     $formcreator = new formcreator();
+    $count_forms = 0;
+    $count_fields = 0;
 
     $page->add_breadcrumb_item($lang->fc_import_form, "");
     $page->output_header($lang->fc_import_form);
@@ -769,12 +812,13 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
 
         if (count($import)) {
             foreach ($import as $form) {
+                $usage = array();
                 $fields = $form['fields'];
                 unset($form['fields']);
                 
                 $settings = $form['settings'];
 
-                if($form['usage']) {
+                if(!empty($form['usage']) && is_array($form['usage'])) {
                     $usage = $form['usage'];
                     unset($form['usage']);
                 }
@@ -837,6 +881,11 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
                     if($usage){
                         foreach ($usage as $log) {
                             $log['formid'] = $formid;
+
+                            if (empty($log['datetime'])) {
+                                $log['datetime'] = date('Y-m-d H:i:s', TIME_NOW);
+                            }
+
                             $db->insert_query("fc_formusage",$log);
                         }
                     }
@@ -990,8 +1039,9 @@ if ($mybb->get_input('action') == 'add' || $mybb->get_input('action') == 'edit')
     $numquery = $db->simple_select('fc_forms', '*', '');
     $total = $db->num_rows($numquery);
 
-    if ($mybb->input['page']) {
-        $pagenr = intval($mybb->input['page']);
+    $requested_page = $mybb->get_input('page', MyBB::INPUT_INT);
+    if ($requested_page > 0) {
+        $pagenr = $requested_page;
         $pagestart = (($pagenr - 1) * 10);
 
         if ((($pagenr - 1) * 10) > $total) {
