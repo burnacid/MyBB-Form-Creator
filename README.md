@@ -19,3 +19,10 @@ Submitted forms actions
 * PM single users
 * PM group users
 * Create new theard in forum
+
+## Database support
+This plugin supports MyBB 1.8 installations running on:
+* MySQL/MariaDB
+* PostgreSQL
+* SQLite
+
